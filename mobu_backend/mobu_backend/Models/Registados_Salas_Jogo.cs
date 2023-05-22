@@ -11,13 +11,13 @@ namespace mobu_backend.Models
 		/// Utilizador Registado na Sala
 		/// </summary>
 		[Required]
-		public Utilizador_Registado UTILZADOR { get; set; }
+		public Utilizador_Registado Utilizador { get; set; }
 
 		/// <summary>
 		/// Sala de chat
 		/// </summary>
 		[Required]
-		public Salas_Chat SALA { get; set; }
+		public Salas_Chat Sala { get; set; }
 		
 		/// <summary>
 		/// Guarda o valor que representa se o utilizador 
@@ -26,19 +26,19 @@ namespace mobu_backend.Models
 		/// true - Fundador
 		/// false - Convidado
 		/// </summary>
-		public bool Is_fundador { get; set; }
+		public bool IsFundador { get; set; }
 
 		/// <summary>
 		/// Chave forasteira que referencia o ID do Utilizador
 		/// </summary>
-		[ForeignKey(nameof(UTILZADOR))]
+		[ForeignKey(nameof(Utilizador))]
 		[Required]
 		public int UtilizadorFK { get; set; }
 
 		/// <summary>
 		/// Chave forasteira que referencia o ID da sala
 		/// </summary>
-		[ForeignKey(nameof(SALA))]
+		[ForeignKey(nameof(Sala))]
 		[Required]
 		public int SalaFK { get; set; }
 	}

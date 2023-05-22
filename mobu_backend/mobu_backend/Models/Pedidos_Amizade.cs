@@ -11,12 +11,12 @@ namespace mobu_backend.Models
         /// <summary>
         /// Utilizador que envia o pedido de amizade
         /// </summary>
-        public Utilizador_Registado REMETENTE_PEDIDO { get; set; }
+        public Utilizador_Registado RemetentePedido { get; set; }
 
         /// <summary>
         /// Utilizador que recebe o pedido de amizade
         /// </summary>
-        public Utilizador_Registado DESTINATARIO_PEDIDO { get; set; }
+        public Utilizador_Registado DestinatarioPedido { get; set; }
 
         /// <summary>
         /// Estado do pedido de amizade
@@ -26,8 +26,8 @@ namespace mobu_backend.Models
         /// 4 - aceite
         /// 5 - recusado
         /// </summary>
-        [EnumDataType(typeof(Estados_Pedido))]
-        public Estados_Pedido Estado_pedido { get; set; }
+        [EnumDataType(typeof(EstadosPedido))]
+        public EstadosPedido EstadoPedido { get; set; }
 
         /// <summary>
         /// Chave forasteira que referencia o ID do Remetente
@@ -39,7 +39,7 @@ namespace mobu_backend.Models
 		/// </summary>
 		public int DestinatarioFK;
 
-		public enum Estados_Pedido
+		public enum EstadosPedido
 		{
 			A_Enviar = 1,
 			Enviado = 2,

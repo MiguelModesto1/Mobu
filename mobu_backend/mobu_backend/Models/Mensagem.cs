@@ -1,36 +1,37 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace mobu_backend.Models
 {
-    [PrimaryKey(nameof(ID_Mensagem), nameof(salaFK))]
+    [PrimaryKey(nameof(IDMensagem), nameof(SalaFK))]
     public class Mensagem
     {
         /// <summary>
         /// ID da Mensagem
         /// </summary>
         [Required]
-        public int ID_Mensagem { get; set; }
+        public int IDMensagem { get; set; }
 
         /// <summary>
         /// ID do remetente
         /// </summary>
         [Required]
-        public Utilizador_Registado REMETENTE { get; set; }
+        public Utilizador_Registado Remetente { get; set; }
 
         /// <summary>
         /// ID de Sala de destino da mensagem
         /// </summary>
         [Required]
-        public Salas_Chat SALA { get; set; }
+        public Salas_Chat Sala { get; set; }
 
         /// <summary>
         /// Conteúdo da mensagem
         /// </summary>
         [Required]
 		[StringLength(256, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
-		public string Conteudo_Msg { get; set; }
+		public string ConteudoMsg { get; set; }
 
         /// <summary>
         /// Estado da mensagem;
@@ -39,26 +40,26 @@ namespace mobu_backend.Models
         /// 3 - Recebida;
         /// 4 - Vista;
         /// </summary>
-        [EnumDataType(typeof(Estados_Mensagem))]
-        public Estados_Mensagem Estado_Mensagem { get; set; }
+        [EnumDataType(typeof(EstadosMensagem))]
+        public EstadosMensagem EstadoMensagem { get; set; }
 
         /// <summary>
         /// Chave forasteira que referencia o ID do utilizador
         /// remetente
         /// </summary>
         [Required]
-        [ForeignKey(nameof(REMETENTE))]
-        public int remetenteFK { get; set; }
+        [ForeignKey(nameof(Remetente))]
+        public int RemetenteFK { get; set; }
 
         /// <summary>
         /// Chave forasteira que referencia o ID da sala de
         /// chat
         /// </summary>
         [Required]
-        [ForeignKey(nameof(SALA))]
-        public int salaFK { get; set; }
+        [ForeignKey(nameof(Sala))]
+        public int SalaFK { get; set; }
 
-        public enum Estados_Mensagem
+        public enum EstadosMensagem
         {
             A_Enviar = 1,
             Enviada = 2,

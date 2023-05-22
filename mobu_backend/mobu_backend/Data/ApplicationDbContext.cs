@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System.Buffers;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -6,6 +8,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using mobu_backend.Models;
+using Newtonsoft.Json.Linq;
+using NuGet.Common;
+using NuGet.Protocol;
 
 namespace mobu_backend.Data
 {
@@ -33,13 +38,13 @@ namespace mobu_backend.Data
 			//de 'Utilizador_Registado' em relacao
 			//aos pedidos de amizade
 			modelBuilder.Entity<Pedidos_Amizade>()
-				.HasOne(e => e.REMETENTE_PEDIDO)
+				.HasOne(e => e.RemetentePedido)
 				.WithMany(e => e.ListaPedidosRecebidos)
 				.HasForeignKey(e => e.RemetenteFK)
 				.OnDelete(DeleteBehavior.NoAction);
 
 			modelBuilder.Entity<Pedidos_Amizade>()
-				.HasOne(e => e.DESTINATARIO_PEDIDO)
+				.HasOne(e => e.DestinatarioPedido)
 				.WithMany(e => e.ListaPedidosEnviados)
 				.HasForeignKey(e => e.DestinatarioFK)
 				.OnDelete(DeleteBehavior.NoAction);
@@ -47,46 +52,64 @@ namespace mobu_backend.Data
 			//Adicao de dados de teste
 
 			string passStr = "123qwe#";
-			var utf8 = new UTF8Encoding();
-			byte[] pass =utf8.GetBytes(passStr);
+			var utf8 = new UTF8Encoding(false, true);
+			byte[] pass = utf8.GetBytes(passStr);
 			Console.WriteLine(utf8.GetString(pass));
 			byte[] result;
 			SHA384 shaManager = SHA384.Create();
 			result = shaManager.ComputeHash(pass);
-			Console.WriteLine(utf8.GetString(result));
-			Console.WriteLine(shaManager.GetHashCode().ToString());
+            Console.WriteLine(Convert.ToHexString(result));
 
 			modelBuilder.Entity<Utilizador_Registado>()
 				.HasData(
 					new Utilizador_Registado
 					{
-						ID_Utilizador = 1,
+						IDUtilizador = 1,
 						NomeUtilizador = "teste1",
 						Email = "teste1@teste.com",
-						passwHash = utf8.GetString(result)
-					},
+						Password = Convert.ToHexString(result)
+                    },
 					new Utilizador_Registado
 					{
-						ID_Utilizador = 2,
+						IDUtilizador = 2,
 						NomeUtilizador = "teste2",
 						Email = "teste2@teste.com",
-						passwHash = utf8.GetString(result)
-					}
+						Password = Convert.ToHexString(result)
+                    }
 				);
 
 			modelBuilder.Entity<Utilizador_Anonimo>()
 				.HasData(
 					new Utilizador_Anonimo
 					{
-						ID_Utilizador = 3,
-						NomeUtilizador = "teste3",
-						EnderecoIP = "192.168.1.1"
+						IDUtilizador = 3,
+						NomeUtilizador = "guest3",
+						EnderecoIPv4 = "192.168.1.1",
+						EnderecoIPv6 = ""
 					},
 					new Utilizador_Anonimo
 					{
-						ID_Utilizador = 4,
-						NomeUtilizador = "teste4",
-						EnderecoIP = "192.168.1.2"
+						IDUtilizador = 4,
+						NomeUtilizador = "guest4",
+						EnderecoIPv4 = "192.168.1.2",
+						EnderecoIPv6 = ""
+					},
+                    new Utilizador_Anonimo
+                    {
+                        IDUtilizador = 5,
+                        NomeUtilizador = "guest5",
+						EnderecoIPv4 = "",
+                        EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940"
+                    }
+                );
+
+			modelBuilder.Entity<Pedidos_Amizade>()
+				.HasData(
+					new Pedidos_Amizade
+					{
+						DestinatarioFK = 2,
+						RemetenteFK = 1,
+						EstadoPedido = (Pedidos_Amizade.EstadosPedido)1
 					}
 				);
 

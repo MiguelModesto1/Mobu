@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace mobu_backend.Models
 {
@@ -12,7 +13,7 @@ namespace mobu_backend.Models
         /// </summary>
         [Required]
         [Key]
-        public int ID_Utilizador { get; set; }
+        public int IDUtilizador { get; set; }
 
         /// <summary>
         /// Nome do utilizador anonimo ('guest' + nextFreeId)
@@ -23,12 +24,24 @@ namespace mobu_backend.Models
 		public string NomeUtilizador { get; set; }
 
         /// <summary>
-        /// Endereco IP do dispositivo do utilizador anonimo
+        /// Endereco IPv4 do dispositivo do utilizador anonimo
         /// </summary>
-        [Required]
 		[StringLength(15, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
-	    [RegularExpression("((1{0,1}[0-9]{2}2[0-4][0-9]|25[0-5]\u002E){3}1{0,1}[0-9]{2}2[0-4][0-9]|25[0-5]|([0-9A-Fa-f]{0,4}(:|::|)){0,8})")]
-		public string EnderecoIP { get; set; }
-        
+	    [RegularExpression("(1{0,1}[0123456789]{1,2}\u002E|2[01234][0123456789]\u002E|25[012345]\u002E){3}(1{0,1}[0123456789]{1,2}|2[01234][0123456789]|25[012345])")]
+        public string? EnderecoIPv4 { get; set; }
+
+
+        /// <summary>
+        /// Endereco IPv6 do dispositivo do utilizador anonimo
+        /// </summary>
+        [StringLength(39, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
+        [RegularExpression("([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}){0,1}")]
+        public string? EnderecoIPv6 { get; set; }
+
+        /// <summary>
+        /// Fotografia
+        /// </summary>
+        public string Fotografia { get; set; }
+
     }
 }

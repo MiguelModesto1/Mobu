@@ -1,0 +1,34 @@
+﻿@model IEnumerable<mobu_backend.Models.Sala_Jogo_1_Contra_1>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IDSala)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDSala)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IDSala">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IDSala">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IDSala">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

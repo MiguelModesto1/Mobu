@@ -15,22 +15,24 @@ namespace mobu_backend.Models
         /// </summary>
         [Required]
         [Key]
-        public int ID_Sala { get; set; }
+        public int IDSala { get; set; }
 
         /// <summary>
         /// Nome da sala de chat
         /// </summary>
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
 		[StringLength(30, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
 		[RegularExpression("[A-ZÂÓÍa-záéíóúàèìòùâêîôûãõäëïöüñç '-]+",
 						  ErrorMessage = "No {0} só são aceites letras")]
-		public string Nome_sala { get; set; }
+		public string? NomeSala { get; set; }
 
         /// <summary>
         /// Atributo que verifica se a sala pertence a um grupo ou apenas a 2 pessoas
         /// </summary>
         [Required]
-        public bool Se_grupo { get; set; }
+        public bool SeGrupo { get; set; }
+
+
+
         public ICollection<Mensagem> ListaMensagensRecebidas { get; set; }
         public ICollection<Registados_Salas_Chat> ListaRegistadosSalasChat { get; set; }
     }

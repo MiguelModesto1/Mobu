@@ -20,14 +20,14 @@ namespace mobu_backend.Models
         /// </summary>
         [Required]
         [Key]
-        public int ID_Utilizador { get; set; }
+        public int IDUtilizador { get; set; }
 
         /// <summary>
         /// Nome do utilizador registado
         /// </summary>
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
 		[StringLength(30, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
-		[RegularExpression("[A-ZÂÓÍa-záéíóúàèìòùâêîôûãõäëïöüñç '-]+",
+		[RegularExpression("[0-9A-ZÂÓÍa-záéíóúàèìòùâêîôûãõäëïöüñç '-]+",
 						  ErrorMessage = "No {0} só são aceites letras")]
 		public string NomeUtilizador { get; set; }
 
@@ -46,7 +46,15 @@ namespace mobu_backend.Models
         [Required]
         [MaxLength(96)]
         [MinLength(96)]
-        public string passwHash { get; set; }
+        public string Password { get; set; }
+
+        /// <summary>
+        /// Fotografia
+        /// </summary>
+        public string Fotografia { get; set; }
+
+
+
         public ICollection<Registados_Salas_Chat> ListaSalasDeChat { get; set; }
         public ICollection<Mensagem> ListaMensagensEnviadas { get; set; }
 		public ICollection<Pedidos_Amizade> ListaPedidosEnviados { get; set; }

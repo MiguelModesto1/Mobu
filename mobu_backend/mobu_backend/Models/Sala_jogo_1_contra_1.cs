@@ -16,7 +16,8 @@ namespace mobu_backend.Models
         /// ID_Sala de jogo
         /// </summary>
         [Key]
-        public int ID_Sala { get; set; }
+        public int IDSala { get; set; }
+
 		public ICollection<Registados_Salas_Jogo> ListaRegistados { get; set; }
 	}
 }
