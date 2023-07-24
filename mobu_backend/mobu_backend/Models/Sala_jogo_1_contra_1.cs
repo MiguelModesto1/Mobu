@@ -15,6 +15,7 @@ namespace mobu_backend.Models
         /// <summary>
         /// ID_Sala de jogo
         /// </summary>
+        [Display(Name = "ID da Sala")]
         [Key]
         public int IDSala { get; set; }
 

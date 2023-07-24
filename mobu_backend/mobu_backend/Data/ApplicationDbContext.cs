@@ -33,22 +33,6 @@ namespace mobu_backend.Data
 			
 			base.OnModelCreating(modelBuilder);
 
-
-			//Tratamento do auto-relacionamento
-			//de 'Utilizador_Registado' em relacao
-			//aos pedidos de amizade
-			modelBuilder.Entity<Pedidos_Amizade>()
-				.HasOne(e => e.RemetentePedido)
-				.WithMany(e => e.ListaPedidosRecebidos)
-				.HasForeignKey(e => e.RemetenteFK)
-				.OnDelete(DeleteBehavior.NoAction);
-
-			modelBuilder.Entity<Pedidos_Amizade>()
-				.HasOne(e => e.DestinatarioPedido)
-				.WithMany(e => e.ListaPedidosEnviados)
-				.HasForeignKey(e => e.DestinatarioFK)
-				.OnDelete(DeleteBehavior.NoAction);
-
 			//Adicao de dados de teste
 
 			string passStr = "123qwe#";
@@ -68,15 +52,15 @@ namespace mobu_backend.Data
 						NomeUtilizador = "teste1",
 						Email = "teste1@teste.com",
 						Password = Convert.ToHexString(result)
-                    },
+					},
 					new Utilizador_Registado
 					{
 						IDUtilizador = 2,
 						NomeUtilizador = "teste2",
 						Email = "teste2@teste.com",
 						Password = Convert.ToHexString(result)
-                    }
-				);
+					}
+				); ;
 
 			modelBuilder.Entity<Utilizador_Anonimo>()
 				.HasData(
@@ -103,15 +87,15 @@ namespace mobu_backend.Data
                     }
                 );
 
-			modelBuilder.Entity<Pedidos_Amizade>()
+			/*modelBuilder.Entity<Destinatario_Pedidos_Amizade>()
 				.HasData(
-					new Pedidos_Amizade
+					new Destinatario_Pedidos_Amizade ()
 					{
-						DestinatarioFK = 2,
+						IDDestinatarioPedido = 2,
 						RemetenteFK = 1,
-						EstadoPedido = (Pedidos_Amizade.EstadosPedido)1
+						EstadoPedido = (Destinatario_Pedidos_Amizade.EstadosPedido)1
 					}
-				);
+				);*/
 
 		}
 
@@ -121,9 +105,10 @@ namespace mobu_backend.Data
 		public DbSet<Utilizador_Anonimo> Utilizador_Anonimo { get; set; }
 		public DbSet<Salas_Chat> Salas_Chat { get; set; }
 		public DbSet<Sala_Jogo_1_Contra_1> Sala_Jogo_1_Contra_1 { get; set; }
-		public DbSet<Registados_Salas_Jogo> registados_Salas_Jogo { get; set; }
-		public DbSet<Pedidos_Amizade> Pedidos_Amizade { get; set; }
-		public DbSet<Registados_Salas_Chat> registados_Salas_Chat { get; set; }
-		public DbSet<Mensagem> mensagem { get; set; }
+		public DbSet<Registados_Salas_Jogo> Registados_Salas_Jogo { get; set; }
+		public DbSet<Destinatario_Pedidos_Amizade> Destinatario_Pedidos_Amizade { get; set; }
+		public DbSet<Registados_Salas_Chat> Registados_Salas_Chat { get; set; }
+		public DbSet<Mensagem> Mensagem { get; set; }
+		public DbSet<Amigo> Amigo { get; set; }
 	}
 }

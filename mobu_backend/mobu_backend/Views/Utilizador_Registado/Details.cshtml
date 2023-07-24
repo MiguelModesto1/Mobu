@@ -1,13 +1,13 @@
 ﻿@model mobu_backend.Models.Utilizador_Registado
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes";
 }
 
-<h1>Details</h1>
+<h1>Detalhes</h1>
 
 <div>
-    <h4>Utilizador_Registado</h4>
+    <h4>Utilizador Registado</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -28,9 +28,15 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Password)
         </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Fotografia)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Fotografia)
+        </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.IDUtilizador">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.IDUtilizador">Editar</a> |
+    <a asp-action="Index">Voltar à lista</a>
 </div>

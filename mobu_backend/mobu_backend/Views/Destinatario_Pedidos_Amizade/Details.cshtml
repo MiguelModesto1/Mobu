@@ -1,0 +1,42 @@
+﻿@model mobu_backend.Models.Destinatario_Pedidos_Amizade
+
+@{
+    ViewData["Title"] = "Detalhes";
+}
+
+<h1>Detalhes</h1>
+
+<div>
+    <h4>Destinatário de Pedidos Amizade</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDPedido)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDPedido)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RemetentePedido)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RemetentePedido.NomeUtilizador)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDDestinatarioPedido)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDDestinatarioPedido)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EstadoPedido)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EstadoPedido)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Editar", "Edit", new {  id=Model.IDPedido  }) |
+    <a asp-action="Index">Voltar à lista</a>
+</div>

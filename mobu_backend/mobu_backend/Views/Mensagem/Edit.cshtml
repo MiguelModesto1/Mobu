@@ -1,10 +1,10 @@
 ﻿@model mobu_backend.Models.Mensagem
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar";
 }
 
-<h1>Edit</h1>
+<h1>Editar</h1>
 
 <h4>Mensagem</h4>
 <hr />
@@ -12,6 +12,7 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IDMensagemSala" />
             <input type="hidden" asp-for="IDMensagem" />
             <div class="form-group">
                 <label asp-for="ConteudoMsg" class="control-label"></label>
@@ -20,7 +21,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="EstadoMensagem" class="control-label"></label>
-                <select asp-for="EstadoMensagem" class="form-control"></select>
+                <select asp-for="EstadoMensagem" class="form-control">
+                    <option value="1">A enviar</option>
+                    <option value="2">Enviada</option>
+                    <option value="3">Recebida</option>
+                    <option value="4">Vista</option>
+                </select>
                 <span asp-validation-for="EstadoMensagem" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -30,14 +36,14 @@
             </div>
             <input type="hidden" asp-for="SalaFK" />
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Guardar" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar à lista</a>
 </div>
 
 @section Scripts {

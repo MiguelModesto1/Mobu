@@ -22,9 +22,7 @@ namespace mobu_backend.Controllers
         // GET: Utilizador_Registado
         public async Task<IActionResult> Index()
         {
-              return _context.Utilizador_Registado != null ? 
-                          View(await _context.Utilizador_Registado.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Utilizador_Registado'  is null.");
+              return View(await _context.Utilizador_Registado.ToListAsync());
         }
 
         // GET: Utilizador_Registado/Details/5
@@ -56,7 +54,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,passwHash")] Utilizador_Registado utilizador_Registado)
+        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,Fotografia")] Utilizador_Registado utilizador_Registado)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +86,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,passwHash")] Utilizador_Registado utilizador_Registado)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,Fotografia")] Utilizador_Registado utilizador_Registado)
         {
             if (id != utilizador_Registado.IDUtilizador)
             {
@@ -157,7 +155,7 @@ namespace mobu_backend.Controllers
 
         private bool Utilizador_RegistadoExists(int id)
         {
-          return (_context.Utilizador_Registado?.Any(e => e.IDUtilizador == id)).GetValueOrDefault();
+          return _context.Utilizador_Registado.Any(e => e.IDUtilizador == id);
         }
     }
 }

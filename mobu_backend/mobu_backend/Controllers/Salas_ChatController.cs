@@ -145,7 +145,8 @@ namespace mobu_backend.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Salas_Chat'  is null.");
             }
-            var salas_Chat = await _context.Salas_Chat.FindAsync(id);
+            var salas_Chat = await _context.Salas_Chat
+                .FirstOrDefaultAsync(m => m.IDSala == id);
             if (salas_Chat != null)
             {
                 _context.Salas_Chat.Remove(salas_Chat);

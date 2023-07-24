@@ -145,7 +145,8 @@ namespace mobu_backend.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Sala_Jogo_1_Contra_1'  is null.");
             }
-            var sala_Jogo_1_Contra_1 = await _context.Sala_Jogo_1_Contra_1.FindAsync(id);
+            var sala_Jogo_1_Contra_1 = await _context.Sala_Jogo_1_Contra_1
+                .FirstOrDefaultAsync(m => m.IDSala == id);
             if (sala_Jogo_1_Contra_1 != null)
             {
                 _context.Sala_Jogo_1_Contra_1.Remove(sala_Jogo_1_Contra_1);

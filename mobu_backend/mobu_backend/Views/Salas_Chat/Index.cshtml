@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<mobu_backend.Models.Salas_Chat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Índice";
 }
 
-<h1>Index</h1>
+<h1>Índice</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Criar Sala de Chat</a>
 </p>
 <table class="table">
     <thead>
@@ -37,9 +37,9 @@
                 @Html.DisplayFor(modelItem => item.SeGrupo)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IDSala">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IDSala">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IDSala">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.IDSala">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a> |
+                    <a asp-action="Delete" asp-route-id="@item.IDSala">Apagar</a>
             </td>
         </tr>
 }

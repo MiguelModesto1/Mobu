@@ -17,7 +17,7 @@ namespace mobu_backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "7.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -224,13 +224,58 @@ namespace mobu_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
+            modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
                 {
-                    b.Property<int>("IDMensagem")
+                    b.Property<int>("IDAmizade")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("SalaFK")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDAmizade"));
+
+                    b.Property<int>("DonoListaFK")
                         .HasColumnType("int");
+
+                    b.Property<int>("IDAmigo")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDAmizade");
+
+                    b.HasIndex("DonoListaFK");
+
+                    b.ToTable("Amigo");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Destinatario_Pedidos_Amizade", b =>
+                {
+                    b.Property<int>("IDPedido")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDPedido"));
+
+                    b.Property<int>("EstadoPedido")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IDDestinatarioPedido")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RemetenteFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDPedido");
+
+                    b.HasIndex("RemetenteFK");
+
+                    b.ToTable("Destinatario_Pedidos_Amizade");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
+                {
+                    b.Property<int>("IDMensagemSala")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDMensagemSala"));
 
                     b.Property<string>("ConteudoMsg")
                         .IsRequired()
@@ -240,83 +285,74 @@ namespace mobu_backend.Migrations
                     b.Property<int>("EstadoMensagem")
                         .HasColumnType("int");
 
+                    b.Property<int>("IDMensagem")
+                        .HasColumnType("int");
+
                     b.Property<int>("RemetenteFK")
                         .HasColumnType("int");
 
-                    b.HasKey("IDMensagem", "SalaFK");
+                    b.Property<int>("SalaFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDMensagemSala");
 
                     b.HasIndex("RemetenteFK");
 
                     b.HasIndex("SalaFK");
 
-                    b.ToTable("mensagem");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Pedidos_Amizade", b =>
-                {
-                    b.Property<int>("RemetenteFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DestinatarioFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EstadoPedido")
-                        .HasColumnType("int");
-
-                    b.HasKey("RemetenteFK", "DestinatarioFK");
-
-                    b.HasIndex("DestinatarioFK");
-
-                    b.ToTable("Pedidos_Amizade");
-
-                    b.HasData(
-                        new
-                        {
-                            RemetenteFK = 1,
-                            DestinatarioFK = 2,
-                            EstadoPedido = 1
-                        });
+                    b.ToTable("Mensagem");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
                 {
-                    b.Property<int>("UtilizadorFK")
+                    b.Property<int>("IDRegisto")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("SalaFK")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDRegisto"));
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.HasKey("UtilizadorFK", "SalaFK");
+                    b.Property<int>("SalaFK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UtilizadorFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDRegisto");
 
                     b.HasIndex("SalaFK");
 
-                    b.ToTable("registados_Salas_Chat");
+                    b.HasIndex("UtilizadorFK");
+
+                    b.ToTable("Registados_Salas_Chat");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
                 {
-                    b.Property<int>("UtilizadorFK")
+                    b.Property<int>("IDRegisto")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("SalaFK")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDRegisto"));
 
                     b.Property<bool>("IsFundador")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("Sala_Jogo_1_Contra_1IDSala")
+                    b.Property<int>("SalaFK")
                         .HasColumnType("int");
 
-                    b.HasKey("UtilizadorFK", "SalaFK");
+                    b.Property<int>("UtilizadorFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDRegisto");
 
                     b.HasIndex("SalaFK");
 
-                    b.HasIndex("Sala_Jogo_1_Contra_1IDSala");
+                    b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("registados_Salas_Jogo");
+                    b.ToTable("Registados_Salas_Jogo");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
@@ -341,6 +377,7 @@ namespace mobu_backend.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDSala"));
 
                     b.Property<string>("NomeSala")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
@@ -502,6 +539,28 @@ namespace mobu_backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
+                {
+                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "DonoListaAmigos")
+                        .WithMany("ListaAmigos")
+                        .HasForeignKey("DonoListaFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DonoListaAmigos");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Destinatario_Pedidos_Amizade", b =>
+                {
+                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "RemetentePedido")
+                        .WithMany("ListaDetinatarios")
+                        .HasForeignKey("RemetenteFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RemetentePedido");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.HasOne("mobu_backend.Models.Utilizador_Registado", "Remetente")
@@ -519,25 +578,6 @@ namespace mobu_backend.Migrations
                     b.Navigation("Remetente");
 
                     b.Navigation("Sala");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Pedidos_Amizade", b =>
-                {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "DestinatarioPedido")
-                        .WithMany("ListaPedidosEnviados")
-                        .HasForeignKey("DestinatarioFK")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "RemetentePedido")
-                        .WithMany("ListaPedidosRecebidos")
-                        .HasForeignKey("RemetenteFK")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("DestinatarioPedido");
-
-                    b.Navigation("RemetentePedido");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
@@ -561,15 +601,11 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
-                        .WithMany()
+                    b.HasOne("mobu_backend.Models.Sala_Jogo_1_Contra_1", "Sala")
+                        .WithMany("ListaRegistados")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.Sala_Jogo_1_Contra_1", null)
-                        .WithMany("ListaRegistados")
-                        .HasForeignKey("Sala_Jogo_1_Contra_1IDSala");
 
                     b.HasOne("mobu_backend.Models.Utilizador_Registado", "Utilizador")
                         .WithMany("ListaSalasJogo")
@@ -596,11 +632,11 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
                 {
+                    b.Navigation("ListaAmigos");
+
+                    b.Navigation("ListaDetinatarios");
+
                     b.Navigation("ListaMensagensEnviadas");
-
-                    b.Navigation("ListaPedidosEnviados");
-
-                    b.Navigation("ListaPedidosRecebidos");
 
                     b.Navigation("ListaSalasDeChat");
 

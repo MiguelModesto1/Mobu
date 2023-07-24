@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<mobu_backend.Models.Utilizador_Anonimo>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Índice";
 }
 
-<h1>Index</h1>
+<h1>Índice</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Criar Utilizador Anónimo</a>
 </p>
 <table class="table">
     <thead>
@@ -20,6 +20,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EnderecoIPv6)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fotografia)
             </th>
             <th></th>
         </tr>
@@ -37,9 +40,12 @@
                 @Html.DisplayFor(modelItem => item.EnderecoIPv6)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IDUtilizador">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IDUtilizador">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IDUtilizador">Delete</a>
+                @Html.DisplayFor(modelItem => item.Fotografia)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IDUtilizador">Editar</a> |
+                <a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a> |
+                <a asp-action="Delete" asp-route-id="@item.IDUtilizador">Apagar</a>
             </td>
         </tr>
 }

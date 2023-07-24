@@ -1,15 +1,22 @@
 ﻿@model mobu_backend.Models.Registados_Salas_Jogo
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes";
+}
 }
 
-<h1>Details</h1>
+<h1>Detalhes</h1>
 
 <div>
-    <h4>Registados_Salas_Jogo</h4>
+    <h4>Jogadores</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDRegisto)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDRegisto)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Utilizador)
         </dt>
@@ -19,9 +26,6 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Sala)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Sala.NomeSala)
-        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IsFundador)
         </dt>
@@ -31,6 +35,6 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
-    <a asp-action="Index">Back to List</a>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.IDRegisto }) |
+    <a asp-action="Index">Voltar à lista</a>
 </div>

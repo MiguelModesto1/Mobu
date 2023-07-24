@@ -22,22 +22,22 @@ namespace mobu_backend.Controllers
         // GET: Registados_Salas_Jogo
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.registados_Salas_Jogo.Include(r => r.Sala).Include(r => r.Utilizador);
+            var applicationDbContext = _context.Registados_Salas_Jogo.Include(r => r.Sala).Include(r => r.Utilizador);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Registados_Salas_Jogo/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.registados_Salas_Jogo == null)
+            if (id == null || _context.Registados_Salas_Jogo == null)
             {
                 return NotFound();
             }
 
-            var registados_Salas_Jogo = await _context.registados_Salas_Jogo
+            var registados_Salas_Jogo = await _context.Registados_Salas_Jogo
                 .Include(r => r.Sala)
                 .Include(r => r.Utilizador)
-                .FirstOrDefaultAsync(m => m.UtilizadorFK == id);
+                .FirstOrDefaultAsync(m => m.IDRegisto == id);
             if (registados_Salas_Jogo == null)
             {
                 return NotFound();
@@ -49,8 +49,8 @@ namespace mobu_backend.Controllers
         // GET: Registados_Salas_Jogo/Create
         public IActionResult Create()
         {
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala");
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador");
+            ViewData["SalaFK"] = new SelectList(_context.Sala_Jogo_1_Contra_1, "IDSala", "IDSala");
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Is_fundador,UtilizadorFK,SalaFK")] Registados_Salas_Jogo registados_Salas_Jogo)
+        public async Task<IActionResult> Create([Bind("IDRegisto,IsFundador,UtilizadorFK,SalaFK")] Registados_Salas_Jogo registados_Salas_Jogo)
         {
             if (ModelState.IsValid)
             {
@@ -67,26 +67,26 @@ namespace mobu_backend.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", registados_Salas_Jogo.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Jogo.UtilizadorFK);
+            ViewData["SalaFK"] = new SelectList(_context.Sala_Jogo_1_Contra_1, "IDSala", "IDSala", registados_Salas_Jogo.SalaFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Jogo.UtilizadorFK);
             return View(registados_Salas_Jogo);
         }
 
         // GET: Registados_Salas_Jogo/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.registados_Salas_Jogo == null)
+            if (id == null || _context.Registados_Salas_Jogo == null)
             {
                 return NotFound();
             }
 
-            var registados_Salas_Jogo = await _context.registados_Salas_Jogo.FindAsync(id);
+            var registados_Salas_Jogo = await _context.Registados_Salas_Jogo.FindAsync(id);
             if (registados_Salas_Jogo == null)
             {
                 return NotFound();
             }
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", registados_Salas_Jogo.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Jogo.UtilizadorFK);
+            ViewData["SalaFK"] = new SelectList(_context.Sala_Jogo_1_Contra_1, "IDSala", "IDSala", registados_Salas_Jogo.SalaFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Jogo.UtilizadorFK);
             return View(registados_Salas_Jogo);
         }
 
@@ -95,9 +95,9 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IsFundador,UtilizadorFK,SalaFK")] Registados_Salas_Jogo registados_Salas_Jogo)
+        public async Task<IActionResult> Edit(int id, [Bind("IDRegisto,IsFundador,UtilizadorFK,SalaFK")] Registados_Salas_Jogo registados_Salas_Jogo)
         {
-            if (id != registados_Salas_Jogo.UtilizadorFK)
+            if (id != registados_Salas_Jogo.IDRegisto)
             {
                 return NotFound();
             }
@@ -111,7 +111,7 @@ namespace mobu_backend.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!Registados_Salas_JogoExists(registados_Salas_Jogo.UtilizadorFK))
+                    if (!Registados_Salas_JogoExists(registados_Salas_Jogo.IDRegisto))
                     {
                         return NotFound();
                     }
@@ -122,23 +122,23 @@ namespace mobu_backend.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", registados_Salas_Jogo.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Jogo.UtilizadorFK);
+            ViewData["SalaFK"] = new SelectList(_context.Sala_Jogo_1_Contra_1, "IDSala", "IDSala", registados_Salas_Jogo.SalaFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Jogo.UtilizadorFK);
             return View(registados_Salas_Jogo);
         }
 
         // GET: Registados_Salas_Jogo/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.registados_Salas_Jogo == null)
+            if (id == null || _context.Registados_Salas_Jogo == null)
             {
                 return NotFound();
             }
 
-            var registados_Salas_Jogo = await _context.registados_Salas_Jogo
+            var registados_Salas_Jogo = await _context.Registados_Salas_Jogo
                 .Include(r => r.Sala)
                 .Include(r => r.Utilizador)
-                .FirstOrDefaultAsync(m => m.UtilizadorFK == id);
+                .FirstOrDefaultAsync(m => m.IDRegisto == id);
             if (registados_Salas_Jogo == null)
             {
                 return NotFound();
@@ -152,14 +152,14 @@ namespace mobu_backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.registados_Salas_Jogo == null)
+            if (_context.Registados_Salas_Jogo == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.registados_Salas_Jogo'  is null.");
+                return Problem("Entity set 'ApplicationDbContext.Registados_Salas_Jogo'  is null.");
             }
-            var registados_Salas_Jogo = await _context.registados_Salas_Jogo.FindAsync(id);
+            var registados_Salas_Jogo = await _context.Registados_Salas_Jogo.FindAsync(id);
             if (registados_Salas_Jogo != null)
             {
-                _context.registados_Salas_Jogo.Remove(registados_Salas_Jogo);
+                _context.Registados_Salas_Jogo.Remove(registados_Salas_Jogo);
             }
             
             await _context.SaveChangesAsync();
@@ -168,7 +168,7 @@ namespace mobu_backend.Controllers
 
         private bool Registados_Salas_JogoExists(int id)
         {
-          return (_context.registados_Salas_Jogo?.Any(e => e.UtilizadorFK == id)).GetValueOrDefault();
+          return _context.Registados_Salas_Jogo.Any(e => e.IDRegisto == id);
         }
     }
 }

@@ -4,42 +4,49 @@ using Microsoft.EntityFrameworkCore;
 
 namespace mobu_backend.Models
 {
-	[PrimaryKey(nameof(UtilizadorFK), nameof(SalaFK))]
 	public class Registados_Salas_Jogo
 	{
+
+		/// <summary>
+		/// ID do registo do Utilizador na sala de jogo
+		/// </summary>
+		[Key]
+		public int IDRegisto { get; set; }
+
 		/// <summary>
 		/// Utilizador Registado na Sala
 		/// </summary>
-		[Required]
 		public Utilizador_Registado Utilizador { get; set; }
 
 		/// <summary>
 		/// Sala de chat
 		/// </summary>
-		[Required]
-		public Salas_Chat Sala { get; set; }
-		
-		/// <summary>
-		/// Guarda o valor que representa se o utilizador 
-		/// e fundador da sala ou nao
-		/// 
-		/// true - Fundador
-		/// false - Convidado
-		/// </summary>
-		public bool IsFundador { get; set; }
+		public Sala_Jogo_1_Contra_1 Sala { get; set; }
+
+        /// <summary>
+        /// Guarda o valor que representa se o utilizador 
+        /// e fundador da sala ou nao
+        /// 
+        /// true - Fundador
+        /// false - Convidado
+        /// </summary>
+        [Display(Name = "Fundador")]
+        public bool IsFundador { get; set; }
 
 		/// <summary>
 		/// Chave forasteira que referencia o ID do Utilizador
 		/// </summary>
 		[ForeignKey(nameof(Utilizador))]
 		[Required]
-		public int UtilizadorFK { get; set; }
+        [Display(Name = "Utilizador")]
+        public int UtilizadorFK { get; set; }
 
 		/// <summary>
 		/// Chave forasteira que referencia o ID da sala
 		/// </summary>
 		[ForeignKey(nameof(Sala))]
 		[Required]
-		public int SalaFK { get; set; }
+        [Display(Name = "Sala")]
+        public int SalaFK { get; set; }
 	}
 }

@@ -1,0 +1,53 @@
+﻿@model IEnumerable<mobu_backend.Models.Destinatario_Pedidos_Amizade>
+
+@{
+    ViewData["Title"] = "Índice";
+}
+
+<h1>Índice</h1>
+
+<p>
+    <a asp-action="Create">Criar pedido de amizade</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IDPedido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RemetentePedido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IDDestinatarioPedido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EstadoPedido)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDPedido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RemetentePedido.NomeUtilizador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDDestinatarioPedido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EstadoPedido)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id=item.IDPedido }) |
+                @Html.ActionLink("Detalhes", "Details", new { id=item.IDPedido }) |
+                @Html.ActionLink("Apagar", "Delete", new { id=item.IDPedido })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -11,20 +11,21 @@ namespace mobu_backend.Models
         {
             ListaSalasDeChat = new HashSet<Registados_Salas_Chat>();
             ListaMensagensEnviadas = new HashSet<Mensagem>();
-            ListaPedidosEnviados = new HashSet<Pedidos_Amizade>();
-            ListaPedidosRecebidos = new HashSet<Pedidos_Amizade>();
+            ListaDetinatarios = new HashSet<Destinatario_Pedidos_Amizade>();
+            ListaAmigos = new HashSet<Amigo>();
             ListaSalasJogo = new HashSet<Registados_Salas_Jogo>();
 		}
         /// <summary>
         /// ID para a tabela do utilizador registado (PK)
         /// </summary>
-        [Required]
         [Key]
+        [Display(Name = "ID do Utilizador")]
         public int IDUtilizador { get; set; }
 
         /// <summary>
         /// Nome do utilizador registado
         /// </summary>
+        [Display(Name = "Nome do Utilizador")]
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
 		[StringLength(30, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
 		[RegularExpression("[0-9A-ZÂÓÍa-záéíóúàèìòùâêîôûãõäëïöüñç '-]+",
@@ -38,12 +39,14 @@ namespace mobu_backend.Models
         [MinLength(6, ErrorMessage = " O {0} tem de ter, no mínimo, {1} caracteres")]
 		[StringLength(100, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
 		[EmailAddress(ErrorMessage = "Introuduza um email válido por favor")]
+        [Display(Name = "Email do Utilizador")]
         public string Email { get; set; }
 
         /// <summary>
         /// Hash da password do utilizador registado
         /// </summary>
-        [Required]
+        [Display(Name = "Palavra-passe")]
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório")]
         [MaxLength(96)]
         [MinLength(96)]
         public string Password { get; set; }
@@ -57,8 +60,8 @@ namespace mobu_backend.Models
 
         public ICollection<Registados_Salas_Chat> ListaSalasDeChat { get; set; }
         public ICollection<Mensagem> ListaMensagensEnviadas { get; set; }
-		public ICollection<Pedidos_Amizade> ListaPedidosEnviados { get; set; }
-		public ICollection<Pedidos_Amizade> ListaPedidosRecebidos { get; set; }
+		public ICollection<Destinatario_Pedidos_Amizade> ListaDetinatarios { get; set; }
+		public ICollection<Amigo> ListaAmigos { get; set; }
 		public ICollection<Registados_Salas_Jogo> ListaSalasJogo { get; set; }
 	}
 }
