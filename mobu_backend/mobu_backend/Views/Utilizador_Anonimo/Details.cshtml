@@ -1,7 +1,10 @@
 ﻿@model mobu_backend.Models.Utilizador_Anonimo
 
+@inject IHttpContextAccessor http;
+
 @{
     ViewData["Title"] = "Detalhes";
+    var request = http.HttpContext.Request;
 }
 
 <h1>Detalhes</h1>
@@ -10,6 +13,12 @@
     <h4>Utilizador Anónimo</h4>
     <hr />
     <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDUtilizador)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDUtilizador)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.NomeUtilizador)
         </dt>
@@ -31,8 +40,8 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Fotografia)
         </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Fotografia)
+        <dd class = "col-sm-10">
+            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.Fotografia.NomeFicheiro) />    @*DisplayFor(modelItem => item.Fotografia)*@
         </dd>
     </dl>
 </div>

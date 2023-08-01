@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace mobu_backend.Models
@@ -8,6 +9,11 @@ namespace mobu_backend.Models
     /// </summary>
     public class Utilizador_Anonimo
     {
+        public Utilizador_Anonimo()
+        {
+            Fotografia = new Fotografia_Anonimo();
+        }
+
         /// <summary>
         /// ID para a tabela do utilizador anonimo (PK)
         /// </summary>
@@ -41,10 +47,9 @@ namespace mobu_backend.Models
         [RegularExpression("([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}){0,1}")]
         public string? EnderecoIPv6 { get; set; }
 
-        /// <summary>
-        /// Fotografia
-        /// </summary>
-        public string Fotografia { get; set; }
+        [ForeignKey(nameof(Fotografia))]
+        public int IDFotografia { get; set; }
+        public Fotografia_Anonimo Fotografia { get; set; }
 
     }
 }

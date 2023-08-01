@@ -1,0 +1,63 @@
+﻿@model IEnumerable<mobu_backend.Models.Admin>
+
+@inject IHttpContextAccessor http;
+
+@{
+    ViewData["Title"] = "Índice";
+    var request = http.HttpContext.Request;
+
+}
+
+<h1>Índice</h1>
+
+<p>
+    <a asp-action="Create">Criar Administrador</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IDAdmin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NomeAdmin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Password)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fotografia)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+            <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDAdmin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NomeAdmin)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Password)
+            </td>
+            <td>
+                 <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Fotografia.NomeFicheiro) />     @*DisplayFor(modelItem => item.Fotografia)*@
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IDAdmin">Editar</a> |
+                <a asp-action="Details" asp-route-id="@item.IDAdmin">Detalhes</a> |
+                <a asp-action="Delete" asp-route-id="@item.IDAdmin">Apagar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using mobu_backend.Data;
+using mobu_backend.Hubs.Chat;
+using mobu_backend.Hubs.Jogo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 	.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true);
 
 var app = builder.Build();
 
@@ -35,7 +40,8 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-
+app.MapHub<ChatHub>("/ChatHub");
+app.MapHub<GameHub>("/GameHub");
 
 app.MapControllerRoute(
     name: "default",

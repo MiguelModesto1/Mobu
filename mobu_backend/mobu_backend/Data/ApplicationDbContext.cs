@@ -35,7 +35,7 @@ namespace mobu_backend.Data
 
 			//Adicao de dados de teste
 
-			string passStr = "123qwe#";
+			/*string passStr = "123qwe#";
 			var utf8 = new UTF8Encoding(false, true);
 			byte[] pass = utf8.GetBytes(passStr);
 			Console.WriteLine(utf8.GetString(pass));
@@ -85,7 +85,7 @@ namespace mobu_backend.Data
 						EnderecoIPv4 = "",
                         EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940"
                     }
-                );
+                );*/
 
 			/*modelBuilder.Entity<Destinatario_Pedidos_Amizade>()
 				.HasData(
@@ -110,5 +110,6 @@ namespace mobu_backend.Data
 		public DbSet<Registados_Salas_Chat> Registados_Salas_Chat { get; set; }
 		public DbSet<Mensagem> Mensagem { get; set; }
 		public DbSet<Amigo> Amigo { get; set; }
+		public DbSet<Admin> Admin { get; set; }
 	}
 }

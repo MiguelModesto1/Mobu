@@ -224,6 +224,38 @@ namespace mobu_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.Admin", b =>
+                {
+                    b.Property<int>("IDAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDAdmin"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("IDFotografia")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NomeAdmin")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IDAdmin");
+
+                    b.HasIndex("IDFotografia");
+
+                    b.ToTable("Admin");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
                 {
                     b.Property<int>("IDAmizade")
@@ -267,6 +299,72 @@ namespace mobu_backend.Migrations
                     b.HasIndex("RemetenteFK");
 
                     b.ToTable("Destinatario_Pedidos_Amizade");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Fotografia_Admin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataFotografia")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Local")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomeFicheiro")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fotografia_Admin");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Fotografia_Anonimo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataFotografia")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Local")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomeFicheiro")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fotografia_Anonimo");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Fotografia_Registado", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DataFotografia")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Local")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomeFicheiro")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fotografia_Registado");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
@@ -405,8 +503,8 @@ namespace mobu_backend.Migrations
                         .HasMaxLength(39)
                         .HasColumnType("nvarchar(39)");
 
-                    b.Property<string>("Fotografia")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("IDFotografia")
+                        .HasColumnType("int");
 
                     b.Property<string>("NomeUtilizador")
                         .IsRequired()
@@ -415,30 +513,9 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Anonimo");
+                    b.HasIndex("IDFotografia");
 
-                    b.HasData(
-                        new
-                        {
-                            IDUtilizador = 3,
-                            EnderecoIPv4 = "192.168.1.1",
-                            EnderecoIPv6 = "",
-                            NomeUtilizador = "guest3"
-                        },
-                        new
-                        {
-                            IDUtilizador = 4,
-                            EnderecoIPv4 = "192.168.1.2",
-                            EnderecoIPv6 = "",
-                            NomeUtilizador = "guest4"
-                        },
-                        new
-                        {
-                            IDUtilizador = 5,
-                            EnderecoIPv4 = "",
-                            EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940",
-                            NomeUtilizador = "guest5"
-                        });
+                    b.ToTable("Utilizador_Anonimo");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
@@ -454,8 +531,8 @@ namespace mobu_backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Fotografia")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("IDFotografia")
+                        .HasColumnType("int");
 
                     b.Property<string>("NomeUtilizador")
                         .IsRequired()
@@ -464,28 +541,13 @@ namespace mobu_backend.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(96)
-                        .HasColumnType("nvarchar(96)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Registado");
+                    b.HasIndex("IDFotografia");
 
-                    b.HasData(
-                        new
-                        {
-                            IDUtilizador = 1,
-                            Email = "teste1@teste.com",
-                            NomeUtilizador = "teste1",
-                            Password = "E47E548A9EA2929625FCAD762E4BE370E03EC8F0E747446F1E0A3762C841A988F425DFE385DEF422B79460F8C293E02A"
-                        },
-                        new
-                        {
-                            IDUtilizador = 2,
-                            Email = "teste2@teste.com",
-                            NomeUtilizador = "teste2",
-                            Password = "E47E548A9EA2929625FCAD762E4BE370E03EC8F0E747446F1E0A3762C841A988F425DFE385DEF422B79460F8C293E02A"
-                        });
+                    b.ToTable("Utilizador_Registado");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -537,6 +599,17 @@ namespace mobu_backend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Admin", b =>
+                {
+                    b.HasOne("mobu_backend.Models.Fotografia_Admin", "Fotografia")
+                        .WithMany()
+                        .HasForeignKey("IDFotografia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fotografia");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
@@ -616,6 +689,28 @@ namespace mobu_backend.Migrations
                     b.Navigation("Sala");
 
                     b.Navigation("Utilizador");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Utilizador_Anonimo", b =>
+                {
+                    b.HasOne("mobu_backend.Models.Fotografia_Anonimo", "Fotografia")
+                        .WithMany()
+                        .HasForeignKey("IDFotografia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fotografia");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
+                {
+                    b.HasOne("mobu_backend.Models.Fotografia_Registado", "Fotografia")
+                        .WithMany()
+                        .HasForeignKey("IDFotografia")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fotografia");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>

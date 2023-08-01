@@ -1,8 +1,13 @@
 ﻿@model IEnumerable<mobu_backend.Models.Utilizador_Registado>
 
+@inject IHttpContextAccessor http;
+
 @{
     ViewData["Title"] = "Índice";
-}
+
+    var request = http.HttpContext.Request;
+
+ }
 
 <h1>Índice</h1>
 
@@ -12,6 +17,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IDUtilizador)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.NomeUtilizador)
             </th>
@@ -31,6 +39,9 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.IDUtilizador)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.NomeUtilizador)
             </td>
             <td>
@@ -40,7 +51,7 @@
                 @Html.DisplayFor(modelItem => item.Password)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Fotografia)
+                    <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Fotografia.NomeFicheiro) />    @*DisplayFor(modelItem => item.Fotografia)*@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.IDUtilizador">Editar</a> |
