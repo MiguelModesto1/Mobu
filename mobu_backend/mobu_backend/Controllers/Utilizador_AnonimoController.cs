@@ -44,20 +44,27 @@ namespace mobu_backend.Controllers
         // GET: Utilizador_Anonimo
         public async Task<IActionResult> Index()
         {
+            // Consulta que inclui dados sobre a fotografia
+            // do user (FALTA AUTENTICACAO)
             var utilizadores = _context.Utilizador_Anonimo
               .Include(ur => ur.Fotografia);
 
+            //voltar a lista
             return View(await utilizadores.ToListAsync());
         }
 
         // GET: Utilizador_Anonimo/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            // Retorna o codigo de erro 404 se o id ou o user
+            // nao existir ou for nulo
             if (id == null || _context.Utilizador_Anonimo == null)
             {
                 return NotFound();
             }
 
+            // Consulta que retorna todos os detalhes do
+            // administrador com IDUtilizador = id
             var utilizador_Anonimo = await _context.Utilizador_Anonimo
                 .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDUtilizador == id);
@@ -135,7 +142,7 @@ namespace mobu_backend.Controllers
 
                 try
                 {
-                    // adicionar dados do utilizador registado
+                    // adicionar dados do utilizador anonimo
                     // a BD
                     _context.Add(utilizador_Anonimo);
 
@@ -207,33 +214,109 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,EnderecoIPv4,EnderecoIPv6,IDFotografia")] Utilizador_Anonimo utilizador_Anonimo)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,EnderecoIPv4,EnderecoIPv6,IDFotografia")] Utilizador_Anonimo utilizador_Anonimo, IFormFile fotografia)
         {
-            if (id != utilizador_Anonimo.IDUtilizador)
+            //variaveis auxiliares
+            string nomeFoto = "";
+            bool haFoto = false;
+
+            if (fotografia == null)
             {
-                return NotFound();
+                // sem foto
+                // foto por predefenicao
+                utilizador_Anonimo.Fotografia.DataFotografia = DateTime.Now;
+                utilizador_Anonimo.Fotografia.Local = "No foto";
+                utilizador_Anonimo.Fotografia.NomeFicheiro = "default_avatar.png";
+
+            }
+            else
+            {
+                // ficheiro existe
+                // sera valido?
+                if (fotografia.ContentType == "image/jpeg" ||
+                    fotografia.ContentType == "image/png")
+                {
+                    // imagem valida
+
+                    // nome da imagem
+                    Guid g = Guid.NewGuid();
+                    nomeFoto = g.ToString();
+                    string extensaoFoto =
+                        Path.GetExtension(fotografia.FileName).ToLower();
+                    nomeFoto += extensaoFoto;
+
+                    // tornar foto do modelo na foto processada acima
+                    utilizador_Anonimo.Fotografia.DataFotografia = DateTime.Now;
+                    utilizador_Anonimo.Fotografia.Local = "";
+                    utilizador_Anonimo.Fotografia.NomeFicheiro = nomeFoto;
+
+                    // preparar foto p/ser guardada no disco
+                    // do servidor
+                    haFoto = true;
+                }
+                else
+                {
+                    // ha ficheiro, mas e invalido
+                    // foto predefinida adicionada
+                    utilizador_Anonimo.Fotografia.DataFotografia = DateTime.Now;
+                    utilizador_Anonimo.Fotografia.Local = "No foto";
+                    utilizador_Anonimo.Fotografia.NomeFicheiro = "default_avatar.png";
+                }
             }
 
             if (ModelState.IsValid)
             {
+
                 try
                 {
+                    // editar dados do utilizador anonimo
+                    // na BD
                     _context.Update(utilizador_Anonimo);
+
+                    // realizar commit
                     await _context.SaveChangesAsync();
+
+                    // e possivel guardar imagem em disco
+                    if (haFoto)
+                    {
+                        // local p/guardar foto
+                        // perguntar ao servidor pela pasta
+                        // wwwroot/imagens
+                        string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                        // nome ficheiro no disco
+                        nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                        // garantir existencia da pasta
+                        if (!Directory.Exists(nomeLocalImagem))
+                        {
+                            Directory.CreateDirectory(nomeLocalImagem);
+                        }
+
+                        // e possivel efetivamente guardar imagem
+
+                        // definir nome da imagem
+                        string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+
+                        // criar objeto para manipular imagem
+                        using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                        // efetivamente guardar ficheiro no disco
+                        await fotografia.CopyToAsync(stream);
+
+                    }
+                    // voltar a lista
+                    return RedirectToAction(nameof(Index));
+
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!Utilizador_AnonimoExists(utilizador_Anonimo.IDUtilizador))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Anonimo.NomeUtilizador);
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // dados invalidos
+            // devolver controlo a view
             return View(utilizador_Anonimo);
         }
 
@@ -246,6 +329,7 @@ namespace mobu_backend.Controllers
             }
 
             var utilizador_Anonimo = await _context.Utilizador_Anonimo
+                .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDUtilizador == id);
             if (utilizador_Anonimo == null)
             {

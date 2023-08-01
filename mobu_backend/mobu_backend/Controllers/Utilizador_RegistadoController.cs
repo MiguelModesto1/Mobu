@@ -206,33 +206,108 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,IDFotografia")] Utilizador_Registado utilizador_Registado)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,IDFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
-            if (id != utilizador_Registado.IDUtilizador)
+            //variaveis auxiliares
+            string nomeFoto = "";
+            bool haFoto = false;
+
+            if (fotografia == null)
             {
-                return NotFound();
+                // sem foto
+                // foto por predefenicao
+                utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
+                utilizador_Registado.Fotografia.Local = "No foto";
+                utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+            }
+            else
+            {
+                // ficheiro existe
+                // sera valido?
+                if (fotografia.ContentType == "image/jpeg" ||
+                    fotografia.ContentType == "image/png")
+                {
+                    // imagem valida
+
+                    // nome da imagem
+                    Guid g = Guid.NewGuid();
+                    nomeFoto = g.ToString();
+                    string extensaoFoto =
+                        Path.GetExtension(fotografia.FileName).ToLower();
+                    nomeFoto += extensaoFoto;
+
+                    // tornar foto do modelo na foto processada acima
+                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
+                    utilizador_Registado.Fotografia.Local = "";
+                    utilizador_Registado.Fotografia.NomeFicheiro = nomeFoto;
+
+                    // preparar foto p/ser guardada no disco
+                    // do servidor
+                    haFoto = true;
+                }
+                else
+                {
+                    // ha ficheiro, mas e invalido
+                    // foto predefinida adicionada
+                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
+                    utilizador_Registado.Fotografia.Local = "No foto";
+                    utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+                }
             }
 
             if (ModelState.IsValid)
             {
+
                 try
                 {
+                    // editar dados do utilizador registado
+                    // na BD
                     _context.Update(utilizador_Registado);
+
+                    // realizar commit
                     await _context.SaveChangesAsync();
+
+                    // e possivel guardar imagem em disco
+                    if (haFoto)
+                    {
+                        // local p/guardar foto
+                        // perguntar ao servidor pela pasta
+                        // wwwroot/imagens
+                        string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                        // nome ficheiro no disco
+                        nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                        // garantir existencia da pasta
+                        if (!Directory.Exists(nomeLocalImagem))
+                        {
+                            Directory.CreateDirectory(nomeLocalImagem);
+                        }
+
+                        // e possivel efetivamente guardar imagem
+
+                        // definir nome da imagem
+                        string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+
+                        // criar objeto para manipular imagem
+                        using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                        // efetivamente guardar ficheiro no disco
+                        await fotografia.CopyToAsync(stream);
+
+                    }
+                    // voltar a lista
+                    return RedirectToAction(nameof(Index));
+
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!Utilizador_RegistadoExists(utilizador_Registado.IDUtilizador))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Registado.NomeUtilizador);
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // dados invalidos
+            // devolver controlo a view
             return View(utilizador_Registado);
         }
 
@@ -245,6 +320,7 @@ namespace mobu_backend.Controllers
             }
 
             var utilizador_Registado = await _context.Utilizador_Registado
+                .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDUtilizador == id);
             if (utilizador_Registado == null)
             {

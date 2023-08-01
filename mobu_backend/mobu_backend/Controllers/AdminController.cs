@@ -44,20 +44,26 @@ namespace mobu_backend.Controllers
         // GET: Admin
         public async Task<IActionResult> Index()
         {
+            // Consulta que inclui dados sobre a fotografia
+            // do adiminstrador (FALTA AUTENTICACAO)
             var utilizadores = _context.Admin
                             .Include(ur => ur.Fotografia);
-
+            //voltar a lista
             return View(await utilizadores.ToListAsync());
         }
 
         // GET: Admin/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            // Retorna o codigo de erro 404 se o id ou o admin
+            // nao existir ou for nulo
             if (id == null || _context.Admin == null)
             {
                 return NotFound();
             }
 
+            // Consulta que retorna todos os detalhes do
+            // administrador com IDAdmin = id
             var admin = await _context.Admin
                 .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDAdmin == id);
@@ -134,7 +140,7 @@ namespace mobu_backend.Controllers
 
                 try
                 {
-                    // adicionar dados do utilizador registado
+                    // adicionar dados do admin
                     // a BD
                     _context.Add(admin);
 
@@ -174,6 +180,7 @@ namespace mobu_backend.Controllers
                     return RedirectToAction(nameof(Index));
                     
                 }
+                // apanhar excecao para escrever um erro de modelo personalizado
                 catch (Exception)
                 {
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do administrador " + admin.NomeAdmin);
@@ -188,12 +195,18 @@ namespace mobu_backend.Controllers
         // GET: Admin/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            // Retorna o codigo de erro 404 se o id ou o admin
+            // nao existir ou for nulo
             if (id == null || _context.Admin == null)
             {
                 return NotFound();
             }
 
+            // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin.FindAsync(id);
+
+            // Retorna o codigo de erro 404 se  o admin
+            // nao existir ou for nulo
             if (admin == null)
             {
                 return NotFound();
@@ -206,51 +219,134 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDAdmin,NomeAdmin,Password,Email,IDFotografia")] Admin admin)
+        public async Task<IActionResult> Edit(int id, [Bind("IDAdmin,NomeAdmin,Password,Email,IDFotografia")] Admin admin, IFormFile fotografia)
         {
-            if (id != admin.IDAdmin)
+            //variaveis auxiliares
+            string nomeFoto = "";
+            bool haFoto = false;
+
+            if (fotografia == null)
             {
-                return NotFound();
+                // sem foto
+                // foto por predefenicao
+                admin.Fotografia.DataFotografia = DateTime.Now;
+                admin.Fotografia.Local = "No foto";
+                admin.Fotografia.NomeFicheiro = "default_avatar.png";
+            }
+            else
+            {
+                // ficheiro existe
+                // sera valido?
+                if (fotografia.ContentType == "image/jpeg" ||
+                    fotografia.ContentType == "image/png")
+                {
+                    // imagem valida
+
+                    // nome da imagem
+                    Guid g = Guid.NewGuid();
+                    nomeFoto = g.ToString();
+                    string extensaoFoto =
+                        Path.GetExtension(fotografia.FileName).ToLower();
+                    nomeFoto += extensaoFoto;
+
+                    // tornar foto do modelo na foto processada acima
+                    admin.Fotografia.DataFotografia = DateTime.Now;
+                    admin.Fotografia.Local = "";
+                    admin.Fotografia.NomeFicheiro = nomeFoto;
+
+                    // preparar foto p/ser guardada no disco
+                    // do servidor
+                    haFoto = true;
+                }
+                else
+                {
+                    // ha ficheiro, mas e invalido
+                    // foto predefinida adicionada
+                    admin.Fotografia.DataFotografia = DateTime.Now;
+                    admin.Fotografia.Local = "No foto";
+                    admin.Fotografia.NomeFicheiro = "default_avatar.png";
+                }
             }
 
             if (ModelState.IsValid)
             {
+
                 try
                 {
-                    _context.Update(admin);
+                    // adicionar dados do admin
+                    // a BD
+                    _context.Add(admin);
+
+                    // realizar commit
                     await _context.SaveChangesAsync();
+
+                    // e possivel guardar imagem em disco
+                    if (haFoto)
+                    {
+                        // local p/guardar foto
+                        // perguntar ao servidor pela pasta
+                        // wwwroot/imagens
+                        string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                        // nome ficheiro no disco
+                        nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                        // garantir existencia da pasta
+                        if (!Directory.Exists(nomeLocalImagem))
+                        {
+                            Directory.CreateDirectory(nomeLocalImagem);
+                        }
+
+                        // e possivel efetivamente guardar imagem
+
+                        // definir nome da imagem
+                        string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+
+                        // criar objeto para manipular imagem
+                        using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                        // efetivamente guardar ficheiro no disco
+                        await fotografia.CopyToAsync(stream);
+
+                    }
+                    // voltar a lista
+                    return RedirectToAction(nameof(Index));
+
                 }
-                catch (DbUpdateConcurrencyException)
+                // apanhar excecao para escrever um erro de modelo personalizado
+                catch (Exception)
                 {
-                    if (!AdminExists(admin.IDAdmin))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do administrador " + admin.NomeAdmin);
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // dados invalidos
+            // devolver controlo a view
             return View(admin);
         }
 
         // GET: Admin/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            // Retorna o codigo de erro 404 se o id ou o admin
+            // nao existir ou for nulo
             if (id == null || _context.Admin == null)
             {
                 return NotFound();
             }
 
+            // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin
+                .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDAdmin == id);
+
+            // Retorna o erro 404 se admin for nulo
             if (admin == null)
             {
                 return NotFound();
             }
 
+            // voltar a lista
             return View(admin);
         }
 
@@ -259,20 +355,31 @@ namespace mobu_backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            // Retorna o problema que escreve:
+            // Entity set 'ApplicationDbContext.Admin'  is null.
+            // se o admin nao existir ou for nulo
             if (_context.Admin == null)
             {
                 return Problem("Entity set 'ApplicationDbContext.Admin'  is null.");
             }
+
+            // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin.FindAsync(id);
+
+            // se admin existir ,remover da BD
             if (admin != null)
             {
                 _context.Admin.Remove(admin);
             }
             
+            // guardar alteracoes na BD (realizar COMMIT)
             await _context.SaveChangesAsync();
+
+            // voltar a lista
             return RedirectToAction(nameof(Index));
         }
 
+        //verificar se existe admin com ID = id (paramentro)
         private bool AdminExists(int id)
         {
           return _context.Admin.Any(e => e.IDAdmin == id);
