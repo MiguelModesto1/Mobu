@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -203,7 +204,9 @@ namespace mobu_backend.Controllers
             }
 
             // Retorna a entidade encontrada de forma assincrona
-            var admin = await _context.Admin.FindAsync(id);
+            var admin = await _context.Admin
+                .Include(a => a.Fotografia)
+                .FirstOrDefaultAsync(a => a.IDAdmin == id);
 
             // Retorna o codigo de erro 404 se  o admin
             // nao existir ou for nulo
@@ -221,6 +224,13 @@ namespace mobu_backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IDAdmin,NomeAdmin,Password,Email,IDFotografia")] Admin admin, IFormFile fotografia)
         {
+
+            admin.Fotografia.Id = _context.Admin
+                .Include(ur => ur.Fotografia)
+                .Where(ur => ur.IDAdmin == id)
+                .Select(ur => ur.IDFotografia)
+                .ToImmutableArray()[0];
+
             //variaveis auxiliares
             string nomeFoto = "";
             bool haFoto = false;
@@ -243,11 +253,20 @@ namespace mobu_backend.Controllers
                     // imagem valida
 
                     // nome da imagem
-                    Guid g = Guid.NewGuid();
-                    nomeFoto = g.ToString();
-                    string extensaoFoto =
-                        Path.GetExtension(fotografia.FileName).ToLower();
-                    nomeFoto += extensaoFoto;
+                    nomeFoto = _context.Admin
+                        .Include(ur => ur.Fotografia)
+                        .Where(ur => ur.IDAdmin == id)
+                        .Select(ur => ur.Fotografia.NomeFicheiro)
+                        .ToImmutableArray()[0];
+
+                    if (nomeFoto == "default_avatar.png")
+                    {
+                        Guid g = Guid.NewGuid();
+                        nomeFoto = g.ToString();
+                        string extensaoFoto =
+                            Path.GetExtension(fotografia.FileName).ToLower();
+                        nomeFoto += extensaoFoto;
+                    }
 
                     // tornar foto do modelo na foto processada acima
                     admin.Fotografia.DataFotografia = DateTime.Now;
@@ -275,7 +294,7 @@ namespace mobu_backend.Controllers
                 {
                     // adicionar dados do admin
                     // a BD
-                    _context.Add(admin);
+                    _context.Update(admin);
 
                     // realizar commit
                     await _context.SaveChangesAsync();
@@ -316,7 +335,7 @@ namespace mobu_backend.Controllers
                 // apanhar excecao para escrever um erro de modelo personalizado
                 catch (Exception)
                 {
-                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do administrador " + admin.NomeAdmin);
+                    ModelState.AddModelError("", "Ocorreu um erro com a edição dos dados do administrador " + admin.NomeAdmin);
                 }
             }
 

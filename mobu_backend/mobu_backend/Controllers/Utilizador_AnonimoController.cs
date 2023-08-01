@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -201,7 +202,9 @@ namespace mobu_backend.Controllers
                 return NotFound();
             }
 
-            var utilizador_Anonimo = await _context.Utilizador_Anonimo.FindAsync(id);
+            var utilizador_Anonimo = await _context.Utilizador_Anonimo
+                .Include(a => a.Fotografia)
+                .FirstOrDefaultAsync(a => a.IDUtilizador == id);
             if (utilizador_Anonimo == null)
             {
                 return NotFound();
@@ -216,6 +219,13 @@ namespace mobu_backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,EnderecoIPv4,EnderecoIPv6,IDFotografia")] Utilizador_Anonimo utilizador_Anonimo, IFormFile fotografia)
         {
+
+            utilizador_Anonimo.Fotografia.Id = _context.Utilizador_Anonimo
+                .Include(ur => ur.Fotografia)
+                .Where(ur => ur.IDUtilizador == id)
+                .Select(ur => ur.IDFotografia)
+                .ToImmutableArray()[0];
+
             //variaveis auxiliares
             string nomeFoto = "";
             bool haFoto = false;
@@ -239,11 +249,20 @@ namespace mobu_backend.Controllers
                     // imagem valida
 
                     // nome da imagem
-                    Guid g = Guid.NewGuid();
-                    nomeFoto = g.ToString();
-                    string extensaoFoto =
-                        Path.GetExtension(fotografia.FileName).ToLower();
-                    nomeFoto += extensaoFoto;
+                    nomeFoto = _context.Utilizador_Anonimo
+                        .Include(ur => ur.Fotografia)
+                        .Where(ur => ur.IDUtilizador == id)
+                        .Select(ur => ur.Fotografia.NomeFicheiro)
+                        .ToImmutableArray()[0];
+
+                    if (nomeFoto == "default_avatar.png")
+                    {
+                        Guid g = Guid.NewGuid();
+                        nomeFoto = g.ToString();
+                        string extensaoFoto =
+                            Path.GetExtension(fotografia.FileName).ToLower();
+                        nomeFoto += extensaoFoto;
+                    }
 
                     // tornar foto do modelo na foto processada acima
                     utilizador_Anonimo.Fotografia.DataFotografia = DateTime.Now;
@@ -311,7 +330,7 @@ namespace mobu_backend.Controllers
                 }
                 catch (Exception)
                 {
-                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Anonimo.NomeUtilizador);
+                    ModelState.AddModelError("", "Ocorreu um erro com a edição dos dados do utilizador " + utilizador_Anonimo.NomeUtilizador);
                 }
             }
 
