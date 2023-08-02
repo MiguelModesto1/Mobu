@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 
 namespace mobu_backend.Models
 {
@@ -16,7 +17,6 @@ namespace mobu_backend.Models
             ListaDetinatarios = new HashSet<Destinatario_Pedidos_Amizade>();
             ListaAmigos = new HashSet<Amigo>();
             ListaSalasJogo = new HashSet<Registados_Salas_Jogo>();
-            Fotografia = new Fotografia_Registado();
 		}
         /// <summary>
         /// ID para a tabela do utilizador registado (PK)
@@ -52,9 +52,20 @@ namespace mobu_backend.Models
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório")]
         public string Password { get; set; }
 
-        [ForeignKey(nameof(Fotografia))]
-        public int IDFotografia { get; set; }
-        public Fotografia_Registado Fotografia { get; set; }
+        [Display(Name = "Data de junção")]
+        public DateTime DataJuncao { get; set; }
+
+        /// <summary>
+        /// Nome do ficheiro com a fotografia
+        /// </summary>
+        [Display(Name = "Nome da fotografia")]
+        public string NomeFotografia{ get; set; }
+
+        /// <summary>
+        /// data da fotografia
+        /// </summary>
+        [Display(Name = "Data da fotografia")]
+        public DateTime DataFotografia { get; set; }
 
         public ICollection<Registados_Salas_Chat> ListaSalasDeChat { get; set; }
         public ICollection<Mensagem> ListaMensagensEnviadas { get; set; }

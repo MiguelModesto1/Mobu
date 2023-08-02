@@ -38,10 +38,10 @@
             @Html.DisplayFor(model => model.EnderecoIPv6)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Fotografia)
+            Fotografia
         </dt>
         <dd class = "col-sm-10">
-            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.Fotografia.NomeFicheiro) />    @*DisplayFor(modelItem => item.Fotografia)*@
+            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/default_avatar.png") />    @*DisplayFor(modelItem => item.Fotografia)*@
         </dd>
     </dl>
 </div>

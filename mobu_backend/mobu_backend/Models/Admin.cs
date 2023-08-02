@@ -8,10 +8,6 @@ namespace mobu_backend.Models
 {
     public class Admin
     {
-        public Admin()
-        {
-            Fotografia = new Fotografia_Admin();
-        }
 
         /// <summary>
         /// ID do administrador
@@ -37,6 +33,9 @@ namespace mobu_backend.Models
         [Display(Name = "Palavra-passe")]
         public string Password { get; set; }
 
+        [Display(Name = "Data de junção")]
+        public DateTime DataJuncao { get; set; }
+
         /// <summary>
         /// Email do administrador
         /// </summary>
@@ -47,10 +46,18 @@ namespace mobu_backend.Models
         [Display(Name = "Email do Administrador")]
         public string Email { get; set; }
 
-        
-        [ForeignKey(nameof(Fotografia))]
-        public int IDFotografia { get; set; }
-        public Fotografia_Admin Fotografia { get; set; }
+
+        /// <summary>
+        /// Nome do ficheiro com a fotografia
+        /// </summary>
+        [Display(Name = "Nome da fotografia")]
+        public string NomeFotografia { get; set; }
+
+        /// <summary>
+        /// data da fotografia
+        /// </summary>
+        [Display(Name = "Data da fotografia")]
+        public DateTime DataFotografia { get; set; }
 
 
     }

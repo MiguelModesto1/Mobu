@@ -9,10 +9,6 @@ namespace mobu_backend.Models
     /// </summary>
     public class Utilizador_Anonimo
     {
-        public Utilizador_Anonimo()
-        {
-            Fotografia = new Fotografia_Anonimo();
-        }
 
         /// <summary>
         /// ID para a tabela do utilizador anonimo (PK)
@@ -46,10 +42,6 @@ namespace mobu_backend.Models
         [StringLength(39, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
         [RegularExpression("([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}){0,1}")]
         public string? EnderecoIPv6 { get; set; }
-
-        [ForeignKey(nameof(Fotografia))]
-        public int IDFotografia { get; set; }
-        public Fotografia_Anonimo Fotografia { get; set; }
 
     }
 }

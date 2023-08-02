@@ -46,8 +46,7 @@ namespace mobu_backend.Controllers
         public async Task<IActionResult> Index()
         {
 
-            var utilizadores = _context.Utilizador_Registado
-                .Include(ur => ur.Fotografia);
+            var utilizadores = _context.Utilizador_Registado;
 
             return View(await utilizadores.ToListAsync());
         }
@@ -61,7 +60,6 @@ namespace mobu_backend.Controllers
             }
 
             var utilizador_Registado = await _context.Utilizador_Registado
-                .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDUtilizador == id);
             if (utilizador_Registado == null)
             {
@@ -82,10 +80,12 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,IDFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
+        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
+            // data de juncao
+            utilizador_Registado.DataJuncao = DateTime.Now;
 
-            //variaveis auxiliares
+            // variaveis auxiliares
             string nomeFoto = "";
             bool haFoto = false;
 
@@ -93,9 +93,8 @@ namespace mobu_backend.Controllers
             {
                 // sem foto
                 // foto por predefenicao
-                utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                utilizador_Registado.Fotografia.Local = "No foto";
-                utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+                utilizador_Registado.DataFotografia = DateTime.Now;
+                utilizador_Registado.NomeFotografia = "default_avatar.png";
             }
             else
             {
@@ -114,9 +113,8 @@ namespace mobu_backend.Controllers
                     nomeFoto += extensaoFoto;
 
                     // tornar foto do modelo na foto processada acima
-                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                    utilizador_Registado.Fotografia.Local = "";
-                    utilizador_Registado.Fotografia.NomeFicheiro = nomeFoto;
+                    utilizador_Registado.DataFotografia = DateTime.Now;
+                    utilizador_Registado.NomeFotografia = nomeFoto;
 
                     // preparar foto p/ser guardada no disco
                     // do servidor
@@ -126,9 +124,8 @@ namespace mobu_backend.Controllers
                 {
                     // ha ficheiro, mas e invalido
                     // foto predefinida adicionada
-                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                    utilizador_Registado.Fotografia.Local = "No foto";
-                    utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+                    utilizador_Registado.DataFotografia = DateTime.Now;
+                    utilizador_Registado.NomeFotografia = "default_avatar.png";
                 }
             }
 
@@ -139,7 +136,7 @@ namespace mobu_backend.Controllers
                 {
                     // adicionar dados do utilizador registado
                     // a BD
-                    _context.Add(utilizador_Registado);
+                    _context.Attach(utilizador_Registado);
 
                     // realizar commit
                     await _context.SaveChangesAsync();
@@ -196,7 +193,6 @@ namespace mobu_backend.Controllers
             }
 
             var utilizador_Registado = await _context.Utilizador_Registado
-                .Include(a => a.Fotografia)
                 .FirstOrDefaultAsync(a => a.IDUtilizador == id);
             if (utilizador_Registado == null)
             {
@@ -210,14 +206,8 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,IDFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
-
-            utilizador_Registado.Fotografia.Id = _context.Utilizador_Registado
-                .Include(ur => ur.Fotografia)
-                .Where(ur => ur.IDUtilizador == id)
-                .Select(ur => ur.IDFotografia)
-                .ToImmutableArray()[0];
 
             //variaveis auxiliares
             string nomeFoto = "";
@@ -227,9 +217,9 @@ namespace mobu_backend.Controllers
             {
                 // sem foto
                 // foto por predefenicao
-                utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                utilizador_Registado.Fotografia.Local = "No foto";
-                utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+                utilizador_Registado.DataFotografia = DateTime.Now;
+                utilizador_Registado.NomeFotografia = "default_avatar.png";
+
             }
             else
             {
@@ -242,9 +232,8 @@ namespace mobu_backend.Controllers
 
                     // nome da imagem
                     nomeFoto = _context.Utilizador_Registado
-                        .Include(ur => ur.Fotografia)
                         .Where(ur => ur.IDUtilizador == id)
-                        .Select(ur => ur.Fotografia.NomeFicheiro)
+                        .Select(ur => ur.NomeFotografia)
                         .ToImmutableArray()[0];
 
                     if (nomeFoto == "default_avatar.png")
@@ -257,9 +246,8 @@ namespace mobu_backend.Controllers
                     }
 
                     // tornar foto do modelo na foto processada acima
-                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                    utilizador_Registado.Fotografia.Local = "";
-                    utilizador_Registado.Fotografia.NomeFicheiro = nomeFoto;
+                    utilizador_Registado.DataFotografia = DateTime.Now;
+                    utilizador_Registado.NomeFotografia = nomeFoto;
 
                     // preparar foto p/ser guardada no disco
                     // do servidor
@@ -269,9 +257,8 @@ namespace mobu_backend.Controllers
                 {
                     // ha ficheiro, mas e invalido
                     // foto predefinida adicionada
-                    utilizador_Registado.Fotografia.DataFotografia = DateTime.Now;
-                    utilizador_Registado.Fotografia.Local = "No foto";
-                    utilizador_Registado.Fotografia.NomeFicheiro = "default_avatar.png";
+                    utilizador_Registado.DataFotografia = DateTime.Now;
+                    utilizador_Registado.NomeFotografia = "default_avatar.png";
                 }
             }
 
@@ -340,8 +327,8 @@ namespace mobu_backend.Controllers
             }
 
             var utilizador_Registado = await _context.Utilizador_Registado
-                .Include(m => m.Fotografia)
-                .FirstOrDefaultAsync(m => m.IDUtilizador == id);
+                .FindAsync(id);
+
             if (utilizador_Registado == null)
             {
                 return NotFound();
@@ -359,14 +346,48 @@ namespace mobu_backend.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Utilizador_Registado'  is null.");
             }
-            var utilizador_Registado = await _context.Utilizador_Registado.FindAsync(id);
+
+            var utilizador_Registado = await _context.Utilizador_Registado
+                    .FindAsync(id);
+
             if (utilizador_Registado != null)
             {
-                _context.Utilizador_Registado.Remove(utilizador_Registado);
+                try
+                {
+                    // eliminar fotografia de user do disco
+
+                    // buscar nome na base de dados
+                    var nomeFoto = utilizador_Registado.NomeFotografia;
+
+                    // caminho completo da foto
+                    nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
+
+                    //fileInfo da foto
+                    FileInfo fif = new(nomeFoto);
+
+                    // garantir que foto existe
+                    if (fif.Exists && fif.Name != "default_avatar.png")
+                    {
+                        //apagar foto
+                        fif.Delete();
+                    }
+
+                    //_context.Utilizador_Registado.Attach(utilizador_Registado);
+
+                    _context.Remove(utilizador_Registado);
+
+                    await _context.SaveChangesAsync();
+
+                    //voltar a lista
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError("", "Ocorreu um erro com a remoção dos dados do utilizador " + utilizador_Registado.NomeUtilizador);
+                }
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return View(utilizador_Registado);   
         }
 
         private bool Utilizador_RegistadoExists(int id)

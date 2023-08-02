@@ -47,8 +47,7 @@ namespace mobu_backend.Controllers
         {
             // Consulta que inclui dados sobre a fotografia
             // do adiminstrador (FALTA AUTENTICACAO)
-            var utilizadores = _context.Admin
-                            .Include(ur => ur.Fotografia);
+            var utilizadores = _context.Admin;
             //voltar a lista
             return View(await utilizadores.ToListAsync());
         }
@@ -66,7 +65,6 @@ namespace mobu_backend.Controllers
             // Consulta que retorna todos os detalhes do
             // administrador com IDAdmin = id
             var admin = await _context.Admin
-                .Include(m => m.Fotografia)
                 .FirstOrDefaultAsync(m => m.IDAdmin == id);
             if (admin == null)
             {
@@ -87,8 +85,11 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDAdmin,NomeAdmin,Password,Email,IDFotografia")] Admin admin, IFormFile fotografia)
+        public async Task<IActionResult> Create([Bind("IDAdmin,NomeAdmin,Password,DataJuncao,Email,NomeFotografia,DataFotografia")] Admin admin, IFormFile fotografia)
         {
+            // data de juncao
+            admin.DataJuncao = DateTime.Now;
+
             //variaveis auxiliares
             string nomeFoto = "";
             bool haFoto = false;
@@ -97,9 +98,8 @@ namespace mobu_backend.Controllers
             {
                 // sem foto
                 // foto por predefenicao
-                admin.Fotografia.DataFotografia = DateTime.Now;
-                admin.Fotografia.Local = "No foto";
-                admin.Fotografia.NomeFicheiro = "default_avatar.png";
+                admin.DataFotografia = DateTime.Now;
+                admin.NomeFotografia = "default_avatar.png";
             }
             else
             {
@@ -118,9 +118,8 @@ namespace mobu_backend.Controllers
                     nomeFoto += extensaoFoto;
 
                     // tornar foto do modelo na foto processada acima
-                    admin.Fotografia.DataFotografia = DateTime.Now;
-                    admin.Fotografia.Local = "";
-                    admin.Fotografia.NomeFicheiro = nomeFoto;
+                    admin.DataFotografia = DateTime.Now;
+                    admin.NomeFotografia = nomeFoto;
 
                     // preparar foto p/ser guardada no disco
                     // do servidor
@@ -130,9 +129,8 @@ namespace mobu_backend.Controllers
                 {
                     // ha ficheiro, mas e invalido
                     // foto predefinida adicionada
-                    admin.Fotografia.DataFotografia = DateTime.Now;
-                    admin.Fotografia.Local = "No foto";
-                    admin.Fotografia.NomeFicheiro = "default_avatar.png";
+                    admin.DataFotografia = DateTime.Now;
+                    admin.NomeFotografia = "default_avatar.png";
                 }
             }
 
@@ -143,7 +141,7 @@ namespace mobu_backend.Controllers
                 {
                     // adicionar dados do admin
                     // a BD
-                    _context.Add(admin);
+                    _context.Attach(admin);
 
                     // realizar commit
                     await _context.SaveChangesAsync();
@@ -205,7 +203,6 @@ namespace mobu_backend.Controllers
 
             // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin
-                .Include(a => a.Fotografia)
                 .FirstOrDefaultAsync(a => a.IDAdmin == id);
 
             // Retorna o codigo de erro 404 se  o admin
@@ -222,14 +219,8 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDAdmin,NomeAdmin,Password,Email,IDFotografia")] Admin admin, IFormFile fotografia)
+        public async Task<IActionResult> Edit(int id, [Bind("IDAdmin,NomeAdmin,Password,DataJuncao,Email,NomeFotografia,DataFotografia")] Admin admin, IFormFile fotografia)
         {
-
-            admin.Fotografia.Id = _context.Admin
-                .Include(ur => ur.Fotografia)
-                .Where(ur => ur.IDAdmin == id)
-                .Select(ur => ur.IDFotografia)
-                .ToImmutableArray()[0];
 
             //variaveis auxiliares
             string nomeFoto = "";
@@ -239,9 +230,8 @@ namespace mobu_backend.Controllers
             {
                 // sem foto
                 // foto por predefenicao
-                admin.Fotografia.DataFotografia = DateTime.Now;
-                admin.Fotografia.Local = "No foto";
-                admin.Fotografia.NomeFicheiro = "default_avatar.png";
+                admin.DataFotografia = DateTime.Now;
+                admin.NomeFotografia = "default_avatar.png";
             }
             else
             {
@@ -254,9 +244,8 @@ namespace mobu_backend.Controllers
 
                     // nome da imagem
                     nomeFoto = _context.Admin
-                        .Include(ur => ur.Fotografia)
                         .Where(ur => ur.IDAdmin == id)
-                        .Select(ur => ur.Fotografia.NomeFicheiro)
+                        .Select(ur => ur.NomeFotografia)
                         .ToImmutableArray()[0];
 
                     if (nomeFoto == "default_avatar.png")
@@ -269,9 +258,8 @@ namespace mobu_backend.Controllers
                     }
 
                     // tornar foto do modelo na foto processada acima
-                    admin.Fotografia.DataFotografia = DateTime.Now;
-                    admin.Fotografia.Local = "";
-                    admin.Fotografia.NomeFicheiro = nomeFoto;
+                    admin.DataFotografia = DateTime.Now;
+                    admin.NomeFotografia = nomeFoto;
 
                     // preparar foto p/ser guardada no disco
                     // do servidor
@@ -281,9 +269,8 @@ namespace mobu_backend.Controllers
                 {
                     // ha ficheiro, mas e invalido
                     // foto predefinida adicionada
-                    admin.Fotografia.DataFotografia = DateTime.Now;
-                    admin.Fotografia.Local = "No foto";
-                    admin.Fotografia.NomeFicheiro = "default_avatar.png";
+                    admin.DataFotografia = DateTime.Now;
+                    admin.NomeFotografia = "default_avatar.png";
                 }
             }
 
@@ -356,8 +343,7 @@ namespace mobu_backend.Controllers
 
             // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin
-                .Include(m => m.Fotografia)
-                .FirstOrDefaultAsync(m => m.IDAdmin == id);
+                .FindAsync(id);
 
             // Retorna o erro 404 se admin for nulo
             if (admin == null)
@@ -385,7 +371,7 @@ namespace mobu_backend.Controllers
             // Retorna a entidade encontrada de forma assincrona
             var admin = await _context.Admin.FindAsync(id);
 
-            // se admin existir ,remover da BD
+            // se admin existir, remover da BD
             if (admin != null)
             {
                 _context.Admin.Remove(admin);

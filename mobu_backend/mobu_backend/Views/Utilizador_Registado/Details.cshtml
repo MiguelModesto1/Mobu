@@ -37,11 +37,21 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Password)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fotografia)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DataJuncao)
         </dt>
-        <dd class = "col-sm-10">
-            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.Fotografia.NomeFicheiro) />    @*DisplayFor(modelItem => item.Fotografia)*@
+        <dt class="col-sm-10">
+            @Html.DisplayFor(model => model.DataJuncao)
+        </dt>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DataFotografia)
+        </dt>
+        <dt class="col-sm-10">
+            @Html.DisplayFor(model => model.DataFotografia)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.NomeFotografia)
+            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
         </dd>
     </dl>
 </div>

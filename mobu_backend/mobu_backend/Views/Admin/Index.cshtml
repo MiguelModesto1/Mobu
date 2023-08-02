@@ -29,7 +29,7 @@
                 @Html.DisplayNameFor(model => model.Password)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Fotografia)
+                Fotografia
             </th>
             <th></th>
         </tr>
@@ -50,7 +50,7 @@
                 @Html.DisplayFor(modelItem => item.Password)
             </td>
             <td>
-                 <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Fotografia.NomeFicheiro) />     @*DisplayFor(modelItem => item.Fotografia)*@
+                 <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />     @*DisplayFor(modelItem => item.Fotografia)*@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.IDAdmin">Editar</a> |

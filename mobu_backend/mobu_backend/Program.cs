@@ -39,6 +39,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapHub<ChatHub>("/ChatHub");
 app.MapHub<GameHub>("/GameHub");
