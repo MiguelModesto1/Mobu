@@ -86,7 +86,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
+        public async Task<IActionResult> Create([Bind("IDUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
         {
 
             if (ModelState.IsValid)
@@ -105,7 +105,7 @@ namespace mobu_backend.Controllers
                 }
                 catch (Exception)
                 {
-                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Anonimo.NomeUtilizador);
+                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador anónimo" + utilizador_Anonimo.IDUtilizador);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
         {
 
             if (ModelState.IsValid)
@@ -157,7 +157,7 @@ namespace mobu_backend.Controllers
                 }
                 catch (Exception)
                 {
-                    ModelState.AddModelError("", "Ocorreu um erro com a edição dos dados do utilizador " + utilizador_Anonimo.NomeUtilizador);
+                    ModelState.AddModelError("", "Ocorreu um erro com a edição dos dados do utilizador anónimo " + utilizador_Anonimo.IDUtilizador);
                 }
             }
 

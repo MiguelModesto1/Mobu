@@ -39,7 +39,7 @@ namespace mobu_backend.Models
         /// Email do utilizador registado
         /// </summary>
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
-        [MinLength(6, ErrorMessage = " O {0} tem de ter, no mínimo, {1} caracteres")]
+        [MinLength(6, ErrorMessage = "O {0} tem de ter, no mínimo, {1} caracteres")]
 		[StringLength(100, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
 		[EmailAddress(ErrorMessage = "Introuduza um email válido por favor")]
         [Display(Name = "Email do Utilizador")]
@@ -48,12 +48,22 @@ namespace mobu_backend.Models
         /// <summary>
         /// Hash da password do utilizador registado
         /// </summary>
+        [NotMapped]
         [Display(Name = "Palavra-passe")]
+        [DataType(DataType.Password)]
+        [MinLength(6, ErrorMessage = "A {0} tem de ter, no mínimo, {1} caracteres")]
+        [MaxLength(100, ErrorMessage = "A {0} pode ter até {1} caracteres")]
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório")]
         public string Password { get; set; }
 
         [Display(Name = "Data de junção")]
         public DateTime DataJuncao { get; set; }
+
+        /// <summary>
+        /// Elemento de ligacao entre a Tabela dos Registados
+        /// no modelo logico e na tabela de Users do Identity
+        /// </summary>
+        public string AuthenticationID { get; set; }
 
         /// <summary>
         /// Nome do ficheiro com a fotografia

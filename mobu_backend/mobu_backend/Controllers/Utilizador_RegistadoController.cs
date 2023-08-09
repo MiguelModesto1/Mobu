@@ -1,24 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using System.Collections.Immutable;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using mobu_backend.Areas.Identity.Pages.Account;
 using mobu_backend.Data;
 using mobu_backend.Models;
 
 namespace mobu_backend.Controllers
 {
+
+    [Authorize]
     public class Utilizador_RegistadoController : Controller
     {
         /// <summary>
         /// objeto que referencia a Base de Dados do projeto
         /// </summary>
         private readonly ApplicationDbContext _context;
+
+        /// <summary>
+        /// Interface para guardar utilizadores
+        /// </summary>
+        private readonly IUserStore<IdentityUser> _userStore;
+
+        /// <summary>
+        /// Interface para guardar emails de utilizadores
+        /// </summary>
+        private readonly IUserEmailStore<IdentityUser> _userEmailStore;
 
         /// <summary>
         /// ferramenta com acesso aos dados da pessoa autenticada
@@ -32,33 +40,47 @@ namespace mobu_backend.Controllers
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        /// <summary>
+        /// Interface para a funcao de logging
+        /// </summary>
+        private readonly ILogger<RegisterModel> _logger;
+
         public Utilizador_RegistadoController(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
-            UserManager<IdentityUser> userManager)
+            UserManager<IdentityUser> userManager,
+            IUserStore<IdentityUser> userStore,
+            ILogger<RegisterModel> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _userStore = userStore;
+            _userEmailStore = (IUserEmailStore<IdentityUser>)_userStore;
+            _logger = logger;
         }
 
         // GET: Utilizador_Registado
         public async Task<IActionResult> Index()
         {
-
+            // Consulta que inclui dados do utilizador
             var utilizadores = _context.Utilizador_Registado;
-
+            //voltar a lista
             return View(await utilizadores.ToListAsync());
         }
 
         // GET: Utilizador_Registado/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            // Retorna o codigo de erro 404 se o id ou o user
+            // nao existir ou for nulo
             if (id == null || _context.Utilizador_Registado == null)
             {
                 return NotFound();
             }
 
+            // Consulta que retorna todos os detalhes do
+            // utilizador com IDAdmin = id
             var utilizador_Registado = await _context.Utilizador_Registado
                 .FirstOrDefaultAsync(m => m.IDUtilizador == id);
             if (utilizador_Registado == null)
@@ -80,7 +102,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
+        public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia,AuthenticationID")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
             // data de juncao
             utilizador_Registado.DataJuncao = DateTime.Now;
@@ -88,8 +110,9 @@ namespace mobu_backend.Controllers
             // variaveis auxiliares
             string nomeFoto = "";
             bool haFoto = false;
+            var user = new IdentityUser();
 
-            if(fotografia == null)
+            if (fotografia == null)
             {
                 // sem foto
                 // foto por predefenicao
@@ -134,6 +157,28 @@ namespace mobu_backend.Controllers
 
                 try
                 {
+                    // colocar conteudos nas tabelas
+                    // do identity
+
+                    await _userStore.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador, CancellationToken.None);
+                    await _userEmailStore.SetEmailAsync(user, utilizador_Registado.Email, CancellationToken.None);
+
+                    var result = await _userManager.CreateAsync(user, utilizador_Registado.Password);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Administrador criou uma nova conta com palavra-passe.");
+
+                        var userId = await _userManager.GetUserIdAsync(user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        /*IMPLEMENTAR CONFIRMACAO DE EMAIL*/
+
+                        var confirmEmail = await _userManager.ConfirmEmailAsync(user, code);
+                    }
+
+                    utilizador_Registado.AuthenticationID = user.Id;
+
                     // adicionar dados do utilizador registado
                     // a BD
                     _context.Attach(utilizador_Registado);
@@ -175,6 +220,10 @@ namespace mobu_backend.Controllers
                     
                 }catch (Exception)
                 {
+                    _logger.LogInformation("$Ocorreu um erro com a adição do admin" + utilizador_Registado.NomeUtilizador + "\nA apagar administrador...");
+                    await _userManager.DeleteAsync(user);
+                    _logger.LogInformation("Administrador apagado!");
+
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Registado.NomeUtilizador);
                 }  
             }
@@ -206,11 +255,14 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia,AuthenticationID")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
 
             //variaveis auxiliares
-            string nomeFoto = "";
+            string nomeFoto = _context.Utilizador_Registado
+                        .Where(ur => ur.IDUtilizador == id)
+                        .Select(ur => ur.NomeFotografia)
+                        .ToImmutableArray()[0];
             bool haFoto = false;
 
             if (fotografia == null)
@@ -219,7 +271,6 @@ namespace mobu_backend.Controllers
                 // foto por predefenicao
                 utilizador_Registado.DataFotografia = DateTime.Now;
                 utilizador_Registado.NomeFotografia = "default_avatar.png";
-
             }
             else
             {
@@ -303,6 +354,44 @@ namespace mobu_backend.Controllers
                         await fotografia.CopyToAsync(stream);
 
                     }
+                    else
+                    {
+
+                        // caminho completo da foto
+                        nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
+
+                        //fileInfo da foto
+                        FileInfo fif = new(nomeFoto);
+
+                        // garantir que foto existe
+                        if (fif.Exists && fif.Name != "default_avatar.png")
+                        {
+                            //apagar foto
+                            fif.Delete();
+                        }
+                    }
+
+                    // colocar conteudos nas tabelas
+                    // do identity
+                    var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
+
+                    await _userStore.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador, CancellationToken.None);
+                    await _userEmailStore.SetEmailAsync(user, utilizador_Registado.Email, CancellationToken.None);
+                    string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    await _userManager.ResetPasswordAsync(user, token, utilizador_Registado.Password);
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Administrador editou uma conta.");
+
+                        var userId = await _userManager.GetUserIdAsync(user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        /*IMPLEMENTAR CONFIRMACAO DE EMAIL*/
+                        var confirmEmail = await _userManager.ConfirmEmailAsync(user, code);
+                    }
+
                     // voltar a lista
                     return RedirectToAction(nameof(Index));
 
@@ -347,9 +436,11 @@ namespace mobu_backend.Controllers
                 return Problem("Entity set 'ApplicationDbContext.Utilizador_Registado'  is null.");
             }
 
+            // Retorna a entidade encontrada de forma assincrona
             var utilizador_Registado = await _context.Utilizador_Registado
                     .FindAsync(id);
 
+            // se user existir, remover da BD
             if (utilizador_Registado != null)
             {
                 try
@@ -376,6 +467,11 @@ namespace mobu_backend.Controllers
 
                     _context.Remove(utilizador_Registado);
 
+                    // apagar os dados do Identity
+
+                    var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
+                    var result = await _userManager.DeleteAsync(user);
+
                     await _context.SaveChangesAsync();
 
                     //voltar a lista
@@ -390,6 +486,7 @@ namespace mobu_backend.Controllers
             return View(utilizador_Registado);   
         }
 
+        //verificar se existe user com ID = id (paramentro)
         private bool Utilizador_RegistadoExists(int id)
         {
           return _context.Utilizador_Registado.Any(e => e.IDUtilizador == id);

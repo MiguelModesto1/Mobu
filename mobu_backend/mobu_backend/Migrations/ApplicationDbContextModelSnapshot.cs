@@ -232,6 +232,9 @@ namespace mobu_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDAdmin"));
 
+                    b.Property<string>("AuthenticationID")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DataFotografia")
                         .HasColumnType("datetime2");
 
@@ -249,10 +252,6 @@ namespace mobu_backend.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("NomeFotografia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IDAdmin");
@@ -433,6 +432,9 @@ namespace mobu_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDUtilizador"));
 
+                    b.Property<string>("AuthenticationID")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EnderecoIPv4")
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
@@ -440,11 +442,6 @@ namespace mobu_backend.Migrations
                     b.Property<string>("EnderecoIPv6")
                         .HasMaxLength(39)
                         .HasColumnType("nvarchar(39)");
-
-                    b.Property<string>("NomeUtilizador")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("IDUtilizador");
 
@@ -458,6 +455,9 @@ namespace mobu_backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDUtilizador"));
+
+                    b.Property<string>("AuthenticationID")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DataFotografia")
                         .HasColumnType("datetime2");
@@ -477,10 +477,6 @@ namespace mobu_backend.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IDUtilizador");
 

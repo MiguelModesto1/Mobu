@@ -29,7 +29,11 @@ namespace mobu_backend.Models
         /// <summary>
         /// Hash da password do administrador
         /// </summary>
+        [NotMapped]
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório")]
+        [DataType(DataType.Password)]
+        [MinLength(6, ErrorMessage = "A {0} tem de ter, no mínimo, {1} caracteres")]
+        [MaxLength(100, ErrorMessage = "A {0} pode ter até {1} caracteres")]
         [Display(Name = "Palavra-passe")]
         public string Password { get; set; }
 
@@ -40,11 +44,17 @@ namespace mobu_backend.Models
         /// Email do administrador
         /// </summary>
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
-        [MinLength(6, ErrorMessage = " O {0} tem de ter, no mínimo, {1} caracteres")]
+        [MinLength(6, ErrorMessage = "O {0} tem de ter, no mínimo, {1} caracteres")]
         [StringLength(100, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
         [EmailAddress(ErrorMessage = "Introuduza um email válido por favor")]
         [Display(Name = "Email do Administrador")]
         public string Email { get; set; }
+
+        /// <summary>
+        /// Elelmento de ligacao entre a Tabela dos Administradores
+        /// no modelo logico e na tabela de Users do Identity
+        /// </summary>
+        public string AuthenticationID { get; set; }
 
 
         /// <summary>

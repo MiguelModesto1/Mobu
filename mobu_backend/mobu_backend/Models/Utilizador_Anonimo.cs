@@ -18,15 +18,6 @@ namespace mobu_backend.Models
         public int IDUtilizador { get; set; }
 
         /// <summary>
-        /// Nome do utilizador anonimo ('guest' + nextFreeId)
-        /// </summary>
-        [Display(Name = "Nome do Utilizador")]
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
-		[StringLength(30, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
-		[RegularExpression("guest.+")]
-		public string NomeUtilizador { get; set; }
-
-        /// <summary>
         /// Endereco IPv4 do dispositivo do utilizador anonimo
         /// </summary>
 		[Display(Name = "Endereço IPv4")]
@@ -42,6 +33,12 @@ namespace mobu_backend.Models
         [StringLength(39, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
         [RegularExpression("([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}){0,1}")]
         public string? EnderecoIPv6 { get; set; }
+
+        /// <summary>
+        /// Elelmento de ligacao entre a Tabela dos Anonimos
+        /// no modelo logico e na tabela de Users do Identity
+        /// </summary>
+        public string AuthenticationID { get; set; }
 
     }
 }

@@ -11,6 +11,7 @@ namespace mobu_backend.Models
 		/// ID do registo do Utilizador na sala de jogo
 		/// </summary>
 		[Key]
+		[Display(Name = "ID do Registo")]
 		public int IDRegisto { get; set; }
 
 		/// <summary>
