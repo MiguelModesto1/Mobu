@@ -6,6 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Areas.Identity.Pages.Account;
+using static System.Net.WebRequestMethods;
+using mobu_backend.Services;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace mobu_backend.Controllers
 {
@@ -41,16 +46,34 @@ namespace mobu_backend.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         /// <summary>
-        /// Interface para a funcao de logging
+        /// Interface para a funcao de logging no modelo de registo
         /// </summary>
         private readonly ILogger<RegisterModel> _logger;
+
+        /// <summary>
+        /// Interface para a funcao de logging do Remetente de emails
+        /// </summary>
+        private readonly ILogger<EmailSender> _loggerEmail;
+
+        /// <summary>
+        /// Interface que permite o acesso ao contexto HTTP
+        /// </summary>
+        private readonly IHttpContextAccessor _http;
+
+        /// <summary>
+        /// opcoes para ter acesso à chave da API do SendGrid
+        /// </summary>
+        private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
 
         public AdminController(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            ILogger<EmailSender> loggerEmail,
+            IHttpContextAccessor http,
+            IOptions<AuthMessageSenderOptions> optionsAccessor)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
@@ -58,6 +81,9 @@ namespace mobu_backend.Controllers
             _userStore = userStore;
             _userEmailStore = (IUserEmailStore<IdentityUser>)_userStore;
             _logger = logger;
+            _loggerEmail = loggerEmail;
+            _http = http;
+            _optionsAccessor = optionsAccessor;
         }
 
         // GET: Admin
@@ -171,10 +197,16 @@ namespace mobu_backend.Controllers
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var request = _http.HttpContext.Request;
 
-                        /*IMPLEMENTAR CONFIRMACAO DE EMAIL*/
+                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
 
-                        var confirmEmail = await _userManager.ConfirmEmailAsync(user, code);
+                        var htmlElement = "<a href='" + href + "' target='_blank'>clique aqui</a>";
+
+                        EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                        await emailSender.SendEmailAsync(admin.Email, "Confirme o seu email", htmlElement);
                     }
 
                     admin.AuthenticationID = user.Id;
@@ -389,9 +421,16 @@ namespace mobu_backend.Controllers
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var request = _http.HttpContext.Request;
 
-                        /*IMPLEMENTAR CONFIRMACAO DE EMAIL*/
-                        var confirmEmail = await _userManager.ConfirmEmailAsync(user, code);
+                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
+
+                        var htmlElement = "<a href='" + href + "' target='_blank'>clique aqui</a>";
+
+                        EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                        await emailSender.SendEmailAsync(admin.Email, "Confirme o seu email", htmlElement);
                     }
 
                     // voltar a lista

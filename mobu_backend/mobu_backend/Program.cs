@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using mobu_backend.Data;
 using mobu_backend.Hubs.Chat;
 using mobu_backend.Hubs.Jogo;
+using mobu_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +18,18 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+
 // Adicionar SignalR
 builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true);
 
 // Adicionar servicos do Identity
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+});
 
 /*builder.Services.Configure<IdentityOptions>(options =>
 {
