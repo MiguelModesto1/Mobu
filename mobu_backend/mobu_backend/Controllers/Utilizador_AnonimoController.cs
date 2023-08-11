@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using mobu_backend.Models;
 
 namespace mobu_backend.Controllers
 {
+    [AllowAnonymous]
     public class Utilizador_AnonimoController : Controller
     {
         /// <summary>

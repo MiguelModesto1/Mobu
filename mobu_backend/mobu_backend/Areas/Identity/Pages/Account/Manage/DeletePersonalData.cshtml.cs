@@ -33,18 +33,25 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        /// <summary>
+        /// Gestor de papeis de cada utilizador
+        /// </summary>
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         public DeletePersonalDataModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<DeletePersonalDataModel> logger,
             ApplicationDbContext context,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -137,6 +144,12 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             var userId = await _userManager.GetUserIdAsync(user);
 
             _logger.LogInformation("Um administrador foi removido.");
+
+            // se nao exisitrem mais administradores, remover role
+            if ((await _userManager.GetUsersInRoleAsync("Administrator")).ToImmutableArray().Length == 0)
+            {
+                await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Administrator").Result);
+            }
 
             if (!result.Succeeded)
             {

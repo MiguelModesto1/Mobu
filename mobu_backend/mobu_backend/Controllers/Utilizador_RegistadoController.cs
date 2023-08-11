@@ -10,12 +10,11 @@ using mobu_backend.Areas.Identity.Pages.Account;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
-using static System.Net.WebRequestMethods;
 
 namespace mobu_backend.Controllers
 {
 
-    [Authorize]
+    [Authorize(Roles = "Administrator,Registered")]
     public class Utilizador_RegistadoController : Controller
     {
         /// <summary>
@@ -24,19 +23,14 @@ namespace mobu_backend.Controllers
         private readonly ApplicationDbContext _context;
 
         /// <summary>
-        /// Interface para guardar utilizadores
-        /// </summary>
-        private readonly IUserStore<IdentityUser> _userStore;
-
-        /// <summary>
-        /// Interface para guardar emails de utilizadores
-        /// </summary>
-        private readonly IUserEmailStore<IdentityUser> _userEmailStore;
-
-        /// <summary>
-        /// ferramenta com acesso aos dados da pessoa autenticada
+        /// ferramenta com acesso a gestao de users
         /// </summary>
         private readonly UserManager<IdentityUser> _userManager;
+
+        /// <summary>
+        /// ferramenta com acesso aos papeis de privilegios de cada utilizador
+        /// </summary>
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         /// <summary>
         /// Este recurso (tecnicamente, um atributo) mostra os 
@@ -70,7 +64,7 @@ namespace mobu_backend.Controllers
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             ILogger<EmailSender> loggerEmail,
             IHttpContextAccessor http,
@@ -79,8 +73,7 @@ namespace mobu_backend.Controllers
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
-            _userStore = userStore;
-            _userEmailStore = (IUserEmailStore<IdentityUser>)_userStore;
+            _roleManager = roleManager;
             _logger = logger;
             _loggerEmail = loggerEmail;
             _http = http;
@@ -129,6 +122,7 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,NomeFotografia,DataFotografia,AuthenticationID")] Utilizador_Registado utilizador_Registado, IFormFile fotografia)
         {
             // data de juncao
@@ -187,16 +181,35 @@ namespace mobu_backend.Controllers
                     // colocar conteudos nas tabelas
                     // do identity
 
-                    await _userStore.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador, CancellationToken.None);
-                    await _userEmailStore.SetEmailAsync(user, utilizador_Registado.Email, CancellationToken.None);
+                    await _userManager.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador);
+                    await _userManager.SetEmailAsync(user, utilizador_Registado.Email);
 
                     var result = await _userManager.CreateAsync(user, utilizador_Registado.Password);
 
                     if (result.Succeeded)
                     {
+                        // criar role de registado se esta nao existir
+                        if (!await _roleManager.RoleExistsAsync("Registered"))
+                        {
+                            var role = new IdentityRole
+                            {
+                                Name = "Registered"
+                            };
+                            await _roleManager.CreateAsync(role);
+                        }
+
+                        // atribuir ao utilizador em questao a role
+                        await _userManager.AddToRoleAsync(user, _roleManager.Roles
+                            .Where(r => r.Name == "Registered")
+                            .Select(r => r.Name)
+                            .ToImmutableArray()[0]);
+
                         _logger.LogInformation("Administrador criou uma nova conta com palavra-passe.");
 
                         var userId = await _userManager.GetUserIdAsync(user);
+
+                        // enviar email de confirmacao de email
+
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                         var request = _http.HttpContext.Request;
@@ -408,8 +421,8 @@ namespace mobu_backend.Controllers
                     // do identity
                     var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
 
-                    await _userStore.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador, CancellationToken.None);
-                    await _userEmailStore.SetEmailAsync(user, utilizador_Registado.Email, CancellationToken.None);
+                    await _userManager.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador);
+                    await _userManager.SetEmailAsync(user, utilizador_Registado.Email);
                     string token = await _userManager.GeneratePasswordResetTokenAsync(user);
                     await _userManager.ResetPasswordAsync(user, token, utilizador_Registado.Password);
                     var result = await _userManager.UpdateAsync(user);
@@ -419,6 +432,9 @@ namespace mobu_backend.Controllers
                         _logger.LogInformation("Administrador editou uma conta.");
 
                         var userId = await _userManager.GetUserIdAsync(user);
+
+                        // enviar email de confirmacao de email
+
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                         var request = _http.HttpContext.Request;
@@ -512,6 +528,12 @@ namespace mobu_backend.Controllers
 
                     var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
                     var result = await _userManager.DeleteAsync(user);
+
+                    // se nao exisitrem mais administradores, remover role
+                    if ((await _userManager.GetUsersInRoleAsync("Registered")).ToImmutableArray().Length == 0)
+                    {
+                        await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Registered").Result);
+                    }
 
                     await _context.SaveChangesAsync();
 

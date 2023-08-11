@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Areas.Identity.Pages.Account;
-using static System.Net.WebRequestMethods;
 using mobu_backend.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,7 +14,7 @@ using System.Text;
 namespace mobu_backend.Controllers
 {
 
-    [Authorize]
+    [Authorize(Roles = "Administrator")]
     public class AdminController : Controller
     {
         /// <summary>
@@ -24,19 +23,14 @@ namespace mobu_backend.Controllers
         private readonly ApplicationDbContext _context;
 
         /// <summary>
-        /// Interface para guardar utilizadores
-        /// </summary>
-        private readonly IUserStore<IdentityUser> _userStore;
-
-        /// <summary>
-        /// Interface para guardar emails de utilizadores
-        /// </summary>
-        private readonly IUserEmailStore<IdentityUser> _userEmailStore;
-
-        /// <summary>
-        /// ferramenta com acesso aos dados da pessoa autenticada
+        /// ferramenta com acesso a gestao de users
         /// </summary>
         private readonly UserManager<IdentityUser> _userManager;
+
+        /// <summary>
+        /// ferramenta com acesso aos papeis de privilegios de cada utilizador
+        /// </summary>
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         /// <summary>
         /// Este recurso (tecnicamente, um atributo) mostra os 
@@ -69,7 +63,7 @@ namespace mobu_backend.Controllers
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             ILogger<EmailSender> loggerEmail,
             IHttpContextAccessor http,
@@ -78,12 +72,11 @@ namespace mobu_backend.Controllers
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
-            _userStore = userStore;
-            _userEmailStore = (IUserEmailStore<IdentityUser>)_userStore;
             _logger = logger;
             _loggerEmail = loggerEmail;
             _http = http;
             _optionsAccessor = optionsAccessor;
+            _roleManager = roleManager;
         }
 
         // GET: Admin
@@ -128,12 +121,15 @@ namespace mobu_backend.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("IDAdmin,NomeAdmin,Password,DataJuncao,Email,NomeFotografia,DataFotografia,AuthenticationID")] Admin admin, IFormFile fotografia)
         {
             // data de juncao
             admin.DataJuncao = DateTime.Now;
 
             // variaveis auxiliares
+            var request = _http.HttpContext.Request;
+            string code = "";
             string nomeFoto = "";
             bool haFoto = false;
             var user = new IdentityUser();
@@ -186,19 +182,38 @@ namespace mobu_backend.Controllers
                     // colocar conteudos nas tabelas
                     // do identity
 
-                    await _userStore.SetUserNameAsync(user, admin.NomeAdmin, CancellationToken.None);
-                    await _userEmailStore.SetEmailAsync(user, admin.Email, CancellationToken.None);
+                    await _userManager.SetUserNameAsync(user, admin.NomeAdmin);
+                    await _userManager.SetEmailAsync(user, admin.Email);
 
                     var result = await _userManager.CreateAsync(user, admin.Password);
 
                     if (result.Succeeded)
                     {
+
+                        // criar role de administrador se esta nao existir
+                        if (!await _roleManager.RoleExistsAsync("Administrator"))
+                        {
+                            var role = new IdentityRole
+                            {
+                                Name = "Administrator"
+                            };
+                            await _roleManager.CreateAsync(role);
+                        }
+
+                        // atribuir ao administrador em questao a role
+                        await _userManager.AddToRoleAsync(user, _roleManager.Roles
+                            .Where(r => r.Name == "Administrator")
+                            .Select(r => r.Name)
+                            .ToImmutableArray()[0]);
+
                         _logger.LogInformation("Administrador criou uma nova conta com palavra-passe.");
 
                         var userId = await _userManager.GetUserIdAsync(user);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        // enviar email de confirmacao de email
+
+                        code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var request = _http.HttpContext.Request;
 
                         var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
 
@@ -246,7 +261,7 @@ namespace mobu_backend.Controllers
                         // efetivamente guardar ficheiro no disco
                         await fotografia.CopyToAsync(stream);
                     }
-                    
+
                     // voltar a lista
                     return RedirectToAction(nameof(Index));
                     
@@ -254,11 +269,11 @@ namespace mobu_backend.Controllers
                 // apanhar excecao para escrever um erro de modelo personalizado
                 catch (Exception)
                 {
-                    _logger.LogInformation("$Ocorreu um erro com a adição do admin" + admin.NomeAdmin + "\nA apagar administrador...");
+                    _logger.LogInformation($"Ocorreu um erro com a adição do admin {admin.NomeAdmin}.\nA apagar administrador...");
                     await _userManager.DeleteAsync(user);
                     _logger.LogInformation("Administrador apagado!");
 
-                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + admin.NomeAdmin);
+                    ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do admin " + admin.NomeAdmin);
                 }
             }
 
@@ -409,8 +424,8 @@ namespace mobu_backend.Controllers
                     // do identity
                     var user = _userManager.FindByIdAsync(admin.AuthenticationID).Result;
 
-                    await _userStore.SetUserNameAsync(user, admin.NomeAdmin, CancellationToken.None);
-                    await _userEmailStore.SetEmailAsync(user, admin.Email, CancellationToken.None);
+                    await _userManager.SetUserNameAsync(user, admin.NomeAdmin);
+                    await _userManager.SetEmailAsync(user, admin.Email);
                     string token = await _userManager.GeneratePasswordResetTokenAsync(user);
                     await _userManager.ResetPasswordAsync(user, token, admin.Password);
                     var result = await _userManager.UpdateAsync(user);
@@ -420,6 +435,9 @@ namespace mobu_backend.Controllers
                         _logger.LogInformation("Administrador editou uma conta.");
 
                         var userId = await _userManager.GetUserIdAsync(user);
+
+                        // enviar email de confirmacao de email
+
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                         var request = _http.HttpContext.Request;
@@ -520,7 +538,13 @@ namespace mobu_backend.Controllers
 
                     var user = _userManager.FindByIdAsync(admin.AuthenticationID).Result;
                     var result = await _userManager.DeleteAsync(user);
-                    
+
+                    // se nao exisitrem mais administradores, remover role
+                    if ((await _userManager.GetUsersInRoleAsync("Administrator")).ToImmutableArray().Length == 0)
+                    {
+                        await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Administrator").Result);
+                    }
+
                     await _context.SaveChangesAsync();
 
                     _logger.LogInformation("Um administrador foi removido.");

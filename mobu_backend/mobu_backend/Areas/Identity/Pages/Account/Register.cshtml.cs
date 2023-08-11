@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -44,6 +45,11 @@ namespace mobu_backend.Areas.Identity.Pages.Account
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
+        /// <summary>
+        /// Gestore de papeis de utilizadores
+        /// </summary>
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
@@ -51,7 +57,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             ApplicationDbContext context,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -61,6 +68,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -160,6 +168,23 @@ namespace mobu_backend.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+
+                    // criar role de administrador se esta nao existir
+                    if (!await _roleManager.RoleExistsAsync("Administrator"))
+                    {
+                        var role = new IdentityRole
+                        {
+                            Name = "Administrator"
+                        };
+                        await _roleManager.CreateAsync(role);
+                    }
+
+                    // atribuir ao administrador em questao a role
+                    await _userManager.AddToRoleAsync(user, _roleManager.Roles
+                        .Where(r => r.Name == "Administrator")
+                        .Select(r => r.Name)
+                        .ToImmutableArray()[0]);
+
                     _logger.LogInformation("Foi criado novo administrador!");
 
                     // atualizar dados do administrador
@@ -264,8 +289,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirme o seu email",
+                        $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
