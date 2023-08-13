@@ -100,14 +100,15 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             /// <summary>
             /// Nome do Utilizador
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
+            [Display(Name = "Nome de Utilizador")]
             public string Name { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
@@ -116,10 +117,10 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+            [StringLength(100, ErrorMessage = "A {0} deve conter pelo menos {2} e no máximo {1} carateres.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "Palavra-passe")]
             public string Password { get; set; }
 
             /// <summary>
@@ -127,8 +128,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Confirmar Palavra-passe")]
+            [Compare("Password", ErrorMessage = "A palavra-passe e a sua confirmação não coincidem.")]
             public string ConfirmPassword { get; set; }
 
             /// <summary>
@@ -174,7 +175,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                     {
                         var role = new IdentityRole
                         {
-                            Name = "Administrator"
+                            Name = "Administrator",
+                            ConcurrencyStamp = Guid.NewGuid().ToString()
                         };
                         await _roleManager.CreateAsync(role);
                     }
@@ -273,7 +275,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                     }
                     catch(Exception)
                     {
-                        _logger.LogInformation("Houve problemas com o armazenamento do admin" + Input.Administrador.NomeAdmin + "\nA apagar administrador...");
+                        _logger.LogInformation("Houve problemas com a adição do admin" + Input.Administrador.NomeAdmin + "\nA apagar administrador...");
                         await _userManager.DeleteAsync(user);
                         _logger.LogInformation("Administrador apagado!");
                     }
@@ -290,7 +292,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirme o seu email",
-                        $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
+                        $"Para confirmar o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

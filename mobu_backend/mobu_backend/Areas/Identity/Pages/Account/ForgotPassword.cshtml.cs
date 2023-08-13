@@ -72,8 +72,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
 
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Reiniciar Password",
+                    $"Para reiniciar a sua palavra-passe <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>carregue aqui</a>.");
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

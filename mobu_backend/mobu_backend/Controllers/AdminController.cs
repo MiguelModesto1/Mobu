@@ -195,7 +195,8 @@ namespace mobu_backend.Controllers
                         {
                             var role = new IdentityRole
                             {
-                                Name = "Administrator"
+                                Name = "Administrator",
+                                ConcurrencyStamp = Guid.NewGuid().ToString()
                             };
                             await _roleManager.CreateAsync(role);
                         }
@@ -217,7 +218,7 @@ namespace mobu_backend.Controllers
 
                         var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
 
-                        var htmlElement = "<a href='" + href + "' target='_blank'>clique aqui</a>";
+                        var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
 
                         EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
 

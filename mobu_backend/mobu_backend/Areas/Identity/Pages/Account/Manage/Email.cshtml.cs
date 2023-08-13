@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using mobu_backend.Data;
+using mobu_backend.Models;
 
 namespace mobu_backend.Areas.Identity.Pages.Account.Manage
 {
@@ -21,14 +24,28 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IEmailSender _emailSender;
 
+        /// <summary>
+        /// Acesso ao contexto da base de dados
+        /// </summary>
+        private readonly ApplicationDbContext _context;
+
+        /// <summary>
+        /// VAriavel para logging
+        /// </summary>
+        private readonly ILogger<EmailModel> _logger;
+
         public EmailModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context,
+            ILogger<EmailModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -67,9 +84,9 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
             [EmailAddress]
-            [Display(Name = "New email")]
+            [Display(Name = "Novo Email")]
             public string NewEmail { get; set; }
         }
 
@@ -115,6 +132,21 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             var email = await _userManager.GetEmailAsync(user);
             if (Input.NewEmail != email)
             {
+
+                // atualizar dados do administrador
+                var admin = await _context.Admin.FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
+                admin.Email = Input.NewEmail;
+
+                try
+                {
+                    _context.Admin.Update(admin);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    _logger.LogInformation("Houve problemas com a edição do admin" + admin.NomeAdmin);
+                }
+
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateChangeEmailTokenAsync(user, Input.NewEmail);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -125,14 +157,14 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
                     protocol: Request.Scheme);
                 await _emailSender.SendEmailAsync(
                     Input.NewEmail,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Confirme o seu email",
+                    $"Para confirmar o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
 
-                StatusMessage = "Confirmation link to change email sent. Please check your email.";
+                StatusMessage = "Link de confirmação de mudança de email enviado. Por favor verifique o seu email.";
                 return RedirectToPage();
             }
 
-            StatusMessage = "Your email is unchanged.";
+            StatusMessage = "O seu email está inalterado.";
             return RedirectToPage();
         }
 
@@ -162,9 +194,9 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             await _emailSender.SendEmailAsync(
                 email,
                 "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                $"Para confirmar o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
 
-            StatusMessage = "Verification email sent. Please check your email.";
+            StatusMessage = "Email de verificação enviado. Por favor verifique o seu email.";
             return RedirectToPage();
         }
     }

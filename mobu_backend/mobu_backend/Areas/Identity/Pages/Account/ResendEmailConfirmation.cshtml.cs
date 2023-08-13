@@ -64,7 +64,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+                ModelState.AddModelError(string.Empty, "Email de verificação enviado. Por favor confirme o seu email.");
                 return Page();
             }
 
@@ -78,10 +78,10 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                 protocol: Request.Scheme);
             await _emailSender.SendEmailAsync(
                 Input.Email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                "Confirme o seu email",
+                $"Para confirmar o seu email <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
 
-            ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+            ModelState.AddModelError(string.Empty, "Houve um erro ao enviar o email de confirmação");
             return Page();
         }
     }
