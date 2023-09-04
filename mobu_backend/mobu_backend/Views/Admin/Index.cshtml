@@ -1,4 +1,5 @@
-﻿@model IEnumerable<mobu_backend.Models.Admin>
+﻿@using Microsoft.AspNetCore.Identity;
+@model IEnumerable<mobu_backend.Models.Admin>
 
 @inject IHttpContextAccessor http;
 
@@ -9,10 +10,12 @@
 }
 
 <h1>Índice</h1>
-
-<p>
-    <a asp-action="Create">Criar Administrador</a>
-</p>
+    @if (User.IsInRole("Boss"))
+    {
+        <p>
+            <a asp-action="Create">Criar Administrador</a>
+        </p>
+    }
 <table class="table">
     <thead>
         <tr>
@@ -47,9 +50,12 @@
                  <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />     @*DisplayFor(modelItem => item.Fotografia)*@
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IDAdmin">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IDAdmin">Detalhes</a> |
-                <a asp-action="Delete" asp-route-id="@item.IDAdmin">Apagar</a>
+                <a asp-action="Details" asp-route-id="@item.IDAdmin">Detalhes</a> 
+                @if (User.IsInRole("Boss") && User.Identity.Name != item.NomeAdmin)
+                {
+                    <span> | </span> <a asp-action="Delete" asp-route-id="@item.IDAdmin">Apagar</a>
+                }
+                
             </td>
         </tr>
 }

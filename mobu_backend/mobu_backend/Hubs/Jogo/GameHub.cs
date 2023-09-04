@@ -1,28 +1,32 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using mobu_backend.Data;
 
 namespace mobu_backend.Hubs.Jogo
 {
+    [AllowAnonymous]
     public class GameHub : Hub<IGameHub>
     {
-        public async Task<GameRoomState> WaitForGameRoomState(string connectionId)
-        {
-            GameRoomState state  = await Clients.Client(connectionId).GetGameRoomState();
-            return state;
-        }
-        public async Task SendGameRoomStateToUser(string user, GameRoomState gameRoomState)
-            => await Clients.User(user).ReceiveGameRoomState(gameRoomState);
 
-        public async Task SendgameRoomStateToClient(string connectionId, GameRoomState gameRoomState)
-            => await Clients.Client(connectionId).ReceiveGameRoomState(gameRoomState);
+        private readonly ApplicationDbContext _context;
 
-        public async Task AddToGameRoom(string roomName, string connectionId)
+        public GameHub(ApplicationDbContext context)
         {
-            await Groups.AddToGroupAsync(connectionId, roomName);
+            _context = context;
         }
+        public async Task<GameRoomState> WaitForGameRoomState(string connectionId) 
+            => await Clients.Client(connectionId).GetGameRoomState();
+        
+        public async Task SendGameRoomStateToUser(string toUser, GameRoomState gameRoomState)
+            => await Clients.User(toUser).ReceiveGameRoomState(gameRoomState);
 
-        public async Task RemoveFromGameRoom(string roomName, string connectionId)
-        {
-            await Groups.RemoveFromGroupAsync(connectionId, roomName);
-        }
+        public async Task SendChallengeToUser(string fromUser, string toUser, bool interested)
+            => await Clients.User(toUser).ReceiveChallenge(fromUser, interested);
+
+        public async Task AddToGameRoom(string roomName, string connectionId) 
+            => await Groups.AddToGroupAsync(connectionId, roomName);
+
+        public async Task RemoveFromGameRoom(string roomName, string connectionId) 
+            => await Groups.RemoveFromGroupAsync(connectionId, roomName);
     }
 }

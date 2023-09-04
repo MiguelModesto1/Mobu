@@ -26,6 +26,12 @@ namespace mobu_backend.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
         public int IDDestinatarioPedido { get; set; }
 
+        /// <summary>
+        /// Data e hora do ultimo estado do pedido
+        /// </summary>
+        [Required]
+        [Display(Name = "Data-Hora do pedido")]
+        public DateTime DataHoraPedido { get; set; }
 
         /// <summary>
         /// Estado do pedido de amizade

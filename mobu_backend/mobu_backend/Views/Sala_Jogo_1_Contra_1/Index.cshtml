@@ -6,9 +6,6 @@
 
 <h1>Índice</h1>
 
-<p>
-    <a asp-action="Create">Criar Sala de Jogo</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -24,9 +21,7 @@
                 @Html.DisplayFor(modelItem => item.IDSala)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IDSala">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a> |
-                <a asp-action="Delete" asp-route-id="@item.IDSala">Apagar</a>
+                <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a>
             </td>
         </tr>
 }

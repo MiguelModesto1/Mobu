@@ -1,31 +1,33 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using mobu_backend.Data;
 
 namespace mobu_backend.Hubs.Chat
 {
+    [Authorize(Roles = "Registered")]
     public class ChatHub : Hub<IChatClient>
     {
-        public async Task<string> WaitForMessage(string connectionId)
-        {
-            string message = await Clients.Client(connectionId).GetMessage();
-            return message;
-        }
-        public async Task SendMessageToUser(string user, string message)
-            => await Clients.User(user).ReceiveMessage(message);
 
-        public async Task SendMessageToClient(string message, string connectionId)
-            => await Clients.Client(connectionId).ReceiveMessage(message);
+        private readonly ApplicationDbContext _context;
 
-        public async Task AddToRoom(string roomName, string connectionId)
+        public ChatHub(ApplicationDbContext context)
         {
-            await Groups.AddToGroupAsync(connectionId, roomName);
+            _context = context;
         }
 
-        public async Task RemoveFromRoom(string roomName, string connectionId)
-        {
-            await Groups.RemoveFromGroupAsync(connectionId, roomName);
-        }
+        public async Task<string> WaitForMessage(string fromUser)
+            => await Clients.User(fromUser).GetMessage();
+        
+        public async Task SendMessageToUser(string fromUser, string toUser, Message message)
+            => await Clients.User(toUser).ReceiveMessage(fromUser, message);
 
-        public async Task SendMessageToRoom(string message, string room)
-            => await Clients.Group(room).ReceiveMessage(message);
+        public async Task AddToRoom(string roomId, string connectionId) 
+            => await Groups.AddToGroupAsync(connectionId, roomId);
+
+        public async Task RemoveFromRoom(string roomId, string connectionId) 
+            => await Groups.RemoveFromGroupAsync(connectionId, roomId);
+
+        public async Task SendMessageToRoom(string fromUser, string roomId, Message message)
+            => await Clients.Group(roomId).ReceiveMessage(fromUser, message);
     }
 }

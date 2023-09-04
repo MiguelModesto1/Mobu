@@ -6,9 +6,6 @@
 
 <h1>Índice</h1>
 
-<p>
-    <a asp-action="Create">Criar Novo Membro</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -43,7 +40,6 @@
                 @Html.DisplayFor(modelItem => item.IsAdmin)
             </td>
             <td>
-                    @Html.ActionLink("Editar", "Edit", new {id=item.IDRegisto}) |
                     @Html.ActionLink("Detalhes", "Details", new {id=item.IDRegisto}) |
                     @Html.ActionLink("Apagar", "Delete", new {id=item.IDRegisto})
             </td>

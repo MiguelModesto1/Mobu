@@ -105,6 +105,13 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             public string Name { get; set; }
 
             /// <summary>
+            /// Nome do Utilizador
+            /// </summary>
+            [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+            [Display(Name = "Data de Nascimento")]
+            public DateTime DataNasc { get; set; }
+
+            /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
@@ -179,6 +186,19 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                             ConcurrencyStamp = Guid.NewGuid().ToString()
                         };
                         await _roleManager.CreateAsync(role);
+
+                        role = new IdentityRole
+                        {
+                            Name = "Boss",
+                            ConcurrencyStamp = Guid.NewGuid().ToString()
+                        };
+                        await _roleManager.CreateAsync(role);
+
+                        // atribuir ao primeiro admin a role de chefe dos admins
+                        await _userManager.AddToRoleAsync(user, _roleManager.Roles
+                        .Where(r => r.Name == "Boss")
+                        .Select(r => r.Name)
+                        .ToImmutableArray()[0]);
                     }
 
                     // atribuir ao administrador em questao a role
@@ -194,6 +214,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                     Input.Administrador.Password = Input.Password;
                     Input.Administrador.NomeAdmin = Input.Name;
                     Input.Administrador.DataJuncao = DateTime.Now;
+                    Input.Administrador.DataNasc = Input.DataNasc;
                     Input.Administrador.AuthenticationID = user.Id;
 
                     // fotografia

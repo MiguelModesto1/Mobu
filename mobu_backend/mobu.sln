@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mobu_backend", "mobu_backend\mobu_backend.csproj", "{8EA55A00-9294-43D9-AD98-C42CE5C29B00}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B100CA00-847A-479E-8AEB-2DA87A28DC31}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "mobu_frontend", "mobu_frontend\mobu_frontend.esproj", "{236F60C4-E032-461B-8DEC-27029D35DF20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EA55A00-9294-43D9-AD98-C42CE5C29B00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EA55A00-9294-43D9-AD98-C42CE5C29B00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EA55A00-9294-43D9-AD98-C42CE5C29B00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EA55A00-9294-43D9-AD98-C42CE5C29B00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236F60C4-E032-461B-8DEC-27029D35DF20}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0A8DF81-C0B2-4050-823B-B49E0ACD81CD}
+	EndGlobalSection
+EndGlobal

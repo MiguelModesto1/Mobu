@@ -241,6 +241,9 @@ namespace mobu_backend.Migrations
                     b.Property<DateTime>("DataJuncao")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DataNasc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -256,7 +259,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDAdmin");
 
-                    b.ToTable("Admin");
+                    b.ToTable("Admin", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
@@ -277,7 +280,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("DonoListaFK");
 
-                    b.ToTable("Amigo");
+                    b.ToTable("Amigo", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Destinatario_Pedidos_Amizade", b =>
@@ -287,6 +290,9 @@ namespace mobu_backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDPedido"));
+
+                    b.Property<DateTime>("DataHoraPedido")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EstadoPedido")
                         .HasColumnType("int");
@@ -301,7 +307,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("RemetenteFK");
 
-                    b.ToTable("Destinatario_Pedidos_Amizade");
+                    b.ToTable("Destinatario_Pedidos_Amizade", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
@@ -316,6 +322,9 @@ namespace mobu_backend.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("DataHoraMsg")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("EstadoMensagem")
                         .HasColumnType("int");
@@ -335,7 +344,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("SalaFK");
 
-                    b.ToTable("Mensagem");
+                    b.ToTable("Mensagem", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
@@ -361,7 +370,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("Registados_Salas_Chat");
+                    b.ToTable("Registados_Salas_Chat", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
@@ -387,7 +396,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("Registados_Salas_Jogo");
+                    b.ToTable("Registados_Salas_Jogo", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
@@ -400,7 +409,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDSala");
 
-                    b.ToTable("Sala_Jogo_1_Contra_1");
+                    b.ToTable("Sala_Jogo_1_Contra_1", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Salas_Chat", b =>
@@ -421,7 +430,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDSala");
 
-                    b.ToTable("Salas_Chat");
+                    b.ToTable("Salas_Chat", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Utilizador_Anonimo", b =>
@@ -445,7 +454,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Anonimo");
+                    b.ToTable("Utilizador_Anonimo", (string)null);
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
@@ -465,6 +474,9 @@ namespace mobu_backend.Migrations
                     b.Property<DateTime>("DataJuncao")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DataNasc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -480,7 +492,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Registado");
+                    b.ToTable("Utilizador_Registado", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

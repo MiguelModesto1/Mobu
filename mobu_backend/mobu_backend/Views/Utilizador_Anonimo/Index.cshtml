@@ -10,9 +10,6 @@
 
 <h1>Índice</h1>
 
-<p>
-    <a asp-action="Create">Criar Utilizador Anónimo</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -47,9 +44,7 @@
                  <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/default_avatar.png") />     @*DisplayFor(modelItem => item.Fotografia)*@
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IDUtilizador">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a> |
-                <a asp-action="Delete" asp-route-id="@item.IDUtilizador">Apagar</a>
+                <a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a>
             </td>
         </tr>
 }

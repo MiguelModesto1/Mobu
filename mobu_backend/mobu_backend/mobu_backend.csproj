@@ -16,6 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Mobu_frontend\**" />
+    <Content Remove="Mobu_frontend\**" />
+    <EmbeddedResource Remove="Mobu_frontend\**" />
+    <None Remove="Mobu_frontend\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\imagens\default_avatar.png" />
   </ItemGroup>
 

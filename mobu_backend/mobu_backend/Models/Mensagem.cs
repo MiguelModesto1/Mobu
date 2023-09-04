@@ -42,6 +42,13 @@ namespace mobu_backend.Models
         public string ConteudoMsg { get; set; }
 
         /// <summary>
+        /// Data e hora do ultimo estado da mensagem
+        /// </summary>
+        [Required]
+        [Display(Name = "Data-Hora da mensagem")]
+        public DateTime DataHoraMsg {  get; set; }
+
+        /// <summary>
         /// Estado da mensagem;
         /// 1 - A enviar;
         /// 2 - Enviada;

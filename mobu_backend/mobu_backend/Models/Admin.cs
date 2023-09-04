@@ -37,8 +37,18 @@ namespace mobu_backend.Models
         [Display(Name = "Palavra-passe")]
         public string Password { get; set; }
 
+        /// <summary>
+        /// Data de juncao a plataforma
+        /// </summary>
         [Display(Name = "Data de junção")]
         public DateTime DataJuncao { get; set; }
+
+        /// <summary>
+        /// Data de nascimento
+        /// </summary>
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+        [Display(Name = "Data de Nascimento")]
+        public DateTime DataNasc { get; set; }
 
         /// <summary>
         /// Email do administrador

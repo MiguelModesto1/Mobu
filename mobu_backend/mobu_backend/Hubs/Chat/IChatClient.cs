@@ -3,6 +3,6 @@
     public interface IChatClient
     {
         Task<string> GetMessage();
-        Task ReceiveMessage(string message);
+        Task ReceiveMessage(string user, Message message);
     }
 }
