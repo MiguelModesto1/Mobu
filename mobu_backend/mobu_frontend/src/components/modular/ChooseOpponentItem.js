@@ -1,0 +1,59 @@
+import React,{ useState } from "react";
+import Avatar from "./Avatar";
+
+export default function ChooseOpponentItem({avatar, opponent}){
+
+    const [getIconSpanColor, setIconSpanColor] = useState("#ffffff");
+    const [getSpanBold, setSpanBold] = useState("");
+    const [getDivColor, setDivColor] = useState("#8ab9e5");
+    const [getIsChosen, setIsChosen] = useState(false);
+
+    return(
+        <div 
+        style={{background: getDivColor}}
+        className="choose-opponent-item"
+        onClick={e => {
+            e.stopPropagation();
+            if(!getIsChosen){
+                setIconSpanColor("#000000");
+                setDivColor("#c4dcf2");
+                setSpanBold("");
+                setIsChosen(true);
+            }else{
+                setIconSpanColor("#ffffff");
+                setDivColor("#8ab9e5");
+                setSpanBold("bold");
+                setIsChosen(false);
+            }
+        }}>
+            <Avatar avatarProps={{
+                src:avatar,
+                alt:"foto de " + opponent,
+                size:"40px"
+            }} />
+            <div className="opponent-name-div">
+                <span 
+                style={{color: getIconSpanColor , fontWeight: getSpanBold}}
+                className="opponent-name-span">
+                    {opponent}
+                </span>
+            </div>
+            <div className={"choice-tick-icon"}>
+                <svg 
+                xmlns="http://www.w3.org/2000/svg"
+                width={30} 
+                height={30} 
+                viewBox="0 0 30 30"
+                fill="none">
+                    <path 
+                    d="M25 7.5L11.25 21.25L5 15" 
+                    stroke={getIconSpanColor}
+                    strokeWidth={5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"/>
+                </ svg>
+            </div>
+        </div>
+    );
+
+}

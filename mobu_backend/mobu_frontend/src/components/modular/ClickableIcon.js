@@ -1,0 +1,32 @@
+import React,{ useState } from "react";
+
+export default function ClickableIcon({CIProps, fromParent=null, onClick}){ 
+    
+    return(
+        <div 
+        onClick={e => {
+            e.stopPropagation();
+            onClick();
+        }} 
+        className={fromParent === null ? undefined : fromParent + "-clickable-icon"}
+        width={CIProps.size} 
+        height={CIProps.size} 
+        >
+            <svg 
+            xmlns="http://www.w3.org/2000/svg"
+            width={CIProps.size} 
+            height={CIProps.size} 
+            viewBox={"0 0 " + CIProps.size + " " + CIProps.size}
+            fill={CIProps.fill}>
+                <path 
+                d={CIProps.path.d} 
+                stroke={CIProps.path.stroke}
+                strokeWidth={CIProps.path.strokeWidth}
+                strokeLinecap={CIProps.path.strokeLinecap}
+                strokeLinejoin={CIProps.path.strokeLinejoin}/>
+            </ svg>
+        </div>
+    );
+
+    
+}
