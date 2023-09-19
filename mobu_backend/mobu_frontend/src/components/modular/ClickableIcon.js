@@ -1,5 +1,14 @@
 import React,{ useState } from "react";
 
+/**
+ * 
+ * Item clicavel generico
+ * 
+ * @param {*} CIProps propriedades do icon : size, fill, path.d, path.stroke, path.strokeLinecap, path.strokeLinejoin
+ * @param {*} fromParent
+ * @param {*} onClick 
+ * @returns 
+ */
 export default function ClickableIcon({CIProps, fromParent=null, onClick}){ 
     
     return(

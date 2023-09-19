@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using mobu_backend.Data;
 
@@ -11,9 +12,11 @@ using mobu_backend.Data;
 namespace mobu_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230917210609_change_chat_rooms_model")]
+    partial class change_chat_rooms_model
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -294,6 +297,9 @@ namespace mobu_backend.Migrations
                     b.Property<DateTime>("DataHoraPedido")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("EstadoPedido")
+                        .HasColumnType("int");
+
                     b.Property<int>("IDDestinatarioPedido")
                         .HasColumnType("int");
 
@@ -322,6 +328,9 @@ namespace mobu_backend.Migrations
 
                     b.Property<DateTime>("DataHoraMsg")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("EstadoMensagem")
+                        .HasColumnType("int");
 
                     b.Property<int>("IDMensagem")
                         .HasColumnType("int");

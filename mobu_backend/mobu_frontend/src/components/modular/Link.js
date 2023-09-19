@@ -1,5 +1,14 @@
-import React,{ useState } from "react";
+import React from "react";
 
+/**
+ * 
+ * Link generico
+ * 
+ * @param {*} linkProps propriedades do link : href, text
+ * @param {*} fromParent texto de classe do componente pai
+ * @param onClick gestor de clique no link 
+ * @returns 
+ */
 export default function Link({linkProps, fromParent=null, onClick=null}){ 
     
     return(

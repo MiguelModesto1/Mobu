@@ -1,9 +1,28 @@
 import React,{ useMemo, useEffect, useState } from "react";
 import Input from "./Input";
 
-export default function ProfileProperty({keyProp, text, isEditing, isChangingPassword}){
+/**
+ * 
+ * Propriedade de perfil
+ * 
+ * @param {*} keyProp chave da propriedade
+ * @param text valor da propriedade
+ * @param isEditing booleano de edicao
+ * @param isChangingPassword booleano de mudanca de password 
+ * @param onChangeText gestor de mudanca de texto
+ * @returns 
+ */
+export default function ProfileProperty({keyProp, isEditing, isChangingPassword, onChangeText=null}){
 
-    const [getRenderResult, setRenderResult] = useState(<></>);
+    const [renderResult, setRenderResult] = useState(<></>);
+    const [text, setText] = useState("");
+
+    const handleTextChange = (value) => {
+        setText(value);
+        if(onChangeText !== null){
+            onChangeText(value);
+        }
+    }
 
     useMemo(() => {
         if(isEditing){
@@ -13,7 +32,8 @@ export default function ProfileProperty({keyProp, text, isEditing, isChangingPas
                 placeholder:"",
                 value:text
             }}
-            fromParent="profile" />);
+            fromParent="profile" 
+            onChange={handleTextChange}/>);
         }else if(isChangingPassword){
             setRenderResult(<Input input={{
                 title:"",
@@ -21,7 +41,8 @@ export default function ProfileProperty({keyProp, text, isEditing, isChangingPas
                 placeholder:"",
                 value:""
             }}
-            fromParent="profile" />);
+            fromParent="profile"
+            onChange={handleTextChange} />);
         }else{
             setRenderResult(
                 <span className="profile-value-span">{text}</span>
@@ -33,7 +54,7 @@ export default function ProfileProperty({keyProp, text, isEditing, isChangingPas
     return(
         <div className="profile-prop-div">
             <span className="profile-key-span">{keyProp + " :"}</span>
-            {getRenderResult}
+            {renderResult}
         </div>
     );
 

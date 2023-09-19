@@ -2,7 +2,7 @@ import React,{ useState } from "react";
 import { useContextMenu } from "../../../hooks/useContextMenu";
 import MenuItem from "../../modular/MenuItem";
 
-export default function FriendContextMenu(){ 
+export default function FriendContextMenu({showMenuOnRightClick}){ 
 
     const handleClick = (endpoint) => {
         switch(endpoint){
@@ -16,7 +16,7 @@ export default function FriendContextMenu(){
     const { xPos, yPos, showMenu } = useContextMenu();
     return (
         <>
-        {showMenu ? (
+        {showMenu && showMenuOnRightClick ? (
             <div
             className="menu-container"
             style={{

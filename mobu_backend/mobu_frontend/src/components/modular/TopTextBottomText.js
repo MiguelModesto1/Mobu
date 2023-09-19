@@ -1,12 +1,22 @@
 import React,{ useState } from "react";
 
-export default function TopTextBottomText({marginRight=null, TTBTProps}){ //
+/**
+ * 
+ * Conjunto de textos (superior e inferior)
+ * 
+ * @param {*} marginRight margem a direita
+ * @param TTBTProps propriedades do conjunto textos : text.top, text.bottom 
+ * @returns 
+ */
+export default function TopTextBottomText({isSelected= null, marginRight=null, TTBTProps}){ //
     
     return(
         <div 
         marginRight={marginRight === null ? undefined : marginRight}
         className="top-bottom-text-div">
-            <span className="top-text">
+            <span 
+            style={isSelected ? undefined: {fontWeight: "bold"}} 
+            className="top-text">
                 {TTBTProps.top}
             </span>
             <br />

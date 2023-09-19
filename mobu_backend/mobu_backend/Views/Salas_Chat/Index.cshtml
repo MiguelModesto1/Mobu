@@ -1,7 +1,11 @@
 ﻿@model IEnumerable<mobu_backend.Models.Salas_Chat>
 
+@inject IHttpContextAccessor http;
+
 @{
     ViewData["Title"] = "Índice";
+
+    var request = http.HttpContext.Request;
 }
 
 <h1>Índice</h1>
@@ -18,6 +22,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.SeGrupo)
             </th>
+            <th>
+                Fotografia
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -32,6 +39,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.SeGrupo)
+            </td>
+            <td>
+                <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />
             </td>
             <td>
                     <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a>

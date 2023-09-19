@@ -1,5 +1,12 @@
 import React,{ useState } from "react";
 
+/**
+ * 
+ * Componente para o avatar do utilizador.
+ * 
+ * @param {*} avatarProps propriedades do avatar: size, src, alt
+ *
+ */
 export default function Avatar({avatarProps}){ //
     
     return(

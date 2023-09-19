@@ -23,14 +23,28 @@ import SearchBar from '../searchPeople/SearchBar';
 
 export default function App(){
 
-    function handleClick(prm){
+    function handleClick(){
         //window.location.assign("https://www.google.com");
         window.location.assign("./assets/images/logo512.png");
     }
 
     return(
         <>
-            <SearchBar />
+            <Input 
+            input={{
+                title:"",
+                type:"file",
+                value:"",
+                placeholder:""
+            }}
+            fromParent="hidden-app"
+            display="none"/>
+
+            <Button 
+            text="File"
+            onClick={e => {
+                document.getElementsByClassName('hidden-app-input')[0].click();
+            }}/>
         </>
     );
 

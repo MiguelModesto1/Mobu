@@ -1,6 +1,13 @@
 import React,{ useState } from "react";
 import Avatar from "./Avatar";
 
+/**
+ * 
+ * Item de jogador (mosaicos flutuantes que aparecem durante um jogo)
+ * 
+ * @param {*} PIProps propriedades do item : image, username 
+ * @returns 
+ */
 export default function PlayerItem({PIProps}){ 
 
     return(

@@ -3,6 +3,13 @@ import TopTextBottomText from "../../modular/TopTextBottomText";
 import ClickableIcon from "../../modular/ClickableIcon";
 import "./MessageHeaderBar.css";
 
+/**
+ * 
+ * Cabecalho do painel de mensagens
+ * 
+ * @param {*} text propriedades para o conjunto de textos
+ * @returns 
+ */
 export default function MessageHeaderBar({text}){ 
     
     /* IMPLEMENTAR COM ESTADOS */

@@ -1,8 +1,20 @@
 import React,{ useState } from "react";
 
-export default function TabPanel({children}){ 
+/**
+ * 
+ * POR IMPLEMENTAR
+ * 
+ * @param  
+ * @returns 
+ */
+export default function TabPanel({ownerId}){ 
     
-    /* IMPLEMENTAR COM ESTADOS */
+    const [friendsGroupsList, setFriendsGroupsList] = useState([]);
+    const [itemSelected, setItemSelected] = useState();
+
+    const handleClick = (key, isSelected) => {
+        return isSelected ? setItemSelected() : setItemSelected(key);
+    }
 
     return(
         <div className="tab-panel">

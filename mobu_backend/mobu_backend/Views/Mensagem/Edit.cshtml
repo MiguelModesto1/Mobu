@@ -20,7 +20,7 @@
                 <textarea asp-for="ConteudoMsg" class="form-control"></textarea>
                 <span asp-validation-for="ConteudoMsg" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="EstadoMensagem" class="control-label"></label>
                 <select asp-for="EstadoMensagem" class="form-control">
                     <option value="1">A enviar</option>
@@ -28,8 +28,8 @@
                     <option value="3">Recebida</option>
                     <option value="4">Vista</option>
                 </select>
-                <span asp-validation-for="EstadoMensagem" class="text-danger"></span>
-            </div>
+                <span asp-validation-for="EstadoMensagem" class="text-danger"></sp*>
+            </div>*@
             <div class="form-group">
                 <label asp-for="RemetenteFK" class="control-label"></label>
                 <select asp-for="RemetenteFK" class="form-control" asp-items="ViewBag.remetenteFK"></select>

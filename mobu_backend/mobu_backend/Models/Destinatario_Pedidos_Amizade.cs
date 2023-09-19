@@ -33,7 +33,7 @@ namespace mobu_backend.Models
         [Display(Name = "Data-Hora do pedido")]
         public DateTime DataHoraPedido { get; set; }
 
-        /// <summary>
+        /*/// <summary>
         /// Estado do pedido de amizade
         /// 1 - a enviar
         /// 2 - enviado
@@ -43,7 +43,7 @@ namespace mobu_backend.Models
         /// </summary>
         [EnumDataType(typeof(EstadosPedido))]
         [Display(Name = "Estado do Pedido")]
-        public EstadosPedido EstadoPedido { get; set; }
+        public EstadosPedido EstadoPedido { get; set; }*/
 
         /// <summary>
         /// Chave forasteira que referencia o ID do Remetente
@@ -53,13 +53,13 @@ namespace mobu_backend.Models
         [ForeignKey(nameof(RemetentePedido))]
         public int RemetenteFK { get; set; }
 
-        public enum EstadosPedido
+        /*public enum EstadosPedido
         {
             A_Enviar = 1,
             Enviado = 2,
             Recebido = 3,
             Aceite = 4,
             Recusado = 5
-        }
+        }*/
     }
 }

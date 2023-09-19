@@ -48,7 +48,7 @@ namespace mobu_backend.Models
         [Display(Name = "Data-Hora da mensagem")]
         public DateTime DataHoraMsg {  get; set; }
 
-        /// <summary>
+        /*/// <summary>
         /// Estado da mensagem;
         /// 1 - A enviar;
         /// 2 - Enviada;
@@ -58,7 +58,7 @@ namespace mobu_backend.Models
         [EnumDataType(typeof(EstadosMensagem))]
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
         [Display(Name = "Estado da Mensagem")]
-        public EstadosMensagem EstadoMensagem { get; set; }
+        public EstadosMensagem EstadoMensagem { get; set; }*/
 
         /// <summary>
         /// Chave forasteira que referencia o ID do utilizador
@@ -78,7 +78,7 @@ namespace mobu_backend.Models
         [Display(Name = "Sala")]
         public int SalaFK { get; set; }
 
-        /// <summary>
+        /*/// <summary>
         /// Possíveis estados da mensagem
         /// </summary>
         public enum EstadosMensagem
@@ -87,7 +87,7 @@ namespace mobu_backend.Models
             Enviada = 2,
             Recebida = 3,
             Vista = 4
-        }
+        }*/
     }
 
     

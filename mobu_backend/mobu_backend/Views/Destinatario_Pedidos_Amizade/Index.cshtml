@@ -18,9 +18,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.IDDestinatarioPedido)
             </th>
-            <th>
+            @*<th>
                 @Html.DisplayNameFor(model => model.EstadoPedido)
-            </th>
+            </th>*@
             <th></th>
         </tr>
     </thead>
@@ -36,9 +36,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.IDDestinatarioPedido)
             </td>
-            <td>
+            @*<td>
                 @Html.DisplayFor(modelItem => item.EstadoPedido)
-            </td>
+            </td>*@
             <td>
                 @Html.ActionLink("Detalhes", "Details", new { id=item.IDPedido })
             </td>

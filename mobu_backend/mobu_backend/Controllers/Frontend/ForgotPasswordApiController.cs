@@ -1,19 +1,19 @@
-﻿using System.Security.Cryptography;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using mobu_backend.Areas.Identity.Pages.Account;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol.Plugins;
 
 namespace mobu.Controllers.Frontend;
 
 [ApiController]
-public class LoginApiController : ControllerBase
+public class ForgotPasswordApiController : ControllerBase
 {
 
     /// <summary>
@@ -58,7 +58,7 @@ public class LoginApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
-    public LoginApiController(
+    public ForgotPasswordApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
@@ -79,10 +79,59 @@ public class LoginApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    [HttpPost]
+    [Route("api/forgot-password/send-email")]
+    public async Task<IActionResult> SendEmail([FromBody] string emailJson)
+    {
+        try{
+            StatusCodeResult status;
+            var request = _http.HttpContext.Request;
+            var valid = false;
+            _logger.LogWarning("Entrou no método Post");
+
+            //organizar os dados
+            JObject registerData = JObject.Parse(emailJson);
+
+            var email = registerData.Value<string>("email");
+            
+            // verificacao e envio de email
+            var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
+            var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
+
+            if(identityUser != null){
+
+                valid = true;
+
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                var href = "https://" + request.Host.ToString() + "?email=" + identityUser.Email; //INSERIR ROTA PARA O FORMULARIO DE MUDANCA DE PASSWORD
+
+                var htmlElement = "Para mudar a sua palavra-passe <a href='" + href + "' target='_blank'>clique aqui</a>.";
+
+                EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                await emailSender.SendEmailAsync(identityUser.Email, "Mude a sua palavra passe", htmlElement);
+            }
+            
+
+            status = valid ? NoContent() : NotFound();
+
+            return status;
+
+        }catch(Exception ex){
+            _logger.LogError($"Erro no envio de email: {ex.Message}");
+            return StatusCode(500); // 500 Internal Server Error
+
+        }finally{
+            _logger.LogWarning("Saiu do método Post");
+        }
+        
+    }
 
     [HttpPost]
-    [Route("api/login")]
-    public async Task<IActionResult> UserValidation([FromBody] string loginDataJson)
+    [Route("api/forgot-password/reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] string passwordJson, string email)
     {
         try{
             StatusCodeResult status;
@@ -90,34 +139,29 @@ public class LoginApiController : ControllerBase
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
-            JObject loginData = JObject.Parse(loginDataJson);
-
-            var email = loginData.Value<string>("email");
-            var password = loginData.Value<string>("password");
+            JObject registerData = JObject.Parse(passwordJson);
+            var newPassword = registerData.Value<string>("newPassword");
+            var currPassword = registerData.Value<string>("currentPassword");
             
-            // Validacao de email e password
+            // mudanca de password
             var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
-            if(identityUser != null){
-                var confirmPassword = await _userManager.CheckPasswordAsync(identityUser, password);
-                if(confirmPassword){
-                    valid = true;
-                }
+            if(identityUser != null && newPassword != "" && currPassword != ""){
+                valid = true;
+                await _userManager.ChangePasswordAsync(identityUser, currPassword, newPassword);
             }
 
-            status = valid ? NoContent() : NotFound();
+            valid = true;
             
-            _logger.LogWarning("Saiu do método Post");
+            status = valid ? NoContent() : NotFound();
 
             return status;
         }catch(Exception ex){
-            _logger.LogError($"Error no login: {ex.Message}");
+             _logger.LogError($"Erro na mudança de password: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
         }finally{
             _logger.LogWarning("Saiu do método Post");
         }
-        
-        
     }
 }

@@ -1,9 +1,18 @@
 import React,{ useEffect, useState } from "react";
 import Button from "./Button";
 
+
+/**
+ * 
+ * Mosaico de jogo generico
+ * 
+ * @param {*} gameTileProps propriedades do mosaico de jogo
+ * @param {*} isRegistered booleano que indica se o utilizador e registado 
+ * @returns 
+ */
 export default function GameTile({gameTileProps, isRegistered}){
 
-    const [getButtonSet,setButtonSet] = useState(<></>);
+    const [buttonSet,setButtonSet] = useState(<></>);
 
     function handleRandomButtonClick(){
         alert("Implementar handleRandomButtonClick de GameTile");
@@ -39,7 +48,7 @@ export default function GameTile({gameTileProps, isRegistered}){
             <span className="game-span">{gameTileProps.gameName}</span>
         </div>
         <br />
-        {getButtonSet}
+        {buttonSet}
     </div>
     );
 

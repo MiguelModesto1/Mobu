@@ -3,14 +3,25 @@ import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
 import Button from "./Button";
 
-export default function PersonGroupFoundItem({avatar, personId, personName, isGroup, requestSent}){
+/**
+ * 
+ * Item do resultado da pesquisa
+ * 
+ * @param {*} avatar origem do avatar
+ * @param personId id do utilizador
+ * @param personName nome do utilizador
+ * @param isGroup booleano de grupo
+ * @param isRequestSent booleano de pedido enviado
+ * @returns 
+ */
+export default function PersonGroupFoundItem({avatar, personId, personName, isGroup, isRequestSent}){
 
-    const [getRequestSent, setRequestSent] = useState(requestSent);
-    const [getChangeButtonText, setChangeButtonText] = useState("");
-    const [getChangeButtonColor, setChangeButtonColor] = useState("#3b9ae1");
+    const [requestSent, setRequestSent] = useState(isRequestSent);
+    const [changeButtonText, setChangeButtonText] = useState("");
+    const [changeButtonColor, setChangeButtonColor] = useState("#3b9ae1");
 
     useEffect(() => {
-        if(getRequestSent){
+        if(isRequestSent){
             setChangeButtonText("Cancelar pedido");
             setChangeButtonColor("#ff5f4a");
         }else{
@@ -20,8 +31,8 @@ export default function PersonGroupFoundItem({avatar, personId, personName, isGr
     }, []);
 
     function handleRequestButtonClick(){
-        setRequestSent(!getRequestSent);
-        if(getRequestSent){
+        setRequestSent(!isRequestSent);
+        if(isRequestSent){
             setChangeButtonText("Cancelar pedido");
             setChangeButtonColor("#ff5f4a");
         }else{
@@ -42,8 +53,8 @@ export default function PersonGroupFoundItem({avatar, personId, personName, isGr
                 bottom:personName
             }}/>
             <Button
-            text={getChangeButtonText}
-            color={getChangeButtonColor}
+            text={changeButtonText}
+            color={changeButtonColor}
             onClick={handleRequestButtonClick} />
         </div>
     );

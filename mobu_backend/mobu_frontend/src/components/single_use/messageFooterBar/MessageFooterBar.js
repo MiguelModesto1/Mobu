@@ -3,6 +3,12 @@ import Input from "../../modular/Input";
 import ClickableIcon from "../../modular/ClickableIcon";
 import "./MessageFooterBar.css";
 
+/**
+ * 
+ * Rodape do painel de mensagens
+ * 
+ * @returns 
+ */
 export default function MessageFooterBar(){
 
     /* IMPLEMENTAR COM ESTADOS */

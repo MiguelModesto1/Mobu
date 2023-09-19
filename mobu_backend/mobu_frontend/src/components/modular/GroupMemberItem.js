@@ -3,14 +3,25 @@ import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
 import Button from "./Button";
 
+/**
+ * 
+ * Item do membro do grupo
+ * 
+ * @param {*} avatar origem do avatar
+ * @param {*} personId id do utilizador
+ * @param personName nome do utilizador
+ * @param isAdmin booleano de administrador
+ * @param isEditing booleano de edicao
+ * @returns 
+ */
 export default function GroupMemberItem({avatar, personId, personName, isAdmin, isEditing}){
 
-    const [getExpel, setExpel] = useState(false);
-    const [getAdminLabel, setAdminLabel] = useState(<></>);
-    const [getButton, setButton] = useState(<></>);
+    const [expel, setExpel] = useState(false);
+    const [adminLabel, setAdminLabel] = useState(<></>);
+    const [button, setButton] = useState(<></>);
 
     function handleExpelButtonClick(){
-        if(getExpel){
+        if(expel){
             setExpel(true);
         }
     }
@@ -48,8 +59,8 @@ export default function GroupMemberItem({avatar, personId, personName, isAdmin, 
                 top:personId,
                 bottom:personName
             }}/>
-            {getAdminLabel}
-            {getButton}
+            {adminLabel}
+            {button}
         </div>
     );
 

@@ -1,9 +1,18 @@
 import React,{ useEffect, useMemo, useState } from "react";
 
-export default function Input({input, fromParent=null,onChange=null, isPassword=null}) {
+/**
+ * 
+ * Input generico
+ * 
+ * @param {*} input propriedades do input : title, type, value, placeholder
+ * @param fromParent texto de classe do componente pai
+ * @param onChange gestor de mudanca no input
+ * @returns 
+ */
+export default function Input({input, fromParent=null,onChange=null, display=null}) {
 
-    const [getSpan, setSpan] = useState(<></>);
-    const [getText, setText] = useState("");
+    const [span, setSpan] = useState(<></>);
+    const [text, setText] = useState("");
 
     useEffect(() => {
         if(input.title == ""){
@@ -22,19 +31,20 @@ export default function Input({input, fromParent=null,onChange=null, isPassword=
 
     return(
         <>
-            {getSpan}
+            {span}
             <input
                 onChange={e => {
                     e.stopPropagation();
                     setText(e.target.value);
                     if(onChange !== null){
-                        onChange();
+                        onChange(e.target.value);
                     }
                 }}
+                style={display === null ? undefined : {display: display}}
                 className={fromParent === null ? undefined : fromParent + "-input"}
                 type={input.type === "" ? "text" : input.type} 
                 placeholder={input.placeholder === "" ? undefined : input.placeholder}
-                value={getText} />
+                value={text} />
         </ >
     );
 }

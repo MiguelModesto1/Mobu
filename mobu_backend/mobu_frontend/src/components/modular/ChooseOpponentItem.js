@@ -1,20 +1,28 @@
 import React,{ useState } from "react";
 import Avatar from "./Avatar";
 
+/**
+ * 
+ * Item para escolher o oponente de jogo
+ * 
+ * @param {*} avatar origem do avatar
+ * @param {*} opponent nome do oponente 
+ * @returns 
+ */
 export default function ChooseOpponentItem({avatar, opponent}){
 
-    const [getIconSpanColor, setIconSpanColor] = useState("#ffffff");
-    const [getSpanBold, setSpanBold] = useState("");
-    const [getDivColor, setDivColor] = useState("#8ab9e5");
-    const [getIsChosen, setIsChosen] = useState(false);
+    const [iconSpanColor, setIconSpanColor] = useState("#ffffff");
+    const [spanBold, setSpanBold] = useState("");
+    const [divColor, setDivColor] = useState("#8ab9e5");
+    const [isChosen, setIsChosen] = useState(false);
 
     return(
         <div 
-        style={{background: getDivColor}}
+        style={{background: divColor}}
         className="choose-opponent-item"
         onClick={e => {
             e.stopPropagation();
-            if(!getIsChosen){
+            if(!isChosen){
                 setIconSpanColor("#000000");
                 setDivColor("#c4dcf2");
                 setSpanBold("");
@@ -33,7 +41,7 @@ export default function ChooseOpponentItem({avatar, opponent}){
             }} />
             <div className="opponent-name-div">
                 <span 
-                style={{color: getIconSpanColor , fontWeight: getSpanBold}}
+                style={{color: iconSpanColor , fontWeight: spanBold}}
                 className="opponent-name-span">
                     {opponent}
                 </span>
@@ -47,7 +55,7 @@ export default function ChooseOpponentItem({avatar, opponent}){
                 fill="none">
                     <path 
                     d="M25 7.5L11.25 21.25L5 15" 
-                    stroke={getIconSpanColor}
+                    stroke={iconSpanColor}
                     strokeWidth={5}
                     strokeLinecap="round"
                     strokeLinejoin="round"/>

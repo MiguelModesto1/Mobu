@@ -2,6 +2,10 @@ import React,{ useState } from "react";
 import Input from "../../modular/Input";
 import ClickableIcon from "../../modular/ClickableIcon";
 
+/**
+ * Barra de pesquisa de pessoas
+ * @returns 
+ */
 export default function SearchBar(){
 
     function handleChange(){

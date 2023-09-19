@@ -1,18 +1,15 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
 [ApiController]
-public class RegisterApiController : ControllerBase
+public class GroupFoundationApiController : ControllerBase
 {
     /// <summary>
     /// objeto que referencia a Base de Dados do projeto
@@ -37,11 +34,6 @@ public class RegisterApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para aceder ao ambiente do host
-    /// </summary>
-    private readonly IHostEnvironment _hostEnvironment;
-
-    /// <summary>
     /// Interface para a funcao de logging do Remetente de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
@@ -61,10 +53,9 @@ public class RegisterApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
-    public RegisterApiController(
+    public GroupFoundationApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
-        IHostEnvironment hostEnvironment,
         UserManager<IdentityUser> userManager,
         RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
@@ -75,7 +66,6 @@ public class RegisterApiController : ControllerBase
     {
         _context = context;
         _webHostEnvironment = webHostEnvironment;
-        _hostEnvironment = hostEnvironment;
         _userManager = userManager;
         _roleManager = roleManager;
         _logger = logger;
@@ -85,11 +75,11 @@ public class RegisterApiController : ControllerBase
     }
 
     [HttpPost]
-    [Route("api/register")]
+    [Route("api/group-foundation")]
     public async Task<IActionResult> RegisterUser([FromBody] string registerDataJson)
     {
         try{
-            StatusCodeResult status;
+            IActionResult status;
             var valid = false;
             var nomeFoto = "";
             _logger.LogWarning("Entrou no método Post");
@@ -97,14 +87,11 @@ public class RegisterApiController : ControllerBase
             //organizar os dados
             JObject registerData = JObject.Parse(registerDataJson);
 
+            var groupName = registerData.Value<string>("groupName");
             var avatar = registerData.Value<string>("avatar");
-            var username = registerData.Value<string>("username");
-            var email = registerData.Value<string>("email");
-            var password = registerData.Value<string>("password");
+            var adminId = registerData.Value<int>("adminId");
             
-            // Criacao de utilizador com username, email e password
-
-            // avatar
+            // Criacao de grupo com nome e avatar
 
             if(avatar != ""){
                 // Conversao de imagem
@@ -144,90 +131,36 @@ public class RegisterApiController : ControllerBase
             }else{
                 nomeFoto = "default_avatar.png";
             }
+            
 
-            Utilizador_Registado user = new(){
-                NomeUtilizador = username,
-                Email = email,
-                NomeFotografia = nomeFoto,
-                DataFotografia = DateTime.Now
+            Salas_Chat salas_Chat = new()
+                {
+                    NomeFotografia = nomeFoto,
+                    DataFotografia = DateTime.Now,
+                    NomeSala = groupName,
+                    SeGrupo = true
+                };
+
+            // associacao com o fundador do grupo
+            Registados_Salas_Chat registados_Salas_Chat = new(){
+                IsAdmin = true,
+                UtilizadorFK = adminId
             };
 
-            _context.Attach(user);
+            _context.Attach(salas_Chat);
+            _context.Attach(registados_Salas_Chat);
             await _context.SaveChangesAsync();
 
-            // guardar dados no identitiy
-            
-            await _userManager.CreateAsync(new IdentityUser(){
-                UserName = username,
-                Email = email
-            });
-
-            var identityUser = await _userManager.FindByEmailAsync(email);
-
-            await _userManager.AddPasswordAsync(identityUser, password);
-
-            // adicionar a role se esta existir
-
-            if(!await _roleManager.RoleExistsAsync("Registered")){
-                await _roleManager.CreateAsync(new IdentityRole("Registered"));
-            }
-
-            await _userManager.AddToRoleAsync(identityUser,"Registered");
-
-            // enviar email de confirmacao
-
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var request = _http.HttpContext.Request;
-
-            var href = "https://" + request.Host.ToString() + "/api/confirm-new-account?email=" + identityUser.Email + "&code=" + code; // IMPLEMENTAR ROTA PARA A PAGINA DE AGRADECIMENTO
-
-            var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
-
-            EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
-
-            await emailSender.SendEmailAsync(identityUser.Email, "Confirme o seu email", htmlElement);
-
-            status = valid ? NoContent() : NotFound();
+            status = valid ? CreatedAtAction(nameof(groupName), new { id = salas_Chat.IDSala }, salas_Chat) : NotFound();
             
             return status;
+            
         }catch(Exception ex){
-            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
+            _logger.LogError($"Error no envio de email: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
         }finally{
             _logger.LogWarning("Saiu do método Post");
         }
         
-    }
-
-    [HttpGet]
-    [Route("api/confirm-new-account")]
-    public async Task<IActionResult> ConfirmNewAccount (string code, string email){
-        try{
-
-            IActionResult confirmedResp;
-            var valid = false;
-            _logger.LogWarning("Entrou no método Post");
-
-            // confirmar nova conta
-            var identityProfileList = await _userManager.GetUsersInRoleAsync("Registered");
-            var identityProfile = identityProfileList.FirstOrDefault(u => u.Email == email);
-
-            if(identityProfile != null){
-                await _userManager.ConfirmEmailAsync(identityProfile, code);
-
-                valid = true;
-            }
-
-            confirmedResp = valid ? Redirect(Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "") : NotFound(); //IMPLEMENTAR ROTA PARA PAGINA DE LOGIN
-
-            return confirmedResp;
-
-        }catch(Exception ex){
-            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
-            return StatusCode(500); // 500 Internal Server Error
-        }finally{
-            _logger.LogWarning("Saiu do método Post");
-        }
     }
 }

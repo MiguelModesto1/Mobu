@@ -2,6 +2,13 @@ import React,{ useState } from "react";
 import TabHeader from "../../modular/TabHeader";
 import TabPanel from "../../modular/TabPanel";
 
+/**
+ * 
+ * POR IMPLEMENTAR
+ * 
+ * @param 
+ * @returns 
+ */
 export default function FriendsTab({text, children}){
     
     return(
