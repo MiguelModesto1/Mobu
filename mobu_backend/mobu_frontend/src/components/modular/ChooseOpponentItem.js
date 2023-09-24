@@ -9,7 +9,7 @@ import Avatar from "./Avatar";
  * @param {*} opponent nome do oponente 
  * @returns 
  */
-export default function ChooseOpponentItem({avatar, opponent}){
+export default function ChooseOpponentItem({owner, connection, avatar, opponent, opponentId, numOpponents, maxOpponents, onClick}){
 
     const [iconSpanColor, setIconSpanColor] = useState("#ffffff");
     const [spanBold, setSpanBold] = useState("");
@@ -27,11 +27,26 @@ export default function ChooseOpponentItem({avatar, opponent}){
                 setDivColor("#c4dcf2");
                 setSpanBold("");
                 setIsChosen(true);
+                onClick(numOpponents - 1);
             }else{
-                setIconSpanColor("#ffffff");
-                setDivColor("#8ab9e5");
-                setSpanBold("bold");
-                setIsChosen(false);
+                if(numOpponents !== maxOpponents){
+                    setIconSpanColor("#ffffff");
+                    setDivColor("#8ab9e5");
+                    setSpanBold("bold");
+                    setIsChosen(false);
+                    onClick(numOpponents + 1);
+                }else{
+                    connection.invoke("SendChallengeToUser", opponentId + "", opponent);
+                    
+                    connection.on("ReceiveReply", function(replier, interested){
+                        if(interested){
+                            window.location.assign("./game")
+                        }else{
+                            window.location.assign("./messages")
+                        }
+                    })
+                }
+                
             }
         }}>
             <Avatar avatarProps={{

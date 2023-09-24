@@ -21,6 +21,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsFundador)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pontos)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -34,7 +37,13 @@
                 @Html.DisplayFor(modelItem => item.Utilizador.NomeUtilizador)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Sala.IDSala)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.IsFundador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Pontos)
             </td>
             <td>
                 @Html.ActionLink("Detalhes", "Details", new { id=item.IDRegisto })

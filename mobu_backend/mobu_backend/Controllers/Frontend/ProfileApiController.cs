@@ -98,6 +98,18 @@ public class ProfileApiController : ControllerBase
                     valid = true;
                     profileObj.Add("avatar", profile.NomeFotografia);
                     profileObj.Add("groupName", profile.NomeSala);
+
+                    object [] registadosSalas = _context.Registados_Salas_Chat
+                    .Where(rs => rs.SalaFK == id)
+                    .Select(rs => new{
+                        rs.UtilizadorFK,
+                        rs.Utilizador.NomeUtilizador,
+                        rs.Utilizador.NomeFotografia,
+                        rs.IsAdmin
+                    })
+                    .ToArray();
+
+                    profileObj.Add("members", registadosSalas.ToJson());
                 }
             }else{
                 Utilizador_Registado profile = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.IDUtilizador == id);

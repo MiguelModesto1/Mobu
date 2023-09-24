@@ -8,15 +8,14 @@ import Avatar from "../../modular/Avatar"
  * 
  * Perfil individual
  * 
- * @param {*} avatarSrc origem do avatar 
- * @param birthDateProp data de nascimento do utilizador
- * @param emailProp email do utilizador
- * @param isOwner booleano de perfil do proprio utilizador
  * @returns 
  */
-export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, isOwner}){
+export default function PersonProfile(){
 
-    //TORNAR CODIGO DRY
+    const queryStrings = new URLSearchParams(window.location.href);
+
+    const id = queryStrings.get("id");
+    const isOwner = queryStrings.get("isOwner");
 
     const [username, setUsername] = useState("");
     const [birthDate, setBirthDate] = useState("");
@@ -35,7 +34,7 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
             :
             <></>}
             <Avatar avatarProps={{
-            src:avatarSrc,
+            src:avatar,
             alt:"avatar de " + id,
             size:"300px"
             }} />
@@ -49,12 +48,12 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
             isChangingPassword={false}  />
             <ProfileProperty 
             keyProp="Data de nascimento" 
-            text={birthDateProp} 
+            text={birthDate} 
             isEditing={false}
             isChangingPassword={false} />
             <ProfileProperty 
             keyProp="E-mail"
-            text={emailProp} 
+            text={email} 
             isEditing={false}
             isChangingPassword={false} />
             {isOwner ? <Button 
@@ -72,20 +71,22 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
 
         const queryParams = `?id=${id}&isGroup=false`
 
-        fetch(process.env.REACT_APP_API_URL + "profile/get-profile" + queryParams, options)
-        .then((response) => [response.json(), response.status])
-        .then((data) => {
-            if(data[1] === 204){
-                setAvatar(data[0].avatar);
-                setUsername(data[0].username);
-                setEmail(data[0].email);
-                setBirthDate(data[0].birthDate);
+        fetch(process.env.REACT_APP_API_URL + "/profile/get-profile" + queryParams, options)
+        .then((response) => {
+            if(response.status === 204){
+                return response.json();
             }else{
                 setWarningText("Perfil inválido ou inexistente!")
-            } 
+            }
+        })
+        .then((data) => {
+            setAvatar(data.avatar);
+            setUsername(data.username);
+            setEmail(data.email);
+            setBirthDate(data.birthDate);
         })
         .catch((err) => {console.error("error", err)});
-    },[]);
+    },[id]);
 
     const postProfile = async () =>{
 
@@ -115,10 +116,9 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
                     }
                 }
                 if(newPassword === passwordVerf){
-                    fetch(process.env.REACT_APP_API_URL + "profile/edit-person-profile", options)
-                    .then((response) => response.status)
-                    .then((status) => {
-                        setWarningText(status === 404 ? "Tentativa de edição de perfil inválida" : "");
+                    fetch(process.env.REACT_APP_API_URL + "/profile/edit-person-profile", options)
+                    .then((response) => {
+                        setWarningText(response.status === 404 ? "Tentativa de edição de perfil inválida" : "");
                     })
                     .catch(err => {console.error("error", err)});
                 }else{
@@ -143,7 +143,7 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
                 :
                 <></>}
                 <Avatar avatarProps={{
-                src:avatarSrc,
+                src:avatar,
                 alt:"avatar de " + username,
                 size:"300px"
                 }} />
@@ -183,7 +183,7 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
                 :
                 <></>}
                 <Avatar avatarProps={{
-                src:avatarSrc,
+                src:avatar,
                 alt:"avatar de " + username,
                 size:"280px"
                 }} />
@@ -237,7 +237,7 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
                 :
                 <></>}
                 <Avatar avatarProps={{
-                src:avatarSrc,
+                src:avatar,
                 alt:"avatar de " + username,
                 size:"280px"
                 }} />
@@ -302,7 +302,7 @@ export default function PersonProfile({avatarSrc, birthDateProp, emailProp, id, 
                 :
                 <></>}
                 <Avatar avatarProps={{
-                src:avatarSrc,
+                src:avatar,
                 alt:"avatar de " + username,
                 size:"300px"
                 }} />

@@ -7,7 +7,6 @@ export default function GroupContextMenu({showMenuOnRightClick}){
     const handleClick = (endpoint) => {
         switch(endpoint){
             case "perfil" : return "";
-            case "jogar" : return "";
             default : return "";
         }
     }
@@ -25,7 +24,6 @@ export default function GroupContextMenu({showMenuOnRightClick}){
             }}
             >
                     <MenuItem text="Perfil de grupo" onClick={handleClick} onClickPrm="perfil" />
-                    <MenuItem text="Jogar contra..." onClick={handleClick} onClickPrm="jogar" />
                     <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
             </div>
         ) : (

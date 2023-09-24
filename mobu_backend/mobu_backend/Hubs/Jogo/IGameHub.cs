@@ -2,10 +2,12 @@
 {
     public interface IGameHub
     {
-        Task<GameRoomState> GetGameRoomState();
+        Task<string> GetGameRoomState();
 
-        Task ReceiveGameRoomState(GameRoomState gameRoomState);
+        Task ReceiveGameRoomState(string gameRoomState);
 
-        Task ReceiveChallenge(string user, bool interested);
+        Task ReceiveChallenge(string fromUser, string username);
+
+        Task ReceiveReply(string replier, bool interested);
     }
 }

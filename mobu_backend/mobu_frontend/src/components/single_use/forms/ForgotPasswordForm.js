@@ -28,12 +28,12 @@ export default function ForgotPasswordForm(){
             }
         }
 
-        await fetch(process.env.REACT_APP_API_URL + "forgot-password/send-email", options)
-        .then((response) => response.status)
-        .then((status) => {
-            setWarningText(status === 404 ? "Tentativa de envio de email inválida" : "");
-            if(status === 204){
-                //redirecionar aqui para a rota da pagina de login
+        await fetch(process.env.REACT_APP_API_URL + "/forgot-password/send-email", options)
+        .then((response) => {
+            if(response.status === 204){
+                window.location.assign("./password-reset");
+            }else{
+                setWarningText("Tentativa de envio de email inválida");
             }
         })
         .catch(err => {console.error("error", err)});

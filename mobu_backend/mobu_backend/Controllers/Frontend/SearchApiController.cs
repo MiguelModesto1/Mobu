@@ -80,37 +80,51 @@ public class SearchApiController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetUnknownPeopleAndGroups(int id, string name, string email)
+    public IActionResult GetUnknownPeopleAndGroups(string query)
     {
         try{
-            IActionResult unknownPeopleAndGroupsResp;
-            JObject unknownPeopleAndGroupsObj = JObject.FromObject(new object());
-            object [] unknownPeople = {};
-            object [] unknownGroups = {};
-            var valid = false;
+            JObject unknownPeopleAndGroupsObj = new();
+            object [] unknownPeople = Array.Empty<object>();
+            object [] unknownGroups = Array.Empty<object>();
 
             _logger.LogWarning("Entrou no método Get");
 
             // fabricar lista de todos os desconhecidos do utilizador com ID=id
 
             // pesquisar por id
-            if(id != 0){
-                valid = true;
-                unknownPeople = unknownPeople.Union(_context.Utilizador_Registado.Where(u => u.IDUtilizador == id).ToArray()).ToArray();
-                unknownGroups = unknownGroups.Union(_context.Salas_Chat.Where(s => s.IDSala == id).ToArray()).ToArray();
-            }
+            if(query != null){
+                unknownPeople = unknownPeople
+                .Union(_context.Utilizador_Registado
+                .Where(u => u.IDUtilizador.ToString() == query)
+                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .ToArray())
+                .ToArray();
+                unknownGroups = unknownGroups
+                .Union(_context.Salas_Chat
+                .Where(s => s.IDSala.ToString() == query && s.SeGrupo)
+                .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
+                .ToArray())
+                .ToArray();
 
-            // pesuqisar por nome
-            if(name != ""){
-                valid = true;
-                unknownPeople = unknownPeople.Union(_context.Utilizador_Registado.Where(u => u.NomeUtilizador == name).ToArray()).ToArray();
-                unknownGroups = unknownGroups.Union(_context.Salas_Chat.Where(u => u.NomeSala == name).ToArray()).ToArray();
-            }
+                unknownPeople = unknownPeople
+                .Union(_context.Utilizador_Registado
+                .Where(u => u.NomeUtilizador == query)
+                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .ToArray())
+                .ToArray();
+                unknownGroups = unknownGroups
+                .Union(_context.Salas_Chat
+                .Where(s => s.NomeSala == query && s.SeGrupo)
+                .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
+                .ToArray())
+                .ToArray();
 
-            // pesqusiar par email
-            if(email != ""){
-                valid = true;
-                unknownPeople = unknownPeople.Union(_context.Utilizador_Registado.Where(u => u.Email == email).ToArray()).ToArray();
+                unknownPeople = unknownPeople
+                .Union(_context.Utilizador_Registado
+                .Where(u => u.Email == query)
+                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .ToArray())
+                .ToArray();
             }
 
             var unknownArray = unknownPeople.Union(unknownGroups).ToArray();
@@ -119,11 +133,11 @@ public class SearchApiController : ControllerBase
             Array.Sort(unknownArray);
 
             // adicionar array ao objeto JSON
-            unknownPeopleAndGroupsObj.Add(unknownArray);
+            unknownPeopleAndGroupsObj.Add("unknown", unknownArray.ToJToken());
 
-            unknownPeopleAndGroupsResp = valid ? Ok(unknownPeopleAndGroupsObj.ToJson()) : NotFound();
+            var u = unknownPeopleAndGroupsObj.ToJson();
 
-            return unknownPeopleAndGroupsResp;
+            return Ok(unknownPeopleAndGroupsObj.ToJson());
 
         }catch(Exception ex){
             _logger.LogError($"Error na pesquisa de um perfil: {ex.Message}");

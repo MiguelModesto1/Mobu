@@ -2,9 +2,9 @@
 {
     public interface IRequestHub
     {
-        Task<int> GetRequestState();
+        Task<string> GetRequestState();
 
-        Task ReceiveRequest(string user, Request request);
+        Task ReceiveRequest(string user, string fromUsername);
 
         Task ReceiveRequestReply(string user, bool reply);
     }

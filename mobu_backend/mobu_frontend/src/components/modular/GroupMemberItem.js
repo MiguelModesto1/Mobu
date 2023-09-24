@@ -14,17 +14,10 @@ import Button from "./Button";
  * @param isEditing booleano de edicao
  * @returns 
  */
-export default function GroupMemberItem({avatar, personId, personName, isAdmin, isEditing}){
+export default function GroupMemberItem({id, connection, avatar, personId, personName, isAdmin, isEditing, onMemberExpeling}){
 
-    const [expel, setExpel] = useState(false);
     const [adminLabel, setAdminLabel] = useState(<></>);
     const [button, setButton] = useState(<></>);
-
-    function handleExpelButtonClick(){
-        if(expel){
-            setExpel(true);
-        }
-    }
 
     useEffect(() => {
         if(isAdmin){
@@ -40,11 +33,21 @@ export default function GroupMemberItem({avatar, personId, personName, isAdmin, 
             setButton(isEditing ?
                 <Button
                 text="Expulsar"
-                color="#3b9ae1"
-                onClick={handleExpelButtonClick} /> : <></>);
+                color="#ff5f4a"
+                onClick={() =>{
+                    connection.invoke("LeaveGroup", personId + "", id + "");
+
+                    onMemberExpeling([
+                        personId,
+                        personName,
+                        avatar,
+                        isAdmin
+                    ]);
+                    
+                }} /> : <></>);
     
         }
-    }, [])
+    }, [avatar, connection, id, isAdmin, isEditing, onMemberExpeling, personId, personName])
 
     return(
         <div className="person-group-found-item-div">

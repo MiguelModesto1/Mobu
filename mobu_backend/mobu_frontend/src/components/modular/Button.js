@@ -10,14 +10,14 @@ import React,{ useState } from "react";
  * @param {*} onClick gestor de clique do botao
  * @returns 
  */
-export default function Button({text, color=null, fromParent=null, onClick}){ //
+export default function Button({text, color=null, fromParent=null, onClick, params=null}){ //
     
     return(
             <button
             style={color === null ? undefined :{background: color}}
             onClick={e => {
                 e.stopPropagation();
-                onClick();
+                onClick(params === null ? undefined : params[0], params[1]);
             }} 
             className={fromParent === null ? undefined : fromParent + "-button"}>
                 {text}

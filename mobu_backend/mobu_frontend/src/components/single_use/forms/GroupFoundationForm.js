@@ -53,13 +53,12 @@ export default function GroupFoundationForm({adminId}){
             }
 
             await fetch(process.env.REACT_APP_API_URL + "group-foundation", options)
-            .then((response) => [response.json(), response.status])
-            .then((data) => {
-            console.log(data[0]);
-            setWarningText(data[1] === 404 ? "Tentativa de formação de grupo inválida" : "");
-            if(data[1] === 201){
-                //redirecionar aqui para a rota da pagina de mensagens
-            }
+            .then((response) => {
+                if(response.status === 201){
+                    window.location.assign("./")
+                }else{
+                    setWarningText("Tentativa de formação de grupo inválida");
+                }
             })
             .catch(err => {console.error("error", err)});
             };
@@ -71,17 +70,19 @@ export default function GroupFoundationForm({adminId}){
 
     return(
         <div className="form">
-            {warningText != "" ?
+            {warningText !== "" ?
             <div className="warning-span-div">
                 <span className="warning-span" color="#ff5f4a">{warningText}</span>
             </div>
             :
             <></>}
             <div className="avatar-div">
-                <Avatar
-                src={avatar}
-                size="240px"
-                alt="Meu avatar"/>
+                <Avatar avatarProps={{
+                    src:{avatar},
+                    size:"240px",
+                    alt:"Meu avatar"
+                }}
+                />
                 <Input
                 input={{
                     title:"",

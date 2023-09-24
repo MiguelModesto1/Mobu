@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
+using mobu_backend.Migrations;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
@@ -222,6 +223,45 @@ public class RegisterApiController : ControllerBase
             confirmedResp = valid ? Redirect(Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "") : NotFound(); //IMPLEMENTAR ROTA PARA PAGINA DE LOGIN
 
             return confirmedResp;
+
+        }catch(Exception ex){
+            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
+            return StatusCode(500); // 500 Internal Server Error
+        }finally{
+            _logger.LogWarning("Saiu do método Post");
+        }
+    }
+
+    [HttpPost]
+    [Route("api/guest")]
+    public async Task<IActionResult> Guest([FromBody] string create){
+        try{
+            IActionResult status;
+            var valid = false;
+            Utilizador_Anonimo anon = null;
+            JObject resp = new();
+            _logger.LogWarning("Entrou no método Post");
+
+            //organizar os dados
+            JObject registerData = JObject.Parse(create);
+            
+            // Criacao de anonimo novo
+
+            if(registerData.Value<bool>("create")){
+                valid = true;
+                anon = new();
+
+                _context.Attach(anon);
+                await _context.SaveChangesAsync();
+            }
+
+            int  anonId = anon.IDUtilizador;
+
+            resp.Add("anonymous", anonId.ToJToken());
+
+            status = valid ? Ok(resp.ToJson()) : NotFound();
+
+            return status;
 
         }catch(Exception ex){
             _logger.LogError($"Error na edição de um perfil: {ex.Message}");

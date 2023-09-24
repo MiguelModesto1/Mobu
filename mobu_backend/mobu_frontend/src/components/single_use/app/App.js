@@ -1,51 +1,47 @@
-import React, { useEffect } from 'react';
-import Button from '../../modular/Button';
-import ChooseOpponentItem from '../../modular/ChooseOpponentItem';
-import ClickableIcon from '../../modular/ClickableIcon';
-import GameTile from '../../modular/GameTile';
-import GroupMemberItem from '../../modular/GroupMemberItem';
-import Input from '../../modular/Input';
-import Link from '../../modular/Link';
-import MenuItem from '../../modular/MenuItem';
-import PersonGroupFoundItem from '../../modular/PersonGroupFoundItem';
-import PersonGroupItem from '../../modular/PersonGroupItem';
-import MessageHeaderBar from '../messageHeaderBar/MessageHeaderBar';
-import GroupProfile from '../profiles/GroupProfile'
-import PersonProfile from '../profiles/PersonProfile';
-import OwnerOptionMenu from '../optionMenus/OwnerOptionMenu';
-import GroupContextMenu from '../optionMenus/GroupContextMenu';
-import FriendContextMenu from '../optionMenus/FriendContextMenu';
-import ForgotPasswordForm from '../forms/ForgotPasswordForm';
-import LoginForm from '../forms/LoginForm';
+import { useEffect, useMemo } from 'react';
+import LoginForm from '../forms/LoginForm'
 import RegisterForm from '../forms/RegisterForm';
-import MessageFooterBar from '../messageFooterBar/MessageFooterBar';
-import SearchBar from '../searchPeople/SearchBar';
+import ForgotPasswordForm from '../forms/ForgotPasswordForm';
+import GroupFoundationForm from '../forms/GroupFoundationForm';
+import PasswordResetForm from '../forms/PasswordResetForm';
+import Error404Page from '../../pages/Error404Page';
+import GameTilePage from '../../pages/GameTilePage';
+import MessagesPage from '../../pages/MessagesPage';
+import ThanksPage from '../../pages/ThanksPage';
+import Game from '../gameBoard/Game';
+import OpponentTile from '../opponentTile/OpponentTile';
+import GroupProfile from '../profiles/GroupProfile';
+import PersonProfile from '../profiles/PersonProfile';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom'
+import FriendshipReqTile from '../friendships/FriendshipReqTile';
+import SearchPage from '../searchPeople/SearchPage';
 
 export default function App(){
-
-    function handleClick(){
-        //window.location.assign("https://www.google.com");
-        window.location.assign("./assets/images/logo512.png");
-    }
-
+    
     return(
-        <>
-            <Input 
-            input={{
-                title:"",
-                type:"file",
-                value:"",
-                placeholder:""
-            }}
-            fromParent="hidden-app"
-            display="none"/>
+        <Router >
+            <Routes>
+                <Route path="/" Component={LoginForm} />
+                <Route path="/register" Component={RegisterForm} />
+                <Route path="/forgot-password" Component={ForgotPasswordForm} />
+                <Route path="/group-foundation" Component={GroupFoundationForm}/>
+                <Route path="/password-reset" Component={PasswordResetForm} />
 
-            <Button 
-            text="File"
-            onClick={e => {
-                document.getElementsByClassName('hidden-app-input')[0].click();
-            }}/>
-        </>
+                <Route path="/error-404" Component={Error404Page} />
+                <Route path="/game-tile" Component={GameTilePage} />
+                <Route path="/messages" Component={MessagesPage} />
+                <Route path="/thanks" Component={ThanksPage} />
+
+                <Route path="/requests" Component={FriendshipReqTile}/>
+                <Route path="/game" Component={Game} />
+                <Route path="/opponent-choice" Component={OpponentTile} />
+                <Route path="/group-profile" Component={GroupProfile} />
+                <Route path="/person-profile" Component={PersonProfile} />
+
+                <Route path="/search" Component={SearchPage} />
+            </Routes>
+        </ Router>
     );
 
     

@@ -17,7 +17,7 @@ namespace mobu_backend.Models
         [Key]
         public int IDUtilizador { get; set; }
 
-        /// <summary>
+        /*/// <summary>
         /// Endereco IPv4 do dispositivo do utilizador anonimo
         /// </summary>
 		[Display(Name = "Endereço IPv4")]
@@ -32,13 +32,7 @@ namespace mobu_backend.Models
         [Display(Name = "Endereço IPv6")]
         [StringLength(39, ErrorMessage = "O {0} não pode ter mais do que {1} caracteres.")]
         [RegularExpression("([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}){0,1}")]
-        public string? EnderecoIPv6 { get; set; }
-
-        /// <summary>
-        /// Elelmento de ligacao entre a Tabela dos Anonimos
-        /// no modelo logico e na tabela de Users do Identity
-        /// </summary>
-        public string AuthenticationID { get; set; }
+        public string? EnderecoIPv6 { get; set; }*/
 
     }
 }

@@ -2,13 +2,30 @@ import React,{ useState } from "react";
 import { useContextMenu } from "../../../hooks/useContextMenu";
 import MenuItem from "../../modular/MenuItem";
 
-export default function FriendContextMenu({showMenuOnRightClick}){ 
+export default function FriendContextMenu({owner, id, showMenuOnRightClick}){ 
 
     const handleClick = (endpoint) => {
         switch(endpoint){
-            case "perfil" : return "";
-            case "jogar" : return "";
-            case "bloquear" : return "";
+            case "perfil" : window.location.assign("./person-profile?id=" + id + "&isOwner=" + false); break;
+            case "bloquear" : 
+                var options = {
+                    method:"POST",
+                    redirect:"follow",
+                    body:JSON.stringify(
+                        {id:id,
+                        owner:owner}
+                    )
+                }
+
+                fetch(process.env.REACT_APP_API_URL + "/block", options)
+                .then(resp => {
+                    if(resp.status === 404){
+                        window.location.assign("./error-404");
+                    }
+                })
+
+                break;
+            ;
             default : return "";
         }
     }
@@ -26,7 +43,6 @@ export default function FriendContextMenu({showMenuOnRightClick}){
             }}
             >
                     <MenuItem text="Perfil" onClick={handleClick} onClickPrm="perfil" />
-                    <MenuItem text="Jogar" onClick={handleClick} onClickPrm="jogar" />
                     <MenuItem text="Bloquear" onClick={handleClick} onClickPrm="bloquear" />
                     <MenuItem text="Reportar" onClick={handleClick} onClickPrm="reportar" />
             </div>

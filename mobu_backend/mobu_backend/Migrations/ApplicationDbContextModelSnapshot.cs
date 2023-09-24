@@ -378,6 +378,9 @@ namespace mobu_backend.Migrations
                     b.Property<bool>("IsFundador")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Pontos")
+                        .HasColumnType("int");
+
                     b.Property<int>("SalaFK")
                         .HasColumnType("int");
 
@@ -440,17 +443,6 @@ namespace mobu_backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDUtilizador"));
-
-                    b.Property<string>("AuthenticationID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnderecoIPv4")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("EnderecoIPv6")
-                        .HasMaxLength(39)
-                        .HasColumnType("nvarchar(39)");
 
                     b.HasKey("IDUtilizador");
 

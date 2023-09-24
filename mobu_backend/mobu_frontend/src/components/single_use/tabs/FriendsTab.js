@@ -9,14 +9,15 @@ import TabPanel from "../../modular/TabPanel";
  * @param 
  * @returns 
  */
-export default function FriendsTab({text, children}){
+export default function FriendsTab({owner, connections, selected, text, childrenData, onHeaderClick, onItemClick, panelDisplay}){
     
     return(
         <div className="tab">
-           <TabHeader text={text} onClick={() => alert("Implementar onClick de FriendsTab")}/>
-           <TabPanel >
-                
-           </TabPanel>
+           <TabHeader text={text} onClick={(e) =>{
+                e.stopPropagation();
+                onHeaderClick(true);
+            }}/>
+           <TabPanel owner={owner} connections={connections} selected={selected} onItemClick={onItemClick} friendGroupInfo={childrenData} display={panelDisplay}/>
         </div>
     );
 

@@ -58,12 +58,19 @@ if (!app.Environment.IsDevelopment())
     app.UseCors(x => x
         .AllowAnyMethod()
         .AllowAnyHeader()
+        .WithHeaders()
         .SetIsOriginAllowed(origin => true)
         .AllowCredentials());
 }
 else
 {
     app.UseMigrationsEndPoint();
+
+    app.UseCors(x => x
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .SetIsOriginAllowed(origin => true)
+        .AllowCredentials());
 }
 
 app.UseHttpsRedirection();
@@ -81,8 +88,8 @@ app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");
 
-app.MapHub<ChatHub>("/ChatHub");
-app.MapHub<GameHub>("/GameHub");
-app.MapHub<GameHub>("/RequestHub");
+app.MapHub<ChatHub>("hub/ChatHub");
+app.MapHub<GameHub>("hub/GameHub");
+app.MapHub<GameHub>("hub/RequestHub");
 
 app.Run();

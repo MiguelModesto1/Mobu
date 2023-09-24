@@ -17,14 +17,15 @@ export default function ProfileProperty({keyProp, isEditing, isChangingPassword,
     const [renderResult, setRenderResult] = useState(<></>);
     const [text, setText] = useState("");
 
-    const handleTextChange = (value) => {
-        setText(value);
-        if(onChangeText !== null){
-            onChangeText(value);
-        }
-    }
-
     useMemo(() => {
+        
+        const handleTextChange = (value) => {
+            setText(value);
+            if(onChangeText !== null){
+                onChangeText(value);
+            }
+        }
+        
         if(isEditing){
             setRenderResult(<Input input={{
                 title:"",
@@ -49,7 +50,9 @@ export default function ProfileProperty({keyProp, isEditing, isChangingPassword,
             );
         }
 
-    }, [setRenderResult, isChangingPassword, isEditing])
+        
+
+    }, [isEditing, isChangingPassword, text, onChangeText])
     
     return(
         <div className="profile-prop-div">

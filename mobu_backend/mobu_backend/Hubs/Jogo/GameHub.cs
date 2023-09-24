@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using mobu_backend.Data;
+using mobu_backend.Models;
 
 namespace mobu_backend.Hubs.Jogo
 {
@@ -14,19 +15,59 @@ namespace mobu_backend.Hubs.Jogo
         {
             _context = context;
         }
-        public async Task<GameRoomState> WaitForGameRoomState(string connectionId) 
+        public async Task<string> WaitForGameRoomState(string connectionId) 
             => await Clients.Client(connectionId).GetGameRoomState();
         
-        public async Task SendGameRoomStateToUser(string toUser, GameRoomState gameRoomState)
+        public async Task SendGameRoomStateToUser(string toUser, string gameRoomState)
             => await Clients.User(toUser).ReceiveGameRoomState(gameRoomState);
 
-        public async Task SendChallengeToUser(string fromUser, string toUser, bool interested)
-            => await Clients.User(toUser).ReceiveChallenge(fromUser, interested);
+        public async Task SendChallengeToUser(string fromUser, string toUser, string username) 
+            => await Clients.User(toUser).ReceiveChallenge(fromUser, username);
 
-        public async Task AddToGameRoom(string roomName, string connectionId) 
-            => await Groups.AddToGroupAsync(connectionId, roomName);
+        public async Task SendChallengeReply(string replier, string challenger, bool interested)
+        {
 
-        public async Task RemoveFromGameRoom(string roomName, string connectionId) 
-            => await Groups.RemoveFromGroupAsync(connectionId, roomName);
+            if(interested){
+
+                //verificar se sala existe
+
+                int [] rep = _context.Registados_Salas_Jogo
+                .Where(rs => rs.UtilizadorFK == int.Parse(replier))
+                .Select(rs => rs.SalaFK)
+                .ToArray();
+
+                int [] chal = _context.Registados_Salas_Jogo
+                .Where(rs => rs.UtilizadorFK == int.Parse(challenger))
+                .Select(rs => rs.SalaFK)
+                .ToArray();
+
+                if(rep.Intersect(chal) == new int[0]){
+                    Sala_Jogo_1_Contra_1 salaJogo = new();
+                    Registados_Salas_Jogo desafiador = new(){
+                        UtilizadorFK = int.Parse(challenger),
+                        IsFundador = true,
+                        SalaFK = salaJogo.IDSala
+                    };
+                    Registados_Salas_Jogo desafiado = new(){
+                        UtilizadorFK = int.Parse(replier),
+                        IsFundador = false,
+                        SalaFK = salaJogo.IDSala
+                    };
+
+                    _context.Attach(salaJogo);
+                    _context.Attach(desafiador);
+                    _context.Attach(desafiado);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            await Clients.User(challenger).ReceiveReply(replier, interested);
+        }
+
+        /*public async Task AddToGameRoom(string roomId, string connectionId) 
+            => await Groups.AddToGroupAsync(connectionId, "gameroom"+roomId);
+
+        public async Task RemoveFromGameRoom(string roomId, string connectionId) 
+            => await Groups.RemoveFromGroupAsync(connectionId, "gameroom"+roomId);*/
     }
 }

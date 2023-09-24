@@ -9,6 +9,7 @@ using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol.Plugins;
+using SendGrid.Helpers.Errors.Model;
 
 namespace mobu.Controllers.Frontend;
 
@@ -85,7 +86,7 @@ public class LoginApiController : ControllerBase
     public async Task<IActionResult> UserValidation([FromBody] string loginDataJson)
     {
         try{
-            StatusCodeResult status;
+            IActionResult resp;
             var valid = false;
             _logger.LogWarning("Entrou no método Post");
 
@@ -106,18 +107,18 @@ public class LoginApiController : ControllerBase
                 }
             }
 
-            status = valid ? NoContent() : NotFound();
+            string route = "";
+
+            resp = valid ? Redirect(Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "/" + route + $"?email={email}") : NotFound(); // Implementar rota pagina mensagens
             
             _logger.LogWarning("Saiu do método Post");
 
-            return status;
+            return resp;
         }catch(Exception ex){
             _logger.LogError($"Error no login: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
         }finally{
             _logger.LogWarning("Saiu do método Post");
         }
-        
-        
     }
 }

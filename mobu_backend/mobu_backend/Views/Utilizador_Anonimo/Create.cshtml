@@ -13,16 +13,6 @@
         <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="EnderecoIPv4" class="control-label"></label>
-                <input asp-for="EnderecoIPv4" class="form-control" />
-                <span asp-validation-for="EnderecoIPv4" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EnderecoIPv6" class="control-label"></label>
-                <input asp-for="EnderecoIPv6" class="form-control" />
-                <span asp-validation-for="EnderecoIPv6" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <input type="submit" value="Criar" class="btn btn-primary" />
             </div>
         </form>

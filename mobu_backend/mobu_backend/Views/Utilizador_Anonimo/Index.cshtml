@@ -17,12 +17,6 @@
                 @Html.DisplayNameFor(model => model.IDUtilizador)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EnderecoIPv4)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EnderecoIPv6)
-            </th>
-            <th>
                 Fotografia
             </th>
             <th></th>
@@ -33,12 +27,6 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.IDUtilizador)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EnderecoIPv4)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EnderecoIPv6)
             </td>
             <td>
                  <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/default_avatar.png") />     @*DisplayFor(modelItem => item.Fotografia)*@

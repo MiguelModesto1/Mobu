@@ -48,7 +48,7 @@ namespace mobu.Controllers.Backend
         public async Task<IActionResult> Index()
         {
             // Consulta que inclui dados sobre a fotografia
-            // do user (FALTA AUTENTICACAO)
+            // do user
             var utilizadores = _context.Utilizador_Anonimo;
 
             //voltar a lista

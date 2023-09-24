@@ -35,6 +35,11 @@ namespace mobu_backend.Models
         public bool IsFundador { get; set; }
 
 		/// <summary>
+		/// Pontos do utilizador em questao
+		/// </summary>
+		public int Pontos { get; set; }
+
+		/// <summary>
 		/// Chave forasteira que referencia o ID do Utilizador
 		/// </summary>
 		[ForeignKey(nameof(Utilizador))]

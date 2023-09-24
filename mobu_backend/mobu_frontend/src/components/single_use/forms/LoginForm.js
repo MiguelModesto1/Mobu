@@ -35,18 +35,25 @@ export default function LoginForm(){
             }
         }
 
-        await fetch(process.env.REACT_APP_API_URL + "login", options)
-        .then((response) => response.status)
-        .then((status) => {
-            setWarningText(status === 404 ? "Tentativa de login inválida" : "");
-            if(status === 204){
-                //redirecionar aqui para a rota da pagina de mensagens
+        await fetch(process.env.REACT_APP_API_URL + "/login", options)
+        .then((response) => {
+            if(response.status === 404){
+                setWarningText("Tentativa de login inválida");
+            }else{
+                window.location.assign("./messages?email=" + email + "&id=0")
             }
+        })
+        .then((status) => {
+            
         })
         .catch(err => {console.error("error", err)});
     }
 
     return(
+        <>
+        <div className="mobu-img-div">
+            <img className="mobu-image" src="./assets/images/logo.png" alt="mobu logo" />
+        </div>
         <div className="form">
             {warningText !== "" ?
             <div className="warning-span-div">
@@ -83,16 +90,26 @@ export default function LoginForm(){
             onClick={handleButtonClick} />
             <div className="links-div">
                 <Link linkProps={{
-                    href:"",
+                    href:window.location.origin + "/forgot-password",
                     text:"Esqueci-me da palavra-passe"
                 }}
                 fromParent="form"/>
+                <span>    </span>
                 <Link linkProps={{
-                    href:"",
+                    href:window.location.origin + "/register",
                     text:"Não tenho uma conta"
                 }}
                 fromParent="form"/>
+                <span>    </span>
+                <Link 
+                linkProps={{
+                    href: "https://localhost:7273",
+                    text:"Sou administrador"
+                }}
+                fromParent="form" />
             </div>
         </div>
+        </>
+        
     );  
 }

@@ -140,14 +140,18 @@ public class GroupFoundationApiController : ControllerBase
                     NomeSala = groupName,
                     SeGrupo = true
                 };
+                
+            _context.Attach(salas_Chat);
+            await _context.SaveChangesAsync();
 
             // associacao com o fundador do grupo
             Registados_Salas_Chat registados_Salas_Chat = new(){
                 IsAdmin = true,
-                UtilizadorFK = adminId
+                UtilizadorFK = adminId,
+                SalaFK = salas_Chat.IDSala
             };
 
-            _context.Attach(salas_Chat);
+            
             _context.Attach(registados_Salas_Chat);
             await _context.SaveChangesAsync();
 
@@ -156,7 +160,7 @@ public class GroupFoundationApiController : ControllerBase
             return status;
             
         }catch(Exception ex){
-            _logger.LogError($"Error no envio de email: {ex.Message}");
+            _logger.LogError($"Error no registode grupo: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
         }finally{
             _logger.LogWarning("Saiu do método Post");

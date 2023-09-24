@@ -7,28 +7,30 @@ import "./MessageFooterBar.css";
  * 
  * Rodape do painel de mensagens
  * 
+ * 
  * @returns 
  */
-export default function MessageFooterBar(){
-
-    /* IMPLEMENTAR COM ESTADOS */
+export default function MessageFooterBar({owner, connections, footerProps}){
     
+    const [message, setMessage] = useState("");
+
+    const handleClickSend = () => {
+        if(message !== ""){
+            connections[0].invoke(
+                "SendMessageToRoom", 
+                owner + "", 
+                footerProps[footerProps.length === 6 ? 3 : 1], 
+                message, 
+                footerProps[footerProps.length -1][2].prevMessageId + 1);
+        }
+    }
+
+    const handleMsgChange = (value) => {
+        setMessage(value);
+    }
+
     return(
         <div className="message-header-bar">
-            <ClickableIcon 
-            CIProps={{
-                size:"66px",
-                fill:"none",
-                path:{
-                    d:"M16 28C16 28 19 32 24 32C29 32 32 28 32 28M30 18H30.02M18 18H18.02M44 24C44 35.0457 35.0457 44 24 44C12.9543 44 4 35.0457 4 24C4 12.9543 12.9543 4 24 4C35.0457 4 44 12.9543 44 24ZM31 18C31 18.5523 30.5523 19 30 19C29.4477 19 29 18.5523 29 18C29 17.4477 29.4477 17 30 17C30.5523 17 31 17.4477 31 18ZM19 18C19 18.5523 18.5523 19 18 19C17.4477 19 17 18.5523 17 18C17 17.4477 17.4477 17 18 17C18.5523 17 19 17.4477 19 18Z",
-                    stroke:"#6c6c6c",
-                    strokeWidth:"2",
-                    strokeLineCap:"round",
-                    strokeLinejoin:"round"
-                }
-            }}
-            onClick={() => {alert("Implementar onclick de MessageFooterBar emojis icon");}}
-            fromParent="footer-bar" />
             <div className="footer-bar-input-div">
                 <Input input={{
                 type:"text",
@@ -36,9 +38,9 @@ export default function MessageFooterBar(){
                 value:"",
                 placeholder:""
                 }}
-                fromParent="footer-bar"/>
+                fromParent="footer-bar"
+                onChange={handleMsgChange}/>
             </div>
-            
             <ClickableIcon 
             CIProps={{
                 size:"71px",
@@ -51,7 +53,7 @@ export default function MessageFooterBar(){
                     strokeLinejoin:"round"
                 }
             }}
-            onClick={() => {alert("Implementar onclick de MessageFooterBar send icon");}}
+            onClick={handleClickSend}
             fromParent="footer-bar" />
         </div>
     );

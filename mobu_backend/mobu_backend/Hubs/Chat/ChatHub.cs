@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using mobu_backend.Data;
+using mobu_backend.Models;
 
 namespace mobu_backend.Hubs.Chat
 {
@@ -17,9 +19,6 @@ namespace mobu_backend.Hubs.Chat
 
         public async Task<string> WaitForMessage(string fromUser)
             => await Clients.User(fromUser).GetMessage();
-        
-        public async Task SendMessageToUser(string fromUser, string toUser, Message message)
-            => await Clients.User(toUser).ReceiveMessage(fromUser, message);
 
         public async Task AddToRoom(string roomId, string connectionId) 
             => await Groups.AddToGroupAsync(connectionId, roomId);
@@ -27,7 +26,28 @@ namespace mobu_backend.Hubs.Chat
         public async Task RemoveFromRoom(string roomId, string connectionId) 
             => await Groups.RemoveFromGroupAsync(connectionId, roomId);
 
-        public async Task SendMessageToRoom(string fromUser, string roomId, Message message)
-            => await Clients.Group(roomId).ReceiveMessage(fromUser, message);
+        public async Task SendMessageToRoom(string fromUser, string roomId, string message, int messageId)
+            {
+                // sala
+                string salaIdQuery = _context.Registados_Salas_Chat
+                .Where(rs => rs.SalaFK == int.Parse(roomId) && rs.UtilizadorFK == int.Parse(fromUser))
+                .Select(rs => rs.SalaFK).ToString();
+                
+                int salaId = int.Parse(salaIdQuery);
+                
+                Mensagem msg = new(){
+                    ConteudoMsg = message,
+                    IDMensagem = messageId,
+                    DataHoraMsg = DateTime.Now,
+                    RemetenteFK = int.Parse(fromUser),
+                    SalaFK = salaId
+                };
+                
+                await _context.Mensagem.AddAsync(msg);
+                _context.Attach(msg);
+                await _context.SaveChangesAsync();
+
+                await Clients.Group(roomId).ReceiveMessage(fromUser, message, msg.IDMensagem);
+            }
     }
 }

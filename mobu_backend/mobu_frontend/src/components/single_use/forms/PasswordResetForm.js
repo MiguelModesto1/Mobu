@@ -40,12 +40,12 @@ export default function PasswordResetForm(){
         }
 
         if(newPassword === passwordVerf){
-            await fetch(process.env.REACT_APP_API_URL + "forgot-password/reset-password", options)
-            .then((response) => response.status)
-            .then((status) => {
-                setWarningText(status === 404 ? "Tentativa de reiniciar password inválida" : "");
-                if(status === 204){
-                    //redirecionar aqui para a rota da pagina de mensagens
+            await fetch(process.env.REACT_APP_API_URL + "/forgot-password/reset-password", options)
+            .then((response) => {
+                if(response.status === 204){
+                    window.location.assign("./login")
+                }else{
+                    setWarningText("Tentativa de reiniciar password inválida");
                 }
             })
             .catch(err => {console.error("error", err)});

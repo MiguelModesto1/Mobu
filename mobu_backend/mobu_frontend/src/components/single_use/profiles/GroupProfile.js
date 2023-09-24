@@ -1,7 +1,8 @@
 import React,{ useEffect, useState } from "react";
 import ProfileProperty from "../../modular/ProfileProperty";
 import Button from "../../modular/Button";
-import Avatar from "../../modular/Avatar"
+import Avatar from "../../modular/Avatar";
+import GroupMemberItem from "../../modular/GroupMemberItem"
 
 /**
  * 
@@ -12,17 +13,52 @@ import Avatar from "../../modular/Avatar"
  * @param isAdmin booleano de administrador de grupo
  * @returns 
  */
-export default function GroupProfile({avatarSrc, id, isAdmin}){
+export default function GroupProfile(){
 
-    //TORNAR CODIGO DRY
+    const queryStrings = new URLSearchParams(window.location.href);
 
+    const connection = queryStrings.get("connection");
+    const id = queryStrings.get("id");
+    const isAdmin = queryStrings.get("isAdmin");
+
+    const [members, setMembers] = useState([]);
+    const handleMemberExpeling = (member) => {
+        let aux = [];
+        let decrement = 0;
+        for(let i=0; i < members.length; i++){
+            if(member !== members[i]){
+                aux[i-decrement] = members[i]
+            }else{
+                decrement--;
+            }
+        }
+
+        setMembers(aux);
+    }
+    
+    const mapMembers = members.map((member) => {
+        return(
+            <GroupMemberItem
+            key={member[0]}
+            id={id}
+            connection={connection}
+            avatar={member[2]}
+            personId={member[0]}
+            personName={member[1]}
+            isAdmin={member[3]}
+            isEditing={isEditing}
+            onMemberExpeling={handleMemberExpeling} />
+        );
+    });
+
+    const [isEditing, setIsEditing] = useState(false);
     const [avatar, setAvatar] = useState("");
     const [groupName, setGroupName] = useState("");
     const [warningText, setWarningText] = useState("");
     const [renderResult, setRenderResult] = useState(
         <>
             <Avatar avatarProps={{
-                src:avatarSrc,
+                src:avatar,
                 alt:"avatar do grupo " + groupName,
                 size:"100px"
             }} />
@@ -32,12 +68,12 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
             <ProfileProperty 
             keyProp={"ID"} 
             text={id} 
-            isEditing={false} />
+            isEditing={isEditing} />
             <div className="span-div">
                 <span className="key-span">Integrantes :</span>
             </div>
             <div className="members-div">
-                {/* IMPLEMENTAR MAPEAMENTO DE MEMBROS */}
+                {mapMembers}
             </div>
             {isAdmin ? <Button 
             text="Editar perfil"
@@ -54,15 +90,18 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
 
         const queryParams = `?id=${id}&isGroup=true`
 
-        fetch(process.env.REACT_APP_API_URL + "profile/get-profile" + queryParams, options)
-        .then((response) => [response.json(), response.status])
+        fetch(process.env.REACT_APP_API_URL + "/profile/get-profile" + queryParams, options)
+        .then((response) => {
+            if(response.status === 204){
+                return response.json();
+            }else{
+                setWarningText("Perfil inválido ou inexistente!")
+            }
+        })
         .then((data) => {
-                if(data[1] === 204){
-                    setAvatar(data[0].avatar);
-                    setGroupName(data[0].groupName);
-                }else{
-                    setWarningText("Perfil inválido ou inexistente!")
-                }
+            setAvatar(data.avatar);
+            setGroupName(data.groupName);
+            setMembers(data.members);
         })
         .catch((err) => {console.error("error", err)});
     }, [id]);
@@ -92,10 +131,13 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
                     }
                 }
 
-                fetch(process.env.REACT_APP_API_URL + "profile/edit-group-profile", options)
-                .then((response) => response.status)
-                .then((status) => {
-                    setWarningText(status === 404 ? "Tentativa de edição de perfil inválida" : "");
+                fetch(process.env.REACT_APP_API_URL + "/profile/edit-group-profile", options)
+                .then((response) => {
+                    if(response.status === 404){
+                        setWarningText("Tentativa de edição de perfil inválida");
+                    }else{
+                        setWarningText("");
+                    }
                 })
                 .catch(err => {console.error("error", err)});
 
@@ -104,10 +146,9 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
         }
     }
 
-    /* IMPLEMENTAR BUSCA DE NOME DE GRUPO, ID E INTEGRANTES */
-
     function handleEditingSaveClick(){
         postProfile();
+        setIsEditing(false);
         setRenderResult(
             <>
                 <Avatar avatarProps={{
@@ -121,12 +162,12 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
                 <ProfileProperty 
                 keyProp={"ID"} 
                 text={id} 
-                isEditing={false} />
+                isEditing={isEditing} />
                 <div className="span-div">
                     <span className="key-span">Integrantes :</span>
                 </div>
                 <div className="members-div">
-                    {/* IMPLEMENTAR MAPEAMENTO DE MEMBROS */}
+                    {mapMembers}
                 </div>
                 {isAdmin ? <Button 
                 text="Editar perfil"
@@ -137,6 +178,7 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
     }
 
     function handleEditingClick(){
+        setIsEditing(true);
         setRenderResult(
             <>
                 {warningText !== "" ?
@@ -156,16 +198,16 @@ export default function GroupProfile({avatarSrc, id, isAdmin}){
                 <ProfileProperty
                 keyProp={"Nome de grupo"} 
                 text={groupName} 
-                isEditing={true} />
+                isEditing={isEditing} />
                 <ProfileProperty 
                 keyProp={"Avatar"} 
                 text={avatar} 
-                isEditing={true} />
+                isEditing={isEditing} />
                 <div className="span-div">
                     <span className="key-span">Integrantes :</span>
                 </div>
                 <div className="members-div">
-                    {/* IMPLEMENTAR MAPEAMENTO DE MEMBROS C/BOTAO DE EXPULSAO */}
+                    {mapMembers}
                 </div>
                 <Button 
                 text="Guardar"

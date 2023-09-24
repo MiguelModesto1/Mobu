@@ -4,6 +4,7 @@ import Button from "../../modular/Button";
 import Input from "../../modular/Input";
 import Avatar from "../../modular/Avatar";
 import ClickableIcon from "../../modular/ClickableIcon";
+import {HubConnectionBuilder as signalR} from "@microsoft/signalr";
 
 /**
  * Formulario de registo
@@ -69,26 +70,59 @@ export default function RegisterForm(){
                 }
 
                 if(password === passwordVerf){
-                    await fetch(process.env.REACT_APP_API_URL + "register", options)
-                    .then((response) => response.status)
-                    .then((status) => {
-                    setWarningText(status === 404 ? "Tentativa de registo inválida" : "");
-                    if(status === 204){
-                        //redirecionar aqui para a rota da pagina de mensagens
-                    }
+                    await fetch(process.env.REACT_APP_API_URL + "/register", options)
+                    .then((response) => {
+                        if(response.status === 204){
+                            window.location.assign("./")
+                        }else{
+                            setWarningText("Tentativa de registo inválida");
+                        }
                     })
                     .catch(err => {console.error("error", err)});
                 }else{
                     setWarningText("Passwords têm que conicidir!");
                 }
 
-                reader.readAsDataURL(selectedFile);
-            }
+             };  
+             
+             reader.readAsDataURL(selectedFile);
+            
         }
     }
 
     function handleContinueAsGuest(){
-        alert("Implementar handleContinueAsGuest de RegisterForm!");
+
+        let connection = new signalR.HubConnectionBuilder()
+        .withUrl(process.env.REACT_APP_HUB_URL + "/GameHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+        let id;
+
+        var options = {
+            method: 'POST',
+            redirect: 'follow',
+            body: JSON.stringify({
+                create:true
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            }
+        }
+
+        fetch(process.env.REACT_APP_API_URL + "/guest", options)
+        .then((response) => {
+            if(response.status === 204){
+                return response.json();
+            }
+        })
+        .then(data => {
+            id = data.id;
+        })
+        .catch(err => {console.error("error", err)});
+
+        window.location.assign("./game-tile")
+
     }
 
     return(
@@ -100,10 +134,12 @@ export default function RegisterForm(){
             :
             <></>}
             <div className="avatar-div">
-                <Avatar
-                src={avatar}
-                size="240px"
-                alt="Meu avatar"/>
+                <Avatar avatarProps={{
+                    src:{avatar},
+                    size:"240px",
+                    alt:"Meu avatar"
+                }}
+                />
                 <Input
                 input={{
                     title:"",
@@ -178,14 +214,14 @@ export default function RegisterForm(){
             onClick={handleButtonClick} />
             <div className="links-div">
                 <Link linkProps={{
-                    href:"",
+                    href:window.location.origin,
                     text:"Já tenho conta"
                 }}
                 fromParent="form"/>
                 <span> </span>
                 <Link 
                 linkProps={{
-                    href:"",
+                    href:window.location.origin + "/game-tile",
                     text:"Continuar como convidado"
                 }}
                 fromParent="form"

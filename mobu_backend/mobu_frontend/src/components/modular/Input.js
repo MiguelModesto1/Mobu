@@ -1,4 +1,4 @@
-import React,{ useEffect, useMemo, useState } from "react";
+import React,{ useEffect, useState } from "react";
 
 /**
  * 
@@ -15,7 +15,7 @@ export default function Input({input, fromParent=null,onChange=null, display=nul
     const [text, setText] = useState("");
 
     useEffect(() => {
-        if(input.title == ""){
+        if(input.title === ""){
                 setSpan(<></>);
             }else{
                 setSpan(
@@ -25,7 +25,7 @@ export default function Input({input, fromParent=null,onChange=null, display=nul
                     </>
                 );
             }
-    }, []);
+    }, [input.title]);
 
     //console.log(getText);
 
