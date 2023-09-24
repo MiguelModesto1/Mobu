@@ -53,6 +53,16 @@ export default function LoginForm(){
         <>
         <div className="mobu-img-div">
             <img className="mobu-image" src="./assets/images/logo.png" alt="mobu logo" />
+           <span> 
+            aluno 23033 | Miguel Bruno Gonçalves Modesto
+            <br />
+            Créditos a terceiros:
+            <br />
+            https://www.pluralsight.com/guides/how-to-create-a-right-click-menu-using-react
+            <br />
+            https://react.dev/learn/tutorial-tic-tac-toe
+            </span>
+
         </div>
         <div className="form">
             {warningText !== "" ?
