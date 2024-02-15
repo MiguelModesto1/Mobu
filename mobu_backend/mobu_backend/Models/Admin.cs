@@ -40,6 +40,7 @@ namespace mobu_backend.Models
         /// <summary>
         /// Data de juncao a plataforma
         /// </summary>
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Data de junção")]
         public DateTime DataJuncao { get; set; }
 

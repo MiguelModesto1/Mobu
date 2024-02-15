@@ -1,6 +1,8 @@
+using System.Net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using mobu_backend;
 using mobu_backend.Data;
 using mobu_backend.Hubs.Chat;
 using mobu_backend.Hubs.Jogo;
@@ -16,7 +18,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddErrorDescriber<PortugueseIdentityErrorDescriber>();
 builder.Services.AddControllersWithViews();
 
 // Adicionar envio de emails
@@ -39,7 +42,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     // Cookies
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
 
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";

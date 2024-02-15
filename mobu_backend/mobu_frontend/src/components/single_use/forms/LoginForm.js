@@ -29,23 +29,21 @@ export default function LoginForm(){
             body: JSON.stringify({
                 email: email,
                 password: password
-            }),
+            }).toString(),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
             }
         }
 
-        await fetch(process.env.REACT_APP_API_URL + "/login", options)
+        await fetch("https://localhost:7273/api/login", options)
         .then((response) => {
             if(response.status === 404){
                 setWarningText("Tentativa de login inválida");
             }else{
-                window.location.assign("./messages?email=" + email + "&id=0")
+                return response.json();
             }
         })
-        .then((status) => {
-            
-        })
+        .then(data => console.log(data))
         .catch(err => {console.error("error", err)});
     }
 

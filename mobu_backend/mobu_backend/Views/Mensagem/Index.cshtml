@@ -16,13 +16,13 @@
                 @Html.DisplayNameFor(model => model.IDMensagemSala)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.IDMensagem)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Remetente)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Sala)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ConteudoMsg)
             </th>
             @*<th>
                 @Html.DisplayNameFor(model => model.EstadoMensagem)
@@ -37,13 +37,13 @@
                 @Html.DisplayFor(modelItem => item.IDMensagemSala)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.IDMensagem)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Remetente.NomeUtilizador)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Sala.NomeSala)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ConteudoMsg)
             </td>
             @*<td>
                 @Html.DisplayFor(modelItem => item.EstadoMensagem)

@@ -1,8 +1,11 @@
 ﻿@model mobu_backend.Models.Registados_Salas_Jogo
 
+@inject IHttpContextAccessor http
+
 @{
     ViewData["Title"] = "Detalhes";
-}
+
+    var request = http.HttpContext.Request;
 }
 
 <h1>Detalhes</h1>
@@ -21,11 +24,14 @@
             @Html.DisplayNameFor(model => model.Utilizador)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Utilizador.Email)
+            @Html.DisplayFor(model => model.Utilizador.NomeUtilizador)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Sala)
         </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Sala.IDSala)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.IsFundador)
         </dt>
@@ -37,6 +43,10 @@
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Pontos)
+        </dd>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Utilizador.NomeFotografia)
+            <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
         </dd>
     </dl>
 </div>

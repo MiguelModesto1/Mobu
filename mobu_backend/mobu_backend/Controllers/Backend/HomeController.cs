@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
+    [Authorize(Roles = "Administrator")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

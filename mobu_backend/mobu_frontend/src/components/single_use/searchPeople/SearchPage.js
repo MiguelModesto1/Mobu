@@ -2,7 +2,7 @@ import React,{ useState } from "react";
 import Input from "../../modular/Input";
 import ClickableIcon from "../../modular/ClickableIcon";
 import PersonGroupFoundItem from "../../modular/PersonGroupFoundItem";
-import {HubConnection as signalR} from "@microsoft/signalr";
+/*import {HubConnection as signalR} from "@microsoft/signalr";*/
 
 /**
  * Barra de pesquisa de pessoas
@@ -18,10 +18,10 @@ export default function SearchPage(){
     const connectionId = queryParams.get("connectionId");
     const owner = parseInt(queryParams.get("owner"));
 
-    const connection = signalR.HubConnectionBuilder()
+    /*const connection = signalR.HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_HUB_URL + `/RequestHub?connection=${connectionId}`)
     .configureLogging(signalR.LogLevel.Information)
-    .build();
+    .build();*/
 
     function handleChange(value){
         setQuery(value); 
@@ -52,7 +52,7 @@ export default function SearchPage(){
             return (
                 <PersonGroupFoundItem
                     key={item[0]}
-                    connection={connection}
+                    connection={"connection"}
                     owner={owner}
                     personId={item[0]}
                     name={item[1]}
@@ -61,7 +61,7 @@ export default function SearchPage(){
             return (
                 <PersonGroupFoundItem
                     key={item[0]}
-                    connection={connection}
+                    connection={"connection"}
                     owner={owner}
                     personId={item[0]}
                     name={item[1]}

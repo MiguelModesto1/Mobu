@@ -1,10 +1,18 @@
 ﻿@model IEnumerable<mobu_backend.Models.Registados_Salas_Jogo>
 
+@inject IHttpContextAccessor http;
+
 @{
     ViewData["Title"] = "Índice";
+
+    var request = http.HttpContext.Request;
 }
 
 <h1>Índice</h1>
+
+<p>
+    <a asp-action="Create">Criar jogador</a>
+</p>
 
 <table class="table">
     <thead>
@@ -23,6 +31,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Pontos)
+            </th>
+            <th>
+                Fotografia
             </th>
             <th></th>
         </tr>
@@ -46,7 +57,12 @@
                 @Html.DisplayFor(modelItem => item.Pontos)
             </td>
             <td>
-                @Html.ActionLink("Detalhes", "Details", new { id=item.IDRegisto })
+                <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+            </td>
+            <td>
+                @Html.ActionLink("Detalhes", "Details", new { id=item.IDRegisto }) | 
+                @Html.ActionLink("Editar", "Edit", new { id=item.IDRegisto }) | 
+                @Html.ActionLink("Apagar", "Delete", new { id=item.IDRegisto })
             </td>
         </tr>
 }

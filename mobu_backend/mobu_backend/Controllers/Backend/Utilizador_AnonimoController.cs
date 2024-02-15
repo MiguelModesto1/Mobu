@@ -14,7 +14,7 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
-    [AllowAnonymous]
+    [Authorize(Roles = "Administrator")]
     public class Utilizador_AnonimoController : Controller
     {
         /// <summary>
@@ -88,7 +88,8 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
+        //,EnderecoIPv4,EnderecoIPv6
+        public async Task<IActionResult> Create([Bind("IDUtilizador")] Utilizador_Anonimo utilizador_Anonimo)
         {
 
             if (ModelState.IsValid)
@@ -138,7 +139,8 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador,EnderecoIPv4,EnderecoIPv6")] Utilizador_Anonimo utilizador_Anonimo)
+        //,EnderecoIPv4,EnderecoIPv6
+        public async Task<IActionResult> Edit(int id, [Bind("IDUtilizador")] Utilizador_Anonimo utilizador_Anonimo)
         {
 
             if (ModelState.IsValid)

@@ -20,7 +20,7 @@ namespace mobu_backend.Models
 		public Utilizador_Registado Utilizador { get; set; }
 
 		/// <summary>
-		/// Sala de chat
+		/// Sala de jogo
 		/// </summary>
 		public Sala_Jogo_1_Contra_1 Sala { get; set; }
 
@@ -43,7 +43,7 @@ namespace mobu_backend.Models
 		/// Chave forasteira que referencia o ID do Utilizador
 		/// </summary>
 		[ForeignKey(nameof(Utilizador))]
-		[Required]
+		[Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Utilizador")]
         public int UtilizadorFK { get; set; }
 
@@ -51,7 +51,7 @@ namespace mobu_backend.Models
 		/// Chave forasteira que referencia o ID da sala
 		/// </summary>
 		[ForeignKey(nameof(Sala))]
-		[Required]
+		[Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Sala")]
         public int SalaFK { get; set; }
 	}

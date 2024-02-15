@@ -19,11 +19,15 @@
             </div>
             <div class="form-group">
                 <label asp-for="UtilizadorFK" class="control-label"></label>
-                <select asp-for="UtilizadorFK" class ="form-control" asp-items="ViewBag.UtilizadorFK"></select>
+                <select asp-for="UtilizadorFK" class ="form-control" asp-items=ViewBag.UtilizadorFK></select>
             </div>
             <div class="form-group">
                 <label asp-for="SalaFK" class="control-label"></label>
                 <select asp-for="SalaFK" class ="form-control" asp-items="ViewBag.SalaFK"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pontos" class="control-label"></label>
+                <input asp-for="Pontos" class="form-control" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Criar" class="btn btn-primary" />

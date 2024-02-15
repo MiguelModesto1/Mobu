@@ -14,7 +14,7 @@ using System.Text;
 namespace mobu.Controllers.Backend
 {
 
-    [Authorize(Roles = "Administrator,Boss")]
+    [Authorize(Roles = "Administrator")]
     public class AdminController : Controller
     {
         /// <summary>
@@ -240,6 +240,13 @@ namespace mobu.Controllers.Backend
 
                         await emailSender.SendEmailAsync(admin.Email, "Confirme o seu email", htmlElement);
                     }
+                    else
+                    {
+                        // se o resultado da adicao nao tiver exito
+                        // lanca excecao para a execucao saltar para
+                        // o bloco 'catch'
+                        throw new Exception();
+                    }
 
                     admin.AuthenticationID = user.Id;
 
@@ -286,9 +293,33 @@ namespace mobu.Controllers.Backend
                 // apanhar excecao para escrever um erro de modelo personalizado
                 catch (Exception)
                 {
+                    //informar de erro de adicao
                     _logger.LogInformation($"Ocorreu um erro com a adição do admin {admin.NomeAdmin}.\nA apagar administrador...");
-                    await _userManager.DeleteAsync(user);
-                    _logger.LogInformation("Administrador apagado!");
+
+                    if (AdminExists(admin.IDAdmin))
+                    {
+                        _context.Remove(admin);
+
+                        // realizar commit
+                        await _context.SaveChangesAsync();
+
+                        _logger.LogInformation("Admin apagado!");
+                    }
+
+                    // se existir admin na base de dados do negocio
+                    if (await _context.Admin.FirstOrDefaultAsync(a => a.IDAdmin == admin.IDAdmin) != null)
+                    {
+                        await _userManager.DeleteAsync(user);
+
+                        _logger.LogInformation("Admin apagado do Identity!");
+
+                        // se nao exisitrem administradores
+                        if ((await _userManager.GetUsersInRoleAsync("Administrator")).ToImmutableArray().Length == 0)
+                        {
+                            // apagar role 'Administrator'
+                            await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Administrator").Result);
+                        }
+                    }
 
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do admin " + admin.NomeAdmin);
                 }
@@ -384,6 +415,44 @@ namespace mobu.Controllers.Backend
                 try
                 {
 
+                    // colocar conteudos nas tabelas
+                    // do identity
+                    var user = _userManager.FindByIdAsync(admin.AuthenticationID).Result;
+
+                    await _userManager.SetUserNameAsync(user, admin.NomeAdmin);
+                    await _userManager.SetEmailAsync(user, admin.Email);
+                    string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    await _userManager.ResetPasswordAsync(user, token, admin.Password);
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Administrador editou uma conta.");
+
+                        var userId = await _userManager.GetUserIdAsync(user);
+
+                        // enviar email de confirmacao de email
+
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var request = _http.HttpContext.Request;
+
+                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
+
+                        var htmlElement = "<a href='" + href + "' target='_blank'>clique aqui</a>";
+
+                        EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                        await emailSender.SendEmailAsync(admin.Email, "Confirme o seu email", htmlElement);
+                    }
+                    else
+                    {
+                        // se o resultado da adicao nao tiver exito
+                        // lanca excecao para a execucao saltar para
+                        // o bloco 'catch'
+                        throw new Exception();
+                    }
+
                     // adicionar dados do admin
                     // a BD
                     _context.Update(admin);
@@ -435,37 +504,6 @@ namespace mobu.Controllers.Backend
                             //apagar foto
                             fif.Delete();
                         }
-                    }
-
-                    // colocar conteudos nas tabelas
-                    // do identity
-                    var user = _userManager.FindByIdAsync(admin.AuthenticationID).Result;
-
-                    await _userManager.SetUserNameAsync(user, admin.NomeAdmin);
-                    await _userManager.SetEmailAsync(user, admin.Email);
-                    string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    await _userManager.ResetPasswordAsync(user, token, admin.Password);
-                    var result = await _userManager.UpdateAsync(user);
-
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("Administrador editou uma conta.");
-
-                        var userId = await _userManager.GetUserIdAsync(user);
-
-                        // enviar email de confirmacao de email
-
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var request = _http.HttpContext.Request;
-
-                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
-
-                        var htmlElement = "<a href='" + href + "' target='_blank'>clique aqui</a>";
-
-                        EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
-
-                        await emailSender.SendEmailAsync(admin.Email, "Confirme o seu email", htmlElement);
                     }
 
                     // voltar a lista

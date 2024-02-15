@@ -1,5 +1,7 @@
 ﻿@model mobu_backend.Models.Amigo
 
+@inject mobu_backend.Data.ApplicationDbContext context
+
 @{
     ViewData["Title"] = "Detalhes";
 }
@@ -27,6 +29,15 @@
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.IDAmigo)
+        </dd>
+        <dt class="col-sm-2">
+            Amigo/a
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => context.Utilizador_Registado
+            .Where(u => u.IDUtilizador == model.IDAmigo)
+            .Select(u => u.NomeUtilizador)
+            .ToArray()[0])
         </dd>
     </dl>
 </div>

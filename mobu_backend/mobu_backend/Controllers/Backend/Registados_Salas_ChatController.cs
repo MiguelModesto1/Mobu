@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
+    [Authorize(Roles = "Administrator")]
     public class Registados_Salas_ChatController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -50,7 +52,7 @@ namespace mobu.Controllers.Backend
         public IActionResult Create()
         {
             ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "IDSala");
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email");
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador");
             return View();
         }
 
@@ -68,7 +70,7 @@ namespace mobu.Controllers.Backend
                 return RedirectToAction(nameof(Index));
             }
             ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "IDSala", registados_Salas_Chat.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Chat.UtilizadorFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Chat.UtilizadorFK);
             return View(registados_Salas_Chat);
         }
 
@@ -86,7 +88,7 @@ namespace mobu.Controllers.Backend
                 return NotFound();
             }
             ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "IDSala", registados_Salas_Chat.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Chat.UtilizadorFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Chat.UtilizadorFK);
             return View(registados_Salas_Chat);
         }
 
@@ -123,7 +125,7 @@ namespace mobu.Controllers.Backend
                 return RedirectToAction(nameof(Index));
             }
             ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "IDSala", registados_Salas_Chat.SalaFK);
-            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "Email", registados_Salas_Chat.UtilizadorFK);
+            ViewData["UtilizadorFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", registados_Salas_Chat.UtilizadorFK);
             return View(registados_Salas_Chat);
         }
 

@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
 using mobu_backend.Models;
@@ -14,6 +15,7 @@ using SendGrid.Helpers.Errors.Model;
 namespace mobu.Controllers.Frontend;
 
 [ApiController]
+[Route("api/login")]
 public class LoginApiController : ControllerBase
 {
 
@@ -82,8 +84,7 @@ public class LoginApiController : ControllerBase
 
 
     [HttpPost]
-    [Route("api/login")]
-    public async Task<IActionResult> UserValidation([FromBody] string loginDataJson)
+    public async Task<IActionResult> UserValidation(Login loginDataJson)
     {
         try{
             IActionResult resp;
@@ -91,25 +92,31 @@ public class LoginApiController : ControllerBase
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
-            JObject loginData = JObject.Parse(loginDataJson);
 
-            var email = loginData.Value<string>("email");
-            var password = loginData.Value<string>("password");
+            var email = loginDataJson.Email;
+            var password = loginDataJson.Password;
             
             // Validacao de email e password
             var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
+            //user da BD
+            var user = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.Email == email);
+
+            
+
             if(identityUser != null){
                 var confirmPassword = await _userManager.CheckPasswordAsync(identityUser, password);
                 if(confirmPassword){
                     valid = true;
+                    user.DataNasc = DateTime.Now;
+
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
                 }
             }
 
-            string route = "";
-
-            resp = valid ? Redirect(Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "/" + route + $"?email={email}") : NotFound(); // Implementar rota pagina mensagens
+            resp = valid ? Ok() : NotFound(); // Implementar rota pagina mensagens
             
             _logger.LogWarning("Saiu do método Post");
 

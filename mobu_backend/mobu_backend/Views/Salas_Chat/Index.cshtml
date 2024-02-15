@@ -10,6 +10,10 @@
 
 <h1>Índice</h1>
 
+<p>
+    <a asp-action="Create">Criar sala de chat</a>
+</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -44,7 +48,9 @@
                 <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />
             </td>
             <td>
-                    <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a>
+                    <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a> | 
+                    <a asp-action="Edit" asp-route-id="@item.IDSala">Editar</a> | 
+                    <a asp-action="Delete" asp-route-id="@item.IDSala">Apagar</a>
             </td>
         </tr>
 }

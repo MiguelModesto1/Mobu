@@ -14,7 +14,7 @@ using mobu_backend.Services;
 namespace mobu.Controllers.Backend
 {
 
-    [Authorize(Roles = "Administrator,Registered")]
+    [Authorize(Roles = "Administrator")]
     public class Utilizador_RegistadoController : Controller
     {
         /// <summary>
@@ -223,6 +223,13 @@ namespace mobu.Controllers.Backend
 
                         await emailSender.SendEmailAsync(utilizador_Registado.Email, "Confirme o seu email", htmlElement);
                     }
+                    else
+                    {
+                        // se o resultado da adicao nao tiver exito
+                        // lanca excecao para a execucao saltar para
+                        // o bloco 'catch'
+                        throw new Exception();
+                    }
 
                     utilizador_Registado.AuthenticationID = user.Id;
 
@@ -268,9 +275,34 @@ namespace mobu.Controllers.Backend
                 }
                 catch (Exception)
                 {
-                    _logger.LogInformation("$Ocorreu um erro com a adição do admin" + utilizador_Registado.NomeUtilizador + "\nA apagar administrador...");
-                    await _userManager.DeleteAsync(user);
-                    _logger.LogInformation("Administrador apagado!");
+                    //informar de erro de adicao
+                    _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + utilizador_Registado.NomeUtilizador + "\nA apagar utilizador...");
+                    
+                    if (Utilizador_RegistadoExists(utilizador_Registado.IDUtilizador))
+                    {
+                        _context.Remove(utilizador_Registado);
+
+                        // realizar commit
+                        await _context.SaveChangesAsync();
+
+                        _logger.LogInformation("Utilizador apagado!");
+                    }
+
+                    // se exisitr user na base de dados do negocio 
+                    if(await _context.Utilizador_Registado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizador_Registado.IDUtilizador) != null)
+                    {
+                        await _userManager.DeleteAsync(user);
+
+                        _logger.LogInformation("Utilizador apagado do Identity!");
+
+                        // se nao existirem utilizadores
+                        if ((await _userManager.GetUsersInRoleAsync("Registered")).ToImmutableArray().Length == 0)
+                        {
+                            // apagar role 'Registered'
+                            await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Registered").Result);
+                        }
+                    }
+                    
 
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizador_Registado.NomeUtilizador);
                 }
@@ -366,6 +398,46 @@ namespace mobu.Controllers.Backend
 
                 try
                 {
+
+                    // colocar conteudos nas tabelas
+                    // do identity
+                    var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
+
+                    await _userManager.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador);
+                    await _userManager.SetEmailAsync(user, utilizador_Registado.Email);
+                    string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    await _userManager.ResetPasswordAsync(user, token, utilizador_Registado.Password);
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Utilizador editou uma conta.");
+
+                        var userId = await _userManager.GetUserIdAsync(user);
+
+                        // enviar email de confirmacao de email
+
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                        var request = _http.HttpContext.Request;
+
+                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
+
+                        var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>";
+
+                        EmailSender emailSender = new(_optionsAccessor, _emailLogger);
+
+                        await emailSender.SendEmailAsync(utilizador_Registado.Email, "Confirme o seu email", htmlElement);
+
+                    }
+                    else
+                    {
+                        // se o resultado da adicao nao tiver exito
+                        // lanca excecao para a execucao saltar para
+                        // o bloco 'catch'
+                        throw new Exception();
+                    }
+
                     // editar dados do utilizador registado
                     // na BD
                     _context.Update(utilizador_Registado);
@@ -417,38 +489,6 @@ namespace mobu.Controllers.Backend
                             //apagar foto
                             fif.Delete();
                         }
-                    }
-
-                    // colocar conteudos nas tabelas
-                    // do identity
-                    var user = _userManager.FindByIdAsync(utilizador_Registado.AuthenticationID).Result;
-
-                    await _userManager.SetUserNameAsync(user, utilizador_Registado.NomeUtilizador);
-                    await _userManager.SetEmailAsync(user, utilizador_Registado.Email);
-                    string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    await _userManager.ResetPasswordAsync(user, token, utilizador_Registado.Password);
-                    var result = await _userManager.UpdateAsync(user);
-
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("Administrador editou uma conta.");
-
-                        var userId = await _userManager.GetUserIdAsync(user);
-
-                        // enviar email de confirmacao de email
-
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        var request = _http.HttpContext.Request;
-
-                        var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
-
-                        var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>";
-
-                        EmailSender emailSender = new(_optionsAccessor, _emailLogger);
-
-                        await emailSender.SendEmailAsync(utilizador_Registado.Email, "Confirme o seu email", htmlElement);
-
                     }
 
                     // voltar a lista
@@ -551,7 +591,7 @@ namespace mobu.Controllers.Backend
             return View(utilizador_Registado);
         }
 
-        //verificar se existe user com ID = id (paramentro)
+        //verificar se existe user com ID = id (parametro)
         private bool Utilizador_RegistadoExists(int id)
         {
             return _context.Utilizador_Registado.Any(e => e.IDUtilizador == id);

@@ -17,7 +17,7 @@ export default function Button({text, color=null, fromParent=null, onClick, para
             style={color === null ? undefined :{background: color}}
             onClick={e => {
                 e.stopPropagation();
-                onClick(params === null ? undefined : params[0], params[1]);
+                onClick();
             }} 
             className={fromParent === null ? undefined : fromParent + "-button"}>
                 {text}

@@ -2,7 +2,7 @@
 
 import React,{ useEffect, useState } from "react";
 import PlayerItem from "../../modular/PlayerItem";
-import {HubConnectionBuilder as signalR} from "@microsoft/signalr";
+/*import {HubConnectionBuilder as signalR} from "@microsoft/signalr";*/
 import "./Game.css"
 
 /**
@@ -20,17 +20,17 @@ export default function Game() {
     const challenger = new URLSearchParams(window.location.href).get("challenger");
     const opponent = new URLSearchParams(window.location.href).get("opponent");
 
-    const connection = new signalR.HubConnectionBuilder()
+    /*const connection = new signalR.HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_HUB_URL + `/GameHub?connection=${connectionId}`)
     .configureLogging(signalR.LogLevel.Information)
-    .build()
+    .build()*/
 
-    connection.on("ReceiveGameRoomState", function(gameRoomState){
+    /*connection.on("ReceiveGameRoomState", function(gameRoomState){
       const nextHistory = [...history.slice(0, currentMove + 1), JSON.parse(gameRoomState)];
       setHistory(nextHistory);
       setCurrentMove(nextHistory.length - 1);
       setStateReceived(true);
-    });
+    });*/
 
     useEffect(() => {});
   
@@ -39,7 +39,7 @@ export default function Game() {
       setHistory(nextHistory);
       setCurrentMove(nextHistory.length - 1);
       setStateReceived(false);
-      connection.invoke("SendGameRoomStateToUser", xIsNext ? challenger : opponent , JSON.stringify(nextSquares));
+      //connection.invoke("SendGameRoomStateToUser", xIsNext ? challenger : opponent , JSON.stringify(nextSquares));
     }
   
     /*function jumpTo(nextMove) {
