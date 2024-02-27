@@ -1,0 +1,45 @@
+﻿@model mobu_backend.Models.RegistadosSalasJogo
+
+@{
+    ViewData["Title"] = "Criar";
+}
+
+<h1>Criar</h1>
+
+<h4>Jogador</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsFundador" /> @Html.DisplayNameFor(model => model.IsFundador)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="UtilizadorFK" class="control-label"></label>
+                <select asp-for="UtilizadorFK" class ="form-control" asp-items=ViewBag.UtilizadorFK></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="SalaFK" class="control-label"></label>
+                <select asp-for="SalaFK" class ="form-control" asp-items="ViewBag.SalaFK"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pontos" class="control-label"></label>
+                <input asp-for="Pontos" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Criar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Voltar à lista</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

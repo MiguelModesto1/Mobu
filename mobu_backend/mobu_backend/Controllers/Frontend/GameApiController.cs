@@ -94,7 +94,7 @@ public class GameApiController : ControllerBase
 
             _logger.LogWarning("Entrou no método Get");
 
-            Utilizador_Registado[] users = _context.Utilizador_Registado
+            UtilizadorRegistado[] users = _context.UtilizadorRegistado
             .ToArray();
 
             if (users.Length > 0)
@@ -132,7 +132,7 @@ public class GameApiController : ControllerBase
             _logger.LogWarning("Entrou no método Get");
             
             // user da BD
-            Utilizador_Registado user = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+            UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
 
             // amigos do utilizador
             Amigo [] friends = _context.Amigo.Where(a => a.DonoListaFK == user.IDUtilizador).ToArray();
@@ -144,7 +144,7 @@ public class GameApiController : ControllerBase
                 for(int i=0; i < friends.Length; i++){
 
                     // amigo
-                    var friend = await _context.Utilizador_Registado
+                    var friend = await _context.UtilizadorRegistado
                     .FirstOrDefaultAsync(u => u.IDUtilizador == friends[i].IDAmigo);
 
                     int friendId = friend.IDUtilizador;
@@ -190,22 +190,22 @@ public class GameApiController : ControllerBase
             // guardar resultados
 
             if(winner != "none"){
-                int [] chal = _context.Registados_Salas_Jogo
+                int [] chal = _context.RegistadosSalasJogo
                 .Where(rs => rs.UtilizadorFK == challenger)
                 .Select(rs => rs.UtilizadorFK)
                 .ToArray();
 
-                int [] opp = _context.Registados_Salas_Jogo
+                int [] opp = _context.RegistadosSalasJogo
                 .Where(rs => rs.UtilizadorFK == opponent)
                 .Select(rs => rs.UtilizadorFK)
                 .ToArray();
 
                 int commonGameRoomId = chal.Intersect(opp).ToArray()[0];
 
-                Registados_Salas_Jogo storeChal = (Registados_Salas_Jogo)_context.Registados_Salas_Jogo
+                RegistadosSalasJogo storeChal = (RegistadosSalasJogo)_context.RegistadosSalasJogo
                 .Where(rs => rs.SalaFK == commonGameRoomId && rs.UtilizadorFK == challenger);
 
-                Registados_Salas_Jogo storeOpp = (Registados_Salas_Jogo)_context.Registados_Salas_Jogo
+                RegistadosSalasJogo storeOpp = (RegistadosSalasJogo)_context.RegistadosSalasJogo
                 .Where(rs => rs.SalaFK == commonGameRoomId && rs.UtilizadorFK == opponent);
 
                 storeChal.Pontos = int.Parse(winner) == challenger ? storeChal.Pontos + 1 : storeChal.Pontos;

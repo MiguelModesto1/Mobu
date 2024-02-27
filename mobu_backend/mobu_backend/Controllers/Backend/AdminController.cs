@@ -585,7 +585,7 @@ namespace mobu.Controllers.Backend
                         fif.Delete();
                     }
 
-                    //_context.Utilizador_Registado.Attach(utilizador_Registado);
+                    //_context.UtilizadorRegistado.Attach(utilizador_Registado);
 
                     _context.Remove(admin);
 

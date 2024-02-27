@@ -29,7 +29,7 @@ namespace mobu_backend.Hubs.Pedidos
                 return;
             }
 
-            Destinatario_Pedidos_Amizade dest = new(){
+            DestinatarioPedidosAmizade dest = new(){
             RemetenteFK = fromUserId,
             IDDestinatarioPedido = toUserId,
             DataHoraPedido = DateTime.Now
@@ -48,7 +48,7 @@ namespace mobu_backend.Hubs.Pedidos
                 return;
             }
 
-            Destinatario_Pedidos_Amizade dest = await _context.Destinatario_Pedidos_Amizade
+            DestinatarioPedidosAmizade dest = await _context.DestinatarioPedidosAmizade
             .FirstOrDefaultAsync
                 (
                     d => d.RemetenteFK == int.Parse(replier) && d.IDDestinatarioPedido == int.Parse(toUser)
@@ -58,11 +58,11 @@ namespace mobu_backend.Hubs.Pedidos
             if(reply){
 
                 // users
-                string toUsername = _context.Utilizador_Registado
+                string toUsername = _context.UtilizadorRegistado
                 .FirstOrDefaultAsync(u => u.IDUtilizador == int.Parse(toUser))
                 .Result.NomeUtilizador;
 
-                string replierUsername = _context.Utilizador_Registado
+                string replierUsername = _context.UtilizadorRegistado
                 .FirstOrDefaultAsync(u => u.IDUtilizador == int.Parse(replier))
                 .Result.NomeUtilizador;
 
@@ -75,7 +75,7 @@ namespace mobu_backend.Hubs.Pedidos
 
                 // sala
 
-                Salas_Chat sala = new(){
+                SalasChat sala = new(){
                     NomeSala = toUsername + "_" + replierUsername,
                     SeGrupo = false,
                     NomeFotografia = "default_avatar.png",
@@ -86,12 +86,12 @@ namespace mobu_backend.Hubs.Pedidos
                 _context.Attach(sala);
                 await _context.SaveChangesAsync();
 
-                Registados_Salas_Chat toUserRs = new(){
+                RegistadosSalasChat toUserRs = new(){
                     SalaFK = sala.IDSala,
                     UtilizadorFK = int.Parse(toUser)
                 };
 
-                Registados_Salas_Chat replierRs = new(){
+                RegistadosSalasChat replierRs = new(){
                     SalaFK = sala.IDSala,
                     UtilizadorFK = int.Parse(replier)
                 };
@@ -111,7 +111,7 @@ namespace mobu_backend.Hubs.Pedidos
                 return;
             }
 
-            Registados_Salas_Chat registados = new(){
+            RegistadosSalasChat registados = new(){
                 IsAdmin = false,
                 SalaFK = groupId,
                 UtilizadorFK = fromUserId
@@ -128,7 +128,7 @@ namespace mobu_backend.Hubs.Pedidos
                 return;
             }
 
-            Registados_Salas_Chat registados = await _context.Registados_Salas_Chat
+            RegistadosSalasChat registados = await _context.RegistadosSalasChat
             .FirstOrDefaultAsync(rs => rs.SalaFK == groupId && rs.UtilizadorFK == userRemovedId);
 
             _context.Remove(registados);

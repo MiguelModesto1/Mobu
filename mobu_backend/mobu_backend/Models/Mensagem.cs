@@ -26,12 +26,12 @@ namespace mobu_backend.Models
         /// O remetente
         /// </summary>
         [Display(Name = "Utilizador Registado")]
-        public Utilizador_Registado Remetente { get; set; }
+        public UtilizadorRegistado Remetente { get; set; }
 
         /// <summary>
         /// Sala de destino da mensagem
         /// </summary>
-        public Salas_Chat Sala { get; set; }
+        public SalasChat Sala { get; set; }
 
         /// <summary>
         /// Conteúdo da mensagem

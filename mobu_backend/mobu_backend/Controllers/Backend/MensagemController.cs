@@ -51,8 +51,8 @@ namespace mobu.Controllers.Backend
         // GET: Mensagems/Create
         public IActionResult Create()
         {
-            ViewData["RemetenteFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador");
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala");
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala");
             return View();
         }
 
@@ -69,8 +69,8 @@ namespace mobu.Controllers.Backend
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RemetenteFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", mensagem.SalaFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", mensagem.SalaFK);
             return View(mensagem);
         }
 
@@ -87,8 +87,8 @@ namespace mobu.Controllers.Backend
             {
                 return NotFound();
             }
-            ViewData["RemetenteFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", mensagem.SalaFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", mensagem.SalaFK);
             return View(mensagem);
         }
 
@@ -124,8 +124,8 @@ namespace mobu.Controllers.Backend
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RemetenteFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
-            ViewData["SalaFK"] = new SelectList(_context.Salas_Chat, "IDSala", "NomeSala", mensagem.SalaFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", mensagem.RemetenteFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", mensagem.SalaFK);
             return View(mensagem);
         }
 

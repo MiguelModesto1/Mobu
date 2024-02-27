@@ -146,7 +146,7 @@ public class RegisterApiController : ControllerBase
                 nomeFoto = "default_avatar.png";
             }
 
-            Utilizador_Registado user = new(){
+            UtilizadorRegistado user = new(){
                 NomeUtilizador = username,
                 Email = email,
                 NomeFotografia = nomeFoto,
@@ -238,7 +238,7 @@ public class RegisterApiController : ControllerBase
         try{
             IActionResult status;
             var valid = false;
-            Utilizador_Anonimo anon = null;
+            UtilizadorAnonimo anon = null;
             JObject resp = new();
             _logger.LogWarning("Entrou no método Post");
 

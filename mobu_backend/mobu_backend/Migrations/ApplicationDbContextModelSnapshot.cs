@@ -283,7 +283,7 @@ namespace mobu_backend.Migrations
                     b.ToTable("Amigo");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Destinatario_Pedidos_Amizade", b =>
+            modelBuilder.Entity("mobu_backend.Models.DestinatarioPedidosAmizade", b =>
                 {
                     b.Property<int>("IDPedido")
                         .ValueGeneratedOnAdd()
@@ -304,7 +304,7 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("RemetenteFK");
 
-                    b.ToTable("Destinatario_Pedidos_Amizade");
+                    b.ToTable("DestinatarioPedidosAmizade");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
@@ -341,7 +341,7 @@ namespace mobu_backend.Migrations
                     b.ToTable("Mensagem");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
                 {
                     b.Property<int>("IDRegisto")
                         .ValueGeneratedOnAdd()
@@ -364,10 +364,10 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("Registados_Salas_Chat");
+                    b.ToTable("RegistadosSalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasJogo", b =>
                 {
                     b.Property<int>("IDRegisto")
                         .ValueGeneratedOnAdd()
@@ -393,10 +393,10 @@ namespace mobu_backend.Migrations
 
                     b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("Registados_Salas_Jogo");
+                    b.ToTable("RegistadosSalasJogo");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalaJogo1Contra1", b =>
                 {
                     b.Property<int>("IDSala")
                         .ValueGeneratedOnAdd()
@@ -406,10 +406,10 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDSala");
 
-                    b.ToTable("Sala_Jogo_1_Contra_1");
+                    b.ToTable("SalaJogo1Contra1");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Salas_Chat", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Property<int>("IDSala")
                         .ValueGeneratedOnAdd()
@@ -433,10 +433,10 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDSala");
 
-                    b.ToTable("Salas_Chat");
+                    b.ToTable("SalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Anonimo", b =>
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorAnonimo", b =>
                 {
                     b.Property<int>("IDUtilizador")
                         .ValueGeneratedOnAdd()
@@ -446,10 +446,10 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Anonimo");
+                    b.ToTable("UtilizadorAnonimo");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
                     b.Property<int>("IDUtilizador")
                         .ValueGeneratedOnAdd()
@@ -484,7 +484,7 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Registado");
+                    b.ToTable("UtilizadorRegistado");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -540,7 +540,7 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "DonoListaAmigos")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
                         .WithMany("ListaAmigos")
                         .HasForeignKey("DonoListaFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -549,9 +549,9 @@ namespace mobu_backend.Migrations
                     b.Navigation("DonoListaAmigos");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Destinatario_Pedidos_Amizade", b =>
+            modelBuilder.Entity("mobu_backend.Models.DestinatarioPedidosAmizade", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "RemetentePedido")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "RemetentePedido")
                         .WithMany("ListaDetinatarios")
                         .HasForeignKey("RemetenteFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -562,13 +562,13 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Remetente")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
                         .WithMany("ListaMensagensEnviadas")
                         .HasForeignKey("RemetenteFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
+                    b.HasOne("mobu_backend.Models.SalasChat", "Sala")
                         .WithMany("ListaMensagensRecebidas")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -579,15 +579,15 @@ namespace mobu_backend.Migrations
                     b.Navigation("Sala");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
+                    b.HasOne("mobu_backend.Models.SalasChat", "Sala")
                         .WithMany("ListaRegistadosSalasChat")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Utilizador")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Utilizador")
                         .WithMany("ListaSalasDeChat")
                         .HasForeignKey("UtilizadorFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -598,15 +598,15 @@ namespace mobu_backend.Migrations
                     b.Navigation("Utilizador");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasJogo", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Sala_Jogo_1_Contra_1", "Sala")
+                    b.HasOne("mobu_backend.Models.SalaJogo1Contra1", "Sala")
                         .WithMany("ListaRegistados")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Utilizador")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Utilizador")
                         .WithMany("ListaSalasJogo")
                         .HasForeignKey("UtilizadorFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -617,19 +617,19 @@ namespace mobu_backend.Migrations
                     b.Navigation("Utilizador");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalaJogo1Contra1", b =>
                 {
                     b.Navigation("ListaRegistados");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Salas_Chat", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Navigation("ListaMensagensRecebidas");
 
                     b.Navigation("ListaRegistadosSalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
                     b.Navigation("ListaAmigos");
 

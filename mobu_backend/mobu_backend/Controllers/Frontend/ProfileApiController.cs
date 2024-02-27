@@ -93,13 +93,13 @@ public class ProfileApiController : ControllerBase
 
             // aquisição de perfil
             if(isGroup){
-            Salas_Chat profile = await _context.Salas_Chat.FirstOrDefaultAsync(s => s.IDSala == id);
+            SalasChat profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
                 if(profile != null){
                     valid = true;
                     profileObj.Add("avatar", profile.NomeFotografia);
                     profileObj.Add("groupName", profile.NomeSala);
 
-                    object [] registadosSalas = _context.Registados_Salas_Chat
+                    object [] registadosSalas = _context.RegistadosSalasChat
                     .Where(rs => rs.SalaFK == id)
                     .Select(rs => new{
                         rs.UtilizadorFK,
@@ -112,7 +112,7 @@ public class ProfileApiController : ControllerBase
                     profileObj.Add("members", registadosSalas.ToJson());
                 }
             }else{
-                Utilizador_Registado profile = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+                UtilizadorRegistado profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
                 if(profile != null){
                     valid = true;
                     profileObj.Add("avatar", profile.NomeFotografia);
@@ -155,7 +155,7 @@ public class ProfileApiController : ControllerBase
             var currPassword = profileData.Value<string>("currPassword");
 
             // editar perfil
-            Utilizador_Registado profile = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+            UtilizadorRegistado profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
             var identityProfileList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityProfile = identityProfileList.FirstOrDefault(u => u.Email == email);
 
@@ -264,7 +264,7 @@ public class ProfileApiController : ControllerBase
             var avatar = profileData.Value<string>("avatar");
             var groupName = profileData.Value<string>("groupName");
 
-            Salas_Chat profile = await _context.Salas_Chat.FirstOrDefaultAsync(s => s.IDSala == id);
+            SalasChat profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
 
             // editar perfil
             if(profile != null){

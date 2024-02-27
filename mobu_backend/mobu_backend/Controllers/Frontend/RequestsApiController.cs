@@ -86,7 +86,7 @@ public class RequestsApiController : ControllerBase
             JObject json = new();
 
              var requests = 
-            _context.Destinatario_Pedidos_Amizade
+            _context.DestinatarioPedidosAmizade
             .Where(dp => dp.IDDestinatarioPedido == id)
             .Select(dp => new{
                 dp.RemetenteFK,

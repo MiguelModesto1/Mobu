@@ -50,7 +50,7 @@ namespace mobu.Controllers.Backend
         // GET: Amigo/Create
         public IActionResult Create()
         {
-            ViewData["DonoListaFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador");
+            ViewData["DonoListaFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
             return View();
         }
 
@@ -67,7 +67,7 @@ namespace mobu.Controllers.Backend
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DonoListaFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
+            ViewData["DonoListaFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
             return View(amigo);
         }
 
@@ -84,7 +84,7 @@ namespace mobu.Controllers.Backend
             {
                 return NotFound();
             }
-            ViewData["DonoListaFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
+            ViewData["DonoListaFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
             return View(amigo);
         }
 
@@ -120,7 +120,7 @@ namespace mobu.Controllers.Backend
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DonoListaFK"] = new SelectList(_context.Utilizador_Registado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
+            ViewData["DonoListaFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amigo.DonoListaFK);
             return View(amigo);
         }
 
