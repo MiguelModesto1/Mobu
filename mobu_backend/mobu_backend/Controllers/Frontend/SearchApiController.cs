@@ -94,33 +94,33 @@ public class SearchApiController : ControllerBase
             // pesquisar por id
             if(query != null){
                 unknownPeople = unknownPeople
-                .Union(_context.Utilizador_Registado
+                .Union(_context.UtilizadorRegistado
                 .Where(u => u.IDUtilizador.ToString() == query)
                 .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
                 .ToArray())
                 .ToArray();
                 unknownGroups = unknownGroups
-                .Union(_context.Salas_Chat
+                .Union(_context.SalasChat
                 .Where(s => s.IDSala.ToString() == query && s.SeGrupo)
                 .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
                 .ToArray())
                 .ToArray();
 
                 unknownPeople = unknownPeople
-                .Union(_context.Utilizador_Registado
+                .Union(_context.UtilizadorRegistado
                 .Where(u => u.NomeUtilizador == query)
                 .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
                 .ToArray())
                 .ToArray();
                 unknownGroups = unknownGroups
-                .Union(_context.Salas_Chat
+                .Union(_context.SalasChat
                 .Where(s => s.NomeSala == query && s.SeGrupo)
                 .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
                 .ToArray())
                 .ToArray();
 
                 unknownPeople = unknownPeople
-                .Union(_context.Utilizador_Registado
+                .Union(_context.UtilizadorRegistado
                 .Where(u => u.Email == query)
                 .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
                 .ToArray())

@@ -31,24 +31,24 @@ namespace mobu_backend.Hubs.Jogo
 
                 //verificar se sala existe
 
-                int [] rep = _context.Registados_Salas_Jogo
+                int [] rep = _context.RegistadosSalasJogo
                 .Where(rs => rs.UtilizadorFK == int.Parse(replier))
                 .Select(rs => rs.SalaFK)
                 .ToArray();
 
-                int [] chal = _context.Registados_Salas_Jogo
+                int [] chal = _context.RegistadosSalasJogo
                 .Where(rs => rs.UtilizadorFK == int.Parse(challenger))
                 .Select(rs => rs.SalaFK)
                 .ToArray();
 
                 if(rep.Intersect(chal) == new int[0]){
-                    Sala_Jogo_1_Contra_1 salaJogo = new();
-                    Registados_Salas_Jogo desafiador = new(){
+                    SalaJogo1Contra1 salaJogo = new();
+                    RegistadosSalasJogo desafiador = new(){
                         UtilizadorFK = int.Parse(challenger),
                         IsFundador = true,
                         SalaFK = salaJogo.IDSala
                     };
-                    Registados_Salas_Jogo desafiado = new(){
+                    RegistadosSalasJogo desafiado = new(){
                         UtilizadorFK = int.Parse(replier),
                         IsFundador = false,
                         SalaFK = salaJogo.IDSala

@@ -97,7 +97,7 @@ public class MessagesApiController : ControllerBase
             _logger.LogWarning("Entrou no método Get");
 
             // user da BD
-            Utilizador_Registado user = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.Email == email || u.IDUtilizador == id);
+            UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email || u.IDUtilizador == id);
 
             // amigos do utilizador
             Amigo [] friends = _context.Amigo.Where(a => a.DonoListaFK == user.IDUtilizador).ToArray();
@@ -110,7 +110,7 @@ public class MessagesApiController : ControllerBase
                 for(int i=0; i < friends.Length; i++){
 
                     // amigo
-                    var friend = await _context.Utilizador_Registado
+                    var friend = await _context.UtilizadorRegistado
                     .FirstOrDefaultAsync(u => u.IDUtilizador == friends[i].IDAmigo);
 
                     int friendId = friend.IDUtilizador;
@@ -121,11 +121,11 @@ public class MessagesApiController : ControllerBase
                     string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + Path.Combine(_webHostEnvironment.WebRootPath, "images", friend.NomeFotografia);
 
                     // salas
-                    var userRoomsId = _context.Registados_Salas_Chat
+                    var userRoomsId = _context.RegistadosSalasChat
                     .Where(rs => rs.UtilizadorFK == user.IDUtilizador && !rs.Sala.SeGrupo)
                     .Select(rs => rs.SalaFK);
 
-                    var friendRoomsId = _context.Registados_Salas_Chat
+                    var friendRoomsId = _context.RegistadosSalasChat
                     .Where(rs => rs.UtilizadorFK == friend.IDUtilizador && !rs.Sala.SeGrupo)
                     .Select(rs => rs.SalaFK);
 
@@ -162,7 +162,7 @@ public class MessagesApiController : ControllerBase
             }
 
             // grupos
-            Salas_Chat [] userGroups = _context.Registados_Salas_Chat
+            SalasChat [] userGroups = _context.RegistadosSalasChat
             .Where(rs => rs.UtilizadorFK == user.IDUtilizador && rs.Sala.SeGrupo)
             .Select(rs => rs.Sala).ToArray();
 
@@ -224,19 +224,19 @@ public class MessagesApiController : ControllerBase
 
         if(id != 0 && owner != 0){
 
-            int [] ow = _context.Registados_Salas_Chat
+            int [] ow = _context.RegistadosSalasChat
             .Where(rs => rs.UtilizadorFK == owner && !rs.Sala.SeGrupo)
             .Select(rs => rs.SalaFK)
             .ToArray();
 
-            int [] fr = _context.Registados_Salas_Chat
+            int [] fr = _context.RegistadosSalasChat
             .Where(rs => rs.UtilizadorFK == id && !rs.Sala.SeGrupo)
             .Select(rs => rs.SalaFK)
             .ToArray();
 
             int commonRoomId = ow.Intersect(fr).ToArray()[0];
 
-            Salas_Chat room = await _context.Salas_Chat
+            SalasChat room = await _context.SalasChat
             .FirstOrDefaultAsync(s => s.IDSala == commonRoomId);
 
             _context.Remove(room);

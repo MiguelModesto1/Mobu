@@ -1,0 +1,70 @@
+﻿@model IEnumerable<mobu_backend.Models.RegistadosSalasJogo>
+
+@inject IHttpContextAccessor http;
+
+@{
+    ViewData["Title"] = "Índice";
+
+    var request = http.HttpContext.Request;
+}
+
+<h1>Índice</h1>
+
+<p>
+    <a asp-action="Create">Criar jogador</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IDRegisto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Utilizador)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sala)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsFundador)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pontos)
+            </th>
+            <th>
+                Fotografia
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IDRegisto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Utilizador.NomeUtilizador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sala.IDSala)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsFundador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Pontos)
+            </td>
+            <td>
+                <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+            </td>
+            <td>
+                @Html.ActionLink("Detalhes", "Details", new { id=item.IDRegisto }) | 
+                @Html.ActionLink("Editar", "Edit", new { id=item.IDRegisto }) | 
+                @Html.ActionLink("Apagar", "Delete", new { id=item.IDRegisto })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

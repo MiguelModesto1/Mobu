@@ -101,7 +101,7 @@ public class LoginApiController : ControllerBase
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
             //user da BD
-            var user = await _context.Utilizador_Registado.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email);
 
             
 

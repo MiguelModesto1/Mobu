@@ -1,0 +1,53 @@
+﻿@model mobu_backend.Models.DestinatarioPedidosAmizade
+
+@{
+    ViewData["Title"] = "Apagar";
+}
+
+<h1>Apagar</h1>
+
+<h3>Tem a certeza que deseja apagar isto?</h3>
+<div>
+    <h4>Destinatário de Pedidos Amizade</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDPedido)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDPedido)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RemetentePedido)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RemetentePedido.NomeUtilizador)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IDDestinatarioPedido)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IDDestinatarioPedido)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DataHoraPedido)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DataHoraPedido)
+        </dd>
+        @*<dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.EstadoPedido)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.EstadoPedido)
+        </dd>*@
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="IDPedido" />
+        <input type="hidden" asp-for="IDDestinatarioPedido" />
+        <input type="hidden" asp-for="RemetenteFK" />
+        <input type="submit" value="Apagar" class="btn btn-danger" /> |
+        <a asp-action="Index">Voltar à lista</a>
+    </form>
+</div>

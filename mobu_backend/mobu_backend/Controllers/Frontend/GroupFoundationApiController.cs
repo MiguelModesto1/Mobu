@@ -133,7 +133,7 @@ public class GroupFoundationApiController : ControllerBase
             }
             
 
-            Salas_Chat salas_Chat = new()
+            SalasChat salas_Chat = new()
                 {
                     NomeFotografia = nomeFoto,
                     DataFotografia = DateTime.Now,
@@ -145,7 +145,7 @@ public class GroupFoundationApiController : ControllerBase
             await _context.SaveChangesAsync();
 
             // associacao com o fundador do grupo
-            Registados_Salas_Chat registados_Salas_Chat = new(){
+            RegistadosSalasChat registados_Salas_Chat = new(){
                 IsAdmin = true,
                 UtilizadorFK = adminId,
                 SalaFK = salas_Chat.IDSala

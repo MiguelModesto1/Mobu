@@ -29,7 +29,7 @@ namespace mobu_backend.Hubs.Chat
         public async Task SendMessageToRoom(string fromUser, string roomId, string message, int messageId)
             {
                 // sala
-                string salaIdQuery = _context.Registados_Salas_Chat
+                string salaIdQuery = _context.RegistadosSalasChat
                 .Where(rs => rs.SalaFK == int.Parse(roomId) && rs.UtilizadorFK == int.Parse(fromUser))
                 .Select(rs => rs.SalaFK).ToString();
                 

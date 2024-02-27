@@ -1,0 +1,49 @@
+﻿@model mobu_backend.Models.DestinatarioPedidosAmizade
+
+@{
+    ViewData["Title"] = "Criar";
+}
+
+<h1>Criar</h1>
+
+<h4>Destinatário de Pedidos Amizade</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="DataHoraPedido" type="hidden" value="@(DateTime.Now)" />
+            <div class="form-group">
+                <label asp-for="RemetenteFK" class="control-label"></label>
+                <select asp-for="RemetenteFK" class="form-control" asp-items="ViewBag.RemetenteFK"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="IDDestinatarioPedido" class="control-label"></label>
+                <input asp-for="IDDestinatarioPedido" class="form-control" />
+                <span asp-validation-for="IDDestinatarioPedido" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+                <label asp-for="EstadoPedido" class="control-label"></label>
+                <select asp-for="EstadoPedido" class="form-control">
+                    <option value="1">A enviar</option>
+                    <option value="2">Enviado</option>
+                    <option value="3">Recebido</option>
+                    <option value="4">Aceite</option>
+                    <option value="5">Recusado</option>
+                </select>
+                <span asp-validation-for="EstadoPedido" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <input type="submit" value="Criar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Voltar à lista</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

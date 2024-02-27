@@ -34,7 +34,7 @@
             Amigo/a
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => context.Utilizador_Registado
+            @Html.DisplayFor(model => context.UtilizadorRegistado
             .Where(u => u.IDUtilizador == model.IDAmigo)
             .Select(u => u.NomeUtilizador)
             .ToArray()[0])

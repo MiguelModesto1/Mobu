@@ -42,18 +42,18 @@ namespace mobu_backend.Data
 			byte[] result;
 			SHA384 shaManager = SHA384.Create();
 			result = shaManager.ComputeHash(pass);
-            Console.WriteLine(Convert.ToHexString(result));
+			Console.WriteLine(Convert.ToHexString(result));
 
-			modelBuilder.Entity<Utilizador_Registado>()
+			modelBuilder.Entity<UtilizadorRegistado>()
 				.HasData(
-					new Utilizador_Registado
+					new UtilizadorRegistado
 					{
 						IDUtilizador = 1,
 						NomeUtilizador = "teste1",
 						Email = "teste1@teste.com",
 						Password = Convert.ToHexString(result)
 					},
-					new Utilizador_Registado
+					new UtilizadorRegistado
 					{
 						IDUtilizador = 2,
 						NomeUtilizador = "teste2",
@@ -62,38 +62,38 @@ namespace mobu_backend.Data
 					}
 				); ;
 
-			modelBuilder.Entity<Utilizador_Anonimo>()
+			modelBuilder.Entity<UtilizadorAnonimo>()
 				.HasData(
-					new Utilizador_Anonimo
+					new UtilizadorAnonimo
 					{
 						IDUtilizador = 3,
 						NomeUtilizador = "guest3",
 						EnderecoIPv4 = "192.168.1.1",
 						EnderecoIPv6 = ""
 					},
-					new Utilizador_Anonimo
+					new UtilizadorAnonimo
 					{
 						IDUtilizador = 4,
 						NomeUtilizador = "guest4",
 						EnderecoIPv4 = "192.168.1.2",
 						EnderecoIPv6 = ""
 					},
-                    new Utilizador_Anonimo
-                    {
-                        IDUtilizador = 5,
-                        NomeUtilizador = "guest5",
+					new UtilizadorAnonimo
+					{
+						IDUtilizador = 5,
+						NomeUtilizador = "guest5",
 						EnderecoIPv4 = "",
-                        EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940"
-                    }
-                );*/
+						EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940"
+					}
+				);*/
 
-			/*modelBuilder.Entity<Destinatario_Pedidos_Amizade>()
+			/*modelBuilder.Entity<DestinatarioPedidosAmizade>()
 				.HasData(
-					new Destinatario_Pedidos_Amizade ()
+					new DestinatarioPedidosAmizade ()
 					{
 						IDDestinatarioPedido = 2,
 						RemetenteFK = 1,
-						EstadoPedido = (Destinatario_Pedidos_Amizade.EstadosPedido)1
+						EstadoPedido = (DestinatarioPedidosAmizade.EstadosPedido)1
 					}
 				);*/
 
@@ -102,13 +102,13 @@ namespace mobu_backend.Data
 
 		//definir tabelas da BD
 
-		public DbSet<Utilizador_Registado> Utilizador_Registado { get; set; }
-		public DbSet<Utilizador_Anonimo> Utilizador_Anonimo { get; set; }
-		public DbSet<Salas_Chat> Salas_Chat { get; set; }
-		public DbSet<Sala_Jogo_1_Contra_1> Sala_Jogo_1_Contra_1 { get; set; }
-		public DbSet<Registados_Salas_Jogo> Registados_Salas_Jogo { get; set; }
-		public DbSet<Destinatario_Pedidos_Amizade> Destinatario_Pedidos_Amizade { get; set; }
-		public DbSet<Registados_Salas_Chat> Registados_Salas_Chat { get; set; }
+		public DbSet<UtilizadorRegistado> UtilizadorRegistado { get; set; }
+		public DbSet<UtilizadorAnonimo> UtilizadorAnonimo { get; set; }
+		public DbSet<SalasChat> SalasChat { get; set; }
+		public DbSet<SalaJogo1Contra1> SalaJogo1Contra1 { get; set; }
+		public DbSet<RegistadosSalasJogo> RegistadosSalasJogo { get; set; }
+		public DbSet<DestinatarioPedidosAmizade> DestinatarioPedidosAmizade { get; set; }
+		public DbSet<RegistadosSalasChat> RegistadosSalasChat { get; set; }
 		public DbSet<Mensagem> Mensagem { get; set; }
 		public DbSet<Amigo> Amigo { get; set; }
 		public DbSet<Admin> Admin { get; set; }

@@ -37,7 +37,7 @@
                 @Html.DisplayFor(modelItem => item.DonoListaAmigos.NomeUtilizador)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => context.Utilizador_Registado
+                @Html.DisplayFor(modelItem => context.UtilizadorRegistado
                     .Where(u => u.IDUtilizador == item.IDAmigo)
                     .Select(u => u.NomeUtilizador)
                     .ToArray()[0])

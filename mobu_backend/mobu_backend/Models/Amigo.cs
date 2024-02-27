@@ -27,7 +27,7 @@ namespace mobu_backend.Models
         /// Dono da lista de amizades concretizadas
         /// </summary>
         [Display(Name = "Dono da Lista")]
-        public Utilizador_Registado DonoListaAmigos { get; set; }
+        public UtilizadorRegistado DonoListaAmigos { get; set; }
 
         /// <summary>
         /// Chave forasteira que referencia o dono da lista
