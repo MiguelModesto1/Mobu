@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect, useRef, useState } from "react";
 
 /**
  * 
@@ -11,19 +11,20 @@ import React,{ useEffect, useState } from "react";
  */
 export default function Input({input, fromParent=null,onChange=null, display=null}) {
 
-    const [span, setSpan] = useState(<></>);
     const [text, setText] = useState("");
 
+    const span = useRef(<></>);
+
     useEffect(() => {
-        if(input.title === ""){
-                setSpan(<></>);
-            }else{
-                setSpan(
+        if (input.title === "") {
+            span.current = <></>;
+        } else {
+            span.current = 
                     <>
                         <span className="input-title">{input.title}</span>
                         <br />
                     </>
-                );
+                ;
             }
     }, [input.title]);
 

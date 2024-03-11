@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect, useRef, useState } from "react";
 import ProfileProperty from "../../modular/ProfileProperty";
 import Button from "../../modular/Button";
 import Avatar from "../../modular/Avatar";
@@ -15,13 +15,59 @@ import GroupMemberItem from "../../modular/GroupMemberItem"
  */
 export default function GroupProfile(){
 
+    const [members, setMembers] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [avatar, setAvatar] = useState("");
+    const [groupName, setGroupName] = useState("");
+    const [warningText, setWarningText] = useState("");
+
     const queryStrings = new URLSearchParams(window.location.href);
 
     const connection = queryStrings.get("connection");
     const id = queryStrings.get("id");
     const isAdmin = queryStrings.get("isAdmin");
 
-    const [members, setMembers] = useState([]);
+    const mapMembers = members.map((member) => {
+        return (
+            <GroupMemberItem
+                key={member[0]}
+                id={id}
+                connection={connection}
+                avatar={member[2]}
+                personId={member[0]}
+                personName={member[1]}
+                isAdmin={member[3]}
+                isEditing={isEditing}
+                onMemberExpeling={handleMemberExpeling} />
+        );
+    });
+
+    const renderResult = useRef(
+        <>
+            <Avatar avatarProps={{
+                src: avatar,
+                alt: "avatar do grupo " + groupName,
+                size: "100px"
+            }} />
+            <div className="span-div">
+                <span className="group-name-bold">{groupName}</span>
+            </div>
+            <ProfileProperty
+                keyProp={"ID"}
+                text={id}
+                isEditing={isEditing} />
+            <div className="span-div">
+                <span className="key-span">Integrantes :</span>
+            </div>
+            <div className="members-div">
+                {mapMembers}
+            </div>
+            {isAdmin ? <Button
+                text="Editar perfil"
+                fromParent="profile-button"
+                onClick={handleEditingClick} /> : <></>}
+        </>
+    );
     const handleMemberExpeling = (member) => {
         let aux = [];
         let decrement = 0;
@@ -35,52 +81,6 @@ export default function GroupProfile(){
 
         setMembers(aux);
     }
-    
-    const mapMembers = members.map((member) => {
-        return(
-            <GroupMemberItem
-            key={member[0]}
-            id={id}
-            connection={connection}
-            avatar={member[2]}
-            personId={member[0]}
-            personName={member[1]}
-            isAdmin={member[3]}
-            isEditing={isEditing}
-            onMemberExpeling={handleMemberExpeling} />
-        );
-    });
-
-    const [isEditing, setIsEditing] = useState(false);
-    const [avatar, setAvatar] = useState("");
-    const [groupName, setGroupName] = useState("");
-    const [warningText, setWarningText] = useState("");
-    const [renderResult, setRenderResult] = useState(
-        <>
-            <Avatar avatarProps={{
-                src:avatar,
-                alt:"avatar do grupo " + groupName,
-                size:"100px"
-            }} />
-            <div className="span-div">
-                <span className="group-name-bold">{groupName}</span>
-            </div>
-            <ProfileProperty 
-            keyProp={"ID"} 
-            text={id} 
-            isEditing={isEditing} />
-            <div className="span-div">
-                <span className="key-span">Integrantes :</span>
-            </div>
-            <div className="members-div">
-                {mapMembers}
-            </div>
-            {isAdmin ? <Button 
-            text="Editar perfil"
-            fromParent="profile-button"
-            onClick={handleEditingClick}/> : <></>}
-        </>
-    );
 
     useEffect(() =>{
         var options={
@@ -149,7 +149,7 @@ export default function GroupProfile(){
     function handleEditingSaveClick(){
         postProfile();
         setIsEditing(false);
-        setRenderResult(
+        renderResult.current = 
             <>
                 <Avatar avatarProps={{
                     src:avatar,
@@ -174,12 +174,12 @@ export default function GroupProfile(){
                 fromParent="profile-button"
                 onClick={handleEditingClick}/> : <></>}
             </>
-        );
+        ;
     }
 
     function handleEditingClick(){
         setIsEditing(true);
-        setRenderResult(
+        renderResult.current = 
             <>
                 {warningText !== "" ?
                 <div className="warning-span-div">
@@ -214,7 +214,7 @@ export default function GroupProfile(){
                 fromParent="profile-button"
                 onClick={handleEditingSaveClick}/>
             </>
-        );
+        ;
     }
 
     return(
