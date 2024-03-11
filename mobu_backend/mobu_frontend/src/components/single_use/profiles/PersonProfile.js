@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect, useRef, useState } from "react";
 import ProfileProperty from "../../modular/ProfileProperty";
 import Button from "../../modular/Button";
 import Link from "../../modular/Link";
@@ -25,7 +25,8 @@ export default function PersonProfile(){
     const [newPassword, setNewPassword] = useState("");
     const [passwordVerf, setPasswordVerf] = useState("");
     const [warningText, setWarningText] = useState("");
-    const [renderResult, setRenderResult] = useState(
+
+    const renderResult = useRef(
         <>
             {warningText !== "" ?
             <div className="warning-span-div">
@@ -134,7 +135,7 @@ export default function PersonProfile(){
 
     function handleEditingSaveClick(){
         postProfile();
-        setRenderResult(
+        renderResult.current = 
             <>
                 {warningText !== "" ?
                 <div className="warning-span-div">
@@ -170,11 +171,11 @@ export default function PersonProfile(){
                 fromParent="profile-button"
                 onClick={handleEditingClick}/>
             </>
-        );
+        ;
     }
 
-    function handlePasswordSaveClick(){
-        setRenderResult(
+    function handlePasswordSaveClick() {
+        renderResult.current = 
             <>
                 {warningText !== "" ?
                 <div className="warning-span-div">
@@ -223,12 +224,12 @@ export default function PersonProfile(){
                 fromParent="profile-button"
                 onClick={handleEditingSaveClick}/>
             </>
-        );
+        ;
         
     }
 
     function handleEditingClick(){
-        setRenderResult(
+        renderResult.current = 
             <>
                 {warningText !== "" ?
                 <div className="warning-span-div">
@@ -277,7 +278,7 @@ export default function PersonProfile(){
                 fromParent="profile-button"
                 onClick={handleEditingSaveClick}/>
             </>
-        );
+        ;
     }
 
     function handlePasswordChange(value){
@@ -293,7 +294,7 @@ export default function PersonProfile(){
     }
 
     function handlePasswordChangeClick(){
-        setRenderResult(
+        renderResult.current = 
             <>
                 {warningText !== "" ?
                 <div className="warning-span-div">
@@ -332,7 +333,7 @@ export default function PersonProfile(){
                 fromParent="profile-button"
                 onClick={handlePasswordSaveClick}/>
             </>
-        );
+        ;
     }
 
     return(
