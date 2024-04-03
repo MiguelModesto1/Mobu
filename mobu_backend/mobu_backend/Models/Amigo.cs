@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,13 @@ namespace mobu_backend.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
         public int IDAmigo { get; set; }
 
+        /// <summary>
+        /// Variável que determina se o amigo está bloqueado
+        /// </summary>
+        [Display(Name = "Bloqueado")]
+        [Required(ErrorMessage = "O Bloqueio é de preenchimento obrigatório")]
+        [DefaultValue(false)]
+        public bool Bloqueado { get; set; }
         
         /// <summary>
         /// Dono da lista de amizades concretizadas

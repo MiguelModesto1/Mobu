@@ -40,6 +40,12 @@
             .Select(u => u.NomeUtilizador)
             .ToArray()[0])
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Bloqueado)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Bloqueado)
+        </dd>
     </dl>
     
     <form asp-action="Delete">

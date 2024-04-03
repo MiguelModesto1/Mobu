@@ -59,7 +59,7 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDAmizade,IDAmigo,DonoListaFK")] Amigo amigo)
+        public async Task<IActionResult> Create([Bind("IDAmizade,IDAmigo,Bloqueado,DonoListaFK")] Amigo amigo)
         {
             if (ModelState.IsValid)
             {
@@ -93,7 +93,7 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDAmizade,IDAmigo,DonoListaFK")] Amigo amigo)
+        public async Task<IActionResult> Edit(int id, [Bind("IDAmizade,IDAmigo,Bloqueado,DonoListaFK")] Amigo amigo)
         {
             if (id != amigo.IDAmizade)
             {
