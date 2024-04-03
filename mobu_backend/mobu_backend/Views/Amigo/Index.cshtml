@@ -22,6 +22,9 @@
                 @Html.DisplayNameFor(model => model.DonoListaAmigos)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Bloqueado)
+            </th>
+            <th>
                 Amigo/a
             </th>
             <th></th>
@@ -37,11 +40,15 @@
                 @Html.DisplayFor(modelItem => item.DonoListaAmigos.NomeUtilizador)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Bloqueado)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => context.UtilizadorRegistado
                     .Where(u => u.IDUtilizador == item.IDAmigo)
                     .Select(u => u.NomeUtilizador)
                     .ToArray()[0])
             </td>
+
             <td>
                 <a asp-action="Details" asp-route-id="@item.IDAmizade">Detalhes</a> | 
             
