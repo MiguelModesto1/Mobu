@@ -238,7 +238,7 @@ public class RegisterApiController : ControllerBase
         try{
             IActionResult status;
             var valid = false;
-            UtilizadorAnonimo anon = null;
+            //UtilizadorAnonimo anon = null;
             JObject resp = new();
             _logger.LogWarning("Entrou no método Post");
 
@@ -247,17 +247,17 @@ public class RegisterApiController : ControllerBase
             
             // Criacao de anonimo novo
 
-            if(registerData.Value<bool>("create")){
-                valid = true;
-                anon = new();
+            //if(registerData.Value<bool>("create")){
+            //    valid = true;
+            //    anon = new();
 
-                _context.Attach(anon);
-                await _context.SaveChangesAsync();
-            }
+            //    _context.Attach(anon);
+            //    await _context.SaveChangesAsync();
+            //}
 
-            int  anonId = anon.IDUtilizador;
+            //int  anonId = anon.IDUtilizador;
 
-            resp.Add("anonymous", anonId.ToJToken());
+            //resp.Add("anonymous", anonId.ToJToken());
 
             status = valid ? Ok(resp.ToJson()) : NotFound();
 

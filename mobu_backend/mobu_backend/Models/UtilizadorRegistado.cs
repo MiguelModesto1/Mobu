@@ -16,7 +16,6 @@ namespace mobu_backend.Models
 			ListaMensagensEnviadas = new HashSet<Mensagem>();
 			ListaDetinatarios = new HashSet<DestinatarioPedidosAmizade>();
 			ListaAmigos = new HashSet<Amigo>();
-			ListaSalasJogo = new HashSet<RegistadosSalasJogo>();
 		}
 		/// <summary>
 		/// ID para a tabela do utilizador registado (PK)
@@ -92,7 +91,6 @@ namespace mobu_backend.Models
 		public ICollection<Mensagem> ListaMensagensEnviadas { get; set; }
 		public ICollection<DestinatarioPedidosAmizade> ListaDetinatarios { get; set; }
 		public ICollection<Amigo> ListaAmigos { get; set; }
-		public ICollection<RegistadosSalasJogo> ListaSalasJogo { get; set; }
 		
 	}
 }
