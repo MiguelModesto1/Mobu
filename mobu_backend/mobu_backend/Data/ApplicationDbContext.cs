@@ -103,10 +103,7 @@ namespace mobu_backend.Data
 		//definir tabelas da BD
 
 		public DbSet<UtilizadorRegistado> UtilizadorRegistado { get; set; }
-		public DbSet<UtilizadorAnonimo> UtilizadorAnonimo { get; set; }
 		public DbSet<SalasChat> SalasChat { get; set; }
-		public DbSet<SalaJogo1Contra1> SalaJogo1Contra1 { get; set; }
-		public DbSet<RegistadosSalasJogo> RegistadosSalasJogo { get; set; }
 		public DbSet<DestinatarioPedidosAmizade> DestinatarioPedidosAmizade { get; set; }
 		public DbSet<RegistadosSalasChat> RegistadosSalasChat { get; set; }
 		public DbSet<Mensagem> Mensagem { get; set; }
