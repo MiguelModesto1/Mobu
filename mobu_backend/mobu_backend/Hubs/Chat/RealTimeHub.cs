@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Org.BouncyCastle.Utilities.Encoders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using mobu_backend.Data;
 using mobu_backend.Models;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace mobu_backend.Hubs.Chat
 {
@@ -39,22 +38,22 @@ namespace mobu_backend.Hubs.Chat
 
         public override async Task OnConnectedAsync()
         {
- 
+
             // Get Header Authorization value
             var httpCtx = Context.GetHttpContext();
             string header = httpCtx.Request.Headers.Authorization;
             string token = "";
-            if(header!=null && header.Length!=0)
+            if (header != null && header.Length != 0)
                 token = this.GenerateTokenFromHeader(header);
- 
-            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o "+Context.ConnectionId);
+
+            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
         }
 
         private string GenerateTokenFromHeader(string header)
         {
- 
+
             string decodedHeader = System.Text.Encoding.UTF8.GetString(Base64.Decode(header));
- 
+
             return header;
         }
 
@@ -94,21 +93,22 @@ namespace mobu_backend.Hubs.Chat
             IQueryable<int> salaIdQuery = _context.RegistadosSalasChat
             .Where(rs => rs.SalaFK == Convert.ToInt32(roomId) && rs.UtilizadorFK == fromUserId)
             .Select(rs => rs.SalaFK);
-                
+
             int salaId = salaIdQuery.ToArray()[0];
 
             var msgQuery = _context.Mensagem.Where(m => m.SalaFK == salaId);
 
             int prevMensagemId = !msgQuery.IsNullOrEmpty() ? msgQuery.Max(m => m.IDMensagem) : 0;
-                
-            Mensagem msg = new(){
+
+            Mensagem msg = new()
+            {
                 IDMensagem = prevMensagemId + 1,
                 ConteudoMsg = message,
                 DataHoraMsg = DateTime.Now,
                 RemetenteFK = fromUserId,
                 SalaFK = salaId
             };
-                
+
             //await _context.Mensagem.AddAsync(msg);
             _context.Attach(msg);
             await _context.SaveChangesAsync();
@@ -119,7 +119,7 @@ namespace mobu_backend.Hubs.Chat
         public async Task Block(string fromUser, string toUser)
         {
             // verificação
-            if(!int.TryParse(fromUser, out int fromUserId) || !int.TryParse(toUser, out int toUserId))
+            if (!int.TryParse(fromUser, out int fromUserId) || !int.TryParse(toUser, out int toUserId))
             {
                 return;
             }
@@ -135,17 +135,19 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveBlock(fromUser);
-        
+
         }
 
-        public async Task EnterGroup(string fromUser, string group){
+        public async Task EnterGroup(string fromUser, string group)
+        {
 
             if (!int.TryParse(fromUser, out var fromUserId) || !int.TryParse(group, out var groupId))
             {
                 return;
             }
 
-            RegistadosSalasChat registados = new(){
+            RegistadosSalasChat registados = new()
+            {
                 IsAdmin = false,
                 SalaFK = groupId,
                 UtilizadorFK = fromUserId
@@ -159,7 +161,8 @@ namespace mobu_backend.Hubs.Chat
             await Clients.Group(group).ReceiveEntry(fromUser + " juntou-se!");
         }
 
-        public async Task LeaveGroup(string userRemoved, string group){
+        public async Task LeaveGroup(string userRemoved, string group)
+        {
 
             if (!int.TryParse(userRemoved, out var userRemovedId) || !int.TryParse(group, out var groupId))
             {
@@ -186,16 +189,17 @@ namespace mobu_backend.Hubs.Chat
                 return;
             }
 
-            DestinatarioPedidosAmizade dest = new(){
-            RemetenteFK = fromUserId,
-            RemetentePedido = _context.UtilizadorRegistado.Where(u => u.IDUtilizador == fromUserId).ToArray()[0],
-            IDDestinatarioPedido = toUserId,
-            DataHoraPedido = DateTime.Now
+            DestinatarioPedidosAmizade dest = new()
+            {
+                RemetenteFK = fromUserId,
+                RemetentePedido = _context.UtilizadorRegistado.Where(u => u.IDUtilizador == fromUserId).ToArray()[0],
+                IDDestinatarioPedido = toUserId,
+                DataHoraPedido = DateTime.Now
             };
 
             _context.Attach(dest);
             await _context.SaveChangesAsync();
-            
+
             await Clients.User(toUser).ReceiveRequest(fromUser, dest.RemetentePedido.NomeUtilizador);
         }
 
@@ -212,7 +216,8 @@ namespace mobu_backend.Hubs.Chat
                     d => d.RemetenteFK == int.Parse(toUser) && d.IDDestinatarioPedido == int.Parse(replier)
                 );
 
-            if(reply){
+            if (reply)
+            {
 
                 // users
                 string toUsername = _context.UtilizadorRegistado
@@ -225,19 +230,22 @@ namespace mobu_backend.Hubs.Chat
 
                 // amigos
 
-                Amigo amigo_1 = new(){
+                Amigo amigo_1 = new()
+                {
                     IDAmigo = replierId,
                     DonoListaFK = toUserId
                 };
 
-                Amigo amigo_2 = new(){
+                Amigo amigo_2 = new()
+                {
                     IDAmigo = toUserId,
                     DonoListaFK = replierId
                 };
 
                 // sala
 
-                SalasChat sala = new(){
+                SalasChat sala = new()
+                {
                     NomeSala = toUsername + "_" + replierUsername,
                     SeGrupo = false,
                     NomeFotografia = "default_avatar.png",
@@ -248,12 +256,14 @@ namespace mobu_backend.Hubs.Chat
                 _context.Attach(sala);
                 await _context.SaveChangesAsync();
 
-                RegistadosSalasChat toUserRs = new(){
+                RegistadosSalasChat toUserRs = new()
+                {
                     SalaFK = _context.SalasChat.Where(s => s.NomeSala == sala.NomeSala).Select(s => s.IDSala).ToArray()[0],
                     UtilizadorFK = int.Parse(toUser)
                 };
 
-                RegistadosSalasChat replierRs = new(){
+                RegistadosSalasChat replierRs = new()
+                {
                     SalaFK = _context.SalasChat.Where(s => s.NomeSala == sala.NomeSala).Select(s => s.IDSala).ToArray()[0],
                     UtilizadorFK = int.Parse(replier)
                 };
@@ -266,7 +276,7 @@ namespace mobu_backend.Hubs.Chat
                 _context.Attach(replierRs);
                 await _context.SaveChangesAsync();
 
-            } 
+            }
             await Clients.User(toUser).ReceiveRequestReply(replier, reply);
         }
     }

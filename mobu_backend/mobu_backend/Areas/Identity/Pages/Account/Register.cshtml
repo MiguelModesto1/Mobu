@@ -9,12 +9,12 @@
 <div class="row">
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-            <input type="hidden" value="a@a.aa" asp-for="Input.Administrador.Email" />
-            <input type="hidden" value="111Qqq#" asp-for="Input.Administrador.Password" />
-            <input type="hidden" value="aaaaaa" asp-for="Input.Administrador.NomeAdmin" />
-            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Administrador.DataJuncao" />
-            <input type="hidden" value="" asp-for="Input.Administrador.NomeFotografia" />
-            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Administrador.DataFotografia" />
+            <input type="hidden" value="a@a.aa" asp-for="Input.Utilizador.Email" />
+            <input type="hidden" value="111Qqq#" asp-for="Input.Utilizador.Password" />
+            <input type="hidden" value="aaaaaa" asp-for="Input.Utilizador.NomeUtilizador" />
+            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataJuncao" />
+            <input type="hidden" value="" asp-for="Input.Utilizador.NomeFotografia" />
+            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataFotografia" />
 
             <h2>Crie uma nova conta.</h2>
             <hr />

@@ -13,8 +13,7 @@ using mobu_backend.Services;
 
 namespace mobu.Controllers.Backend
 {
-
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class UtilizadorRegistadoController : Controller
     {
         /// <summary>
@@ -26,11 +25,6 @@ namespace mobu.Controllers.Backend
         /// ferramenta com acesso a gestao de users
         /// </summary>
         private readonly UserManager<IdentityUser> _userManager;
-
-        /// <summary>
-        /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-        /// </summary>
-        private readonly RoleManager<IdentityRole> _roleManager;
 
         /// <summary>
         /// Este recurso (tecnicamente, um atributo) mostra os 
@@ -64,7 +58,6 @@ namespace mobu.Controllers.Backend
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             ILogger<EmailSender> loggerEmail,
             IHttpContextAccessor http,
@@ -73,7 +66,6 @@ namespace mobu.Controllers.Backend
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
-            _roleManager = roleManager;
             _logger = logger;
             _emailLogger = loggerEmail;
             _http = http;
@@ -188,24 +180,8 @@ namespace mobu.Controllers.Backend
 
                     if (result.Succeeded)
                     {
-                        // criar role de registado se esta nao existir
-                        if (!await _roleManager.RoleExistsAsync("Registered"))
-                        {
-                            var role = new IdentityRole
-                            {
-                                Name = "Registered",
-                                ConcurrencyStamp = Guid.NewGuid().ToString()
-                            };
-                            await _roleManager.CreateAsync(role);
-                        }
 
-                        // atribuir ao utilizador em questao a role
-                        await _userManager.AddToRoleAsync(user, _roleManager.Roles
-                            .Where(r => r.Name == "Registered")
-                            .Select(r => r.Name)
-                            .ToImmutableArray()[0]);
-
-                        _logger.LogInformation("Administrador criou uma nova conta com palavra-passe.");
+                        _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
 
                         var userId = await _userManager.GetUserIdAsync(user);
 
@@ -277,7 +253,7 @@ namespace mobu.Controllers.Backend
                 {
                     //informar de erro de adicao
                     _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + utilizadorRegistado.NomeUtilizador + "\nA apagar utilizador...");
-                    
+
                     if (UtilizadorRegistadoExists(utilizadorRegistado.IDUtilizador))
                     {
                         _context.Remove(utilizadorRegistado);
@@ -289,20 +265,13 @@ namespace mobu.Controllers.Backend
                     }
 
                     // se exisitr user na base de dados do negocio 
-                    if(await _context.UtilizadorRegistado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizadorRegistado.IDUtilizador) != null)
+                    if (await _context.UtilizadorRegistado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizadorRegistado.IDUtilizador) != null)
                     {
                         await _userManager.DeleteAsync(user);
 
                         _logger.LogInformation("Utilizador apagado do Identity!");
-
-                        // se nao existirem utilizadores
-                        if ((await _userManager.GetUsersInRoleAsync("Registered")).ToImmutableArray().Length == 0)
-                        {
-                            // apagar role 'Registered'
-                            await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Registered").Result);
-                        }
                     }
-                    
+
 
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizadorRegistado.NomeUtilizador);
                 }
@@ -570,12 +539,6 @@ namespace mobu.Controllers.Backend
 
                     var user = _userManager.FindByIdAsync(utilizadorRegistado.AuthenticationID).Result;
                     var result = await _userManager.DeleteAsync(user);
-
-                    // se nao exisitrem mais utilizadores registados, remover role
-                    if ((await _userManager.GetUsersInRoleAsync("Registered")).ToImmutableArray().Length == 0)
-                    {
-                        await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Registered").Result);
-                    }
 
                     await _context.SaveChangesAsync();
 

@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 
 namespace mobu_backend.Models
 {
@@ -33,18 +32,6 @@ namespace mobu_backend.Models
         [Display(Name = "Data-Hora do pedido")]
         public DateTime DataHoraPedido { get; set; }
 
-        /*/// <summary>
-        /// Estado do pedido de amizade
-        /// 1 - a enviar
-        /// 2 - enviado
-        /// 3 - recebido
-        /// 4 - aceite
-        /// 5 - recusado
-        /// </summary>
-        [EnumDataType(typeof(EstadosPedido))]
-        [Display(Name = "Estado do Pedido")]
-        public EstadosPedido EstadoPedido { get; set; }*/
-
         /// <summary>
         /// Chave forasteira que referencia o ID do Remetente
         /// </summary>
@@ -52,14 +39,5 @@ namespace mobu_backend.Models
         [Display(Name = "Remetente")]
         [ForeignKey(nameof(RemetentePedido))]
         public int RemetenteFK { get; set; }
-
-        /*public enum EstadosPedido
-        {
-            A_Enviar = 1,
-            Enviado = 2,
-            Recebido = 3,
-            Aceite = 4,
-            Recusado = 5
-        }*/
     }
 }

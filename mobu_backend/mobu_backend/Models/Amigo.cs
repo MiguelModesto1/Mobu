@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace mobu_backend.Models
 {
@@ -30,7 +29,7 @@ namespace mobu_backend.Models
         [Required(ErrorMessage = "O Bloqueio é de preenchimento obrigatório")]
         [DefaultValue(false)]
         public bool Bloqueado { get; set; }
-        
+
         /// <summary>
         /// Dono da lista de amizades concretizadas
         /// </summary>

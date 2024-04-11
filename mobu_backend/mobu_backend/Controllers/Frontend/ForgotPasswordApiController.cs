@@ -2,11 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using mobu_backend.Areas.Identity.Pages.Account;
 using mobu_backend.Data;
-using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
 
@@ -26,11 +23,6 @@ public class ForgotPasswordApiController : ControllerBase
     /// </summary>
     private readonly UserManager<IdentityUser> _userManager;
 
-    /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
     /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
@@ -52,7 +44,7 @@ public class ForgotPasswordApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -62,7 +54,6 @@ public class ForgotPasswordApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -72,7 +63,6 @@ public class ForgotPasswordApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -83,7 +73,8 @@ public class ForgotPasswordApiController : ControllerBase
     [Route("api/forgot-password/send-email")]
     public async Task<IActionResult> SendEmail([FromBody] string emailJson)
     {
-        try{
+        try
+        {
             StatusCodeResult status;
             var request = _http.HttpContext.Request;
             var valid = false;
@@ -93,12 +84,13 @@ public class ForgotPasswordApiController : ControllerBase
             JObject registerData = JObject.Parse(emailJson);
 
             var email = registerData.Value<string>("email");
-            
+
             // verificacao e envio de email
-            var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
+            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
-            if(identityUser != null){
+            if (identityUser != null)
+            {
 
                 valid = true;
 
@@ -113,27 +105,32 @@ public class ForgotPasswordApiController : ControllerBase
 
                 await emailSender.SendEmailAsync(identityUser.Email, "Mude a sua palavra passe", htmlElement);
             }
-            
+
 
             status = valid ? NoContent() : NotFound();
 
             return status;
 
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Erro no envio de email: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
 
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
-        
+
     }
 
     [HttpPost]
     [Route("api/forgot-password/reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] string passwordJson, string email)
     {
-        try{
+        try
+        {
             StatusCodeResult status;
             var valid = false;
             _logger.LogWarning("Entrou no método Post");
@@ -142,25 +139,30 @@ public class ForgotPasswordApiController : ControllerBase
             JObject registerData = JObject.Parse(passwordJson);
             var newPassword = registerData.Value<string>("newPassword");
             var currPassword = registerData.Value<string>("currentPassword");
-            
+
             // mudanca de password
-            var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
+            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
-            if(identityUser != null && newPassword != "" && currPassword != ""){
+            if (identityUser != null && newPassword != "" && currPassword != "")
+            {
                 valid = true;
                 await _userManager.ChangePasswordAsync(identityUser, currPassword, newPassword);
             }
 
             valid = true;
-            
+
             status = valid ? NoContent() : NotFound();
 
             return status;
-        }catch(Exception ex){
-             _logger.LogError($"Erro na mudança de password: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Erro na mudança de password: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
     }

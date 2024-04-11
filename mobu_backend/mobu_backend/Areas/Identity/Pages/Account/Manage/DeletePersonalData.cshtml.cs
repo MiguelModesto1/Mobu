@@ -2,21 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using mobu_backend.Data;
-using mobu_backend.Models;
 
 namespace mobu_backend.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class DeletePersonalDataModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -33,25 +30,18 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        /// <summary>
-        /// Gestor de papeis de cada utilizador
-        /// </summary>
-        private readonly RoleManager<IdentityRole> _roleManager;
-
         public DeletePersonalDataModel(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<DeletePersonalDataModel> logger,
             ApplicationDbContext context,
-            IWebHostEnvironment webHostEnvironment,
-            RoleManager<IdentityRole> roleManager)
+            IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -118,7 +108,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             // buscar nome na base de dados
 
             // administrador do POV do negocio
-            var admin = await _context.Admin
+            var admin = await _context.UtilizadorRegistado
                 .FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
 
             // nome da fotografia do administrador
@@ -145,12 +135,6 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             var userId = await _userManager.GetUserIdAsync(user);
 
             _logger.LogInformation("Um administrador foi removido.");
-
-            // se nao exisitrem mais administradores, remover role
-            if ((await _userManager.GetUsersInRoleAsync("Administrator")).ToImmutableArray().Length == 0)
-            {
-                await _roleManager.DeleteAsync(_roleManager.FindByNameAsync("Administrator").Result);
-            }
 
             if (!result.Succeeded)
             {

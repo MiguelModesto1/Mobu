@@ -2,11 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +13,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using mobu_backend.Data;
-using mobu_backend.Models;
 
 namespace mobu_backend.Areas.Identity.Pages.Account.Manage
 {
+    [Authorize]
     public class EmailModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -133,18 +132,18 @@ namespace mobu_backend.Areas.Identity.Pages.Account.Manage
             if (Input.NewEmail != email)
             {
 
-                // atualizar dados do administrador
-                var admin = await _context.Admin.FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
-                admin.Email = Input.NewEmail;
+                // atualizar dados do utilizador
+                var utilizador = await _context.UtilizadorRegistado.FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
+                utilizador.Email = Input.NewEmail;
 
                 try
                 {
-                    _context.Admin.Update(admin);
+                    _context.UtilizadorRegistado.Update(utilizador);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception)
                 {
-                    _logger.LogInformation("Houve problemas com a edição do admin" + admin.NomeAdmin);
+                    _logger.LogInformation("Houve problemas com a edição do admin" + utilizador.NomeUtilizador);
                 }
 
                 var userId = await _userManager.GetUserIdAsync(user);

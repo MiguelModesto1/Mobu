@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +7,7 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class MensagemController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -39,7 +35,7 @@ namespace mobu.Controllers.Backend
             var mensagem = await _context.Mensagem
                 .Include(m => m.Remetente)
                 .Include(m => m.Sala)
-                .FirstOrDefaultAsync(m => m.IDMensagemSala == id);
+                .FirstOrDefaultAsync(m => m.IDMensagem == id);
             if (mensagem == null)
             {
                 return NotFound();
@@ -61,7 +57,7 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDMensagemSala,IDMensagem,ConteudoMsg,DataHoraMsg,EstadoMensagem,RemetenteFK,SalaFK")] Mensagem mensagem)
+        public async Task<IActionResult> Create([Bind("IDMensagem,ConteudoMsg,DataHoraMsg,EstadoMensagem,RemetenteFK,SalaFK")] Mensagem mensagem)
         {
             if (ModelState.IsValid)
             {
@@ -97,9 +93,9 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDMensagemSala,IDMensagem,ConteudoMsg,DataHoraMsg,EstadoMensagem,RemetenteFK,SalaFK")] Mensagem mensagem)
+        public async Task<IActionResult> Edit(int id, [Bind("IDMensagem,ConteudoMsg,DataHoraMsg,EstadoMensagem,RemetenteFK,SalaFK")] Mensagem mensagem)
         {
-            if (id != mensagem.IDMensagemSala)
+            if (id != mensagem.IDMensagem)
             {
                 return NotFound();
             }
@@ -113,7 +109,7 @@ namespace mobu.Controllers.Backend
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MensagemExists(mensagem.IDMensagemSala))
+                    if (!MensagemExists(mensagem.IDMensagem))
                     {
                         return NotFound();
                     }
@@ -140,7 +136,7 @@ namespace mobu.Controllers.Backend
             var mensagem = await _context.Mensagem
                 .Include(m => m.Remetente)
                 .Include(m => m.Sala)
-                .FirstOrDefaultAsync(m => m.IDMensagemSala == id);
+                .FirstOrDefaultAsync(m => m.IDMensagem == id);
             if (mensagem == null)
             {
                 return NotFound();
@@ -170,7 +166,7 @@ namespace mobu.Controllers.Backend
 
         private bool MensagemExists(int id)
         {
-            return _context.Mensagem.Any(e => e.IDMensagemSala == id);
+            return _context.Mensagem.Any(e => e.IDMensagem == id);
         }
     }
 }

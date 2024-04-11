@@ -1,16 +1,10 @@
-﻿using System.Security.Cryptography;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
-using Newtonsoft.Json.Linq;
-using NuGet.Protocol.Plugins;
-using SendGrid.Helpers.Errors.Model;
 
 namespace mobu.Controllers.Frontend;
 
@@ -29,11 +23,6 @@ public class LoginApiController : ControllerBase
     /// </summary>
     private readonly UserManager<IdentityUser> _userManager;
 
-    /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
     /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
@@ -55,7 +44,7 @@ public class LoginApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -65,7 +54,6 @@ public class LoginApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -75,7 +63,6 @@ public class LoginApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -86,7 +73,8 @@ public class LoginApiController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> UserValidation(Login loginDataJson)
     {
-        try{
+        try
+        {
             IActionResult resp;
             var valid = false;
             _logger.LogWarning("Entrou no método Post");
@@ -95,19 +83,21 @@ public class LoginApiController : ControllerBase
 
             var email = loginDataJson.Email;
             var password = loginDataJson.Password;
-            
+
             // Validacao de email e password
-            var identityUserList = await  _userManager.GetUsersInRoleAsync("Registered");
+            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
 
             //user da BD
             var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email);
 
-            
 
-            if(identityUser != null){
+
+            if (identityUser != null)
+            {
                 var confirmPassword = await _userManager.CheckPasswordAsync(identityUser, password);
-                if(confirmPassword){
+                if (confirmPassword)
+                {
                     valid = true;
                     user.DataNasc = DateTime.Now;
 
@@ -117,14 +107,18 @@ public class LoginApiController : ControllerBase
             }
 
             resp = valid ? Ok() : NotFound(); // Implementar rota pagina mensagens
-            
+
             _logger.LogWarning("Saiu do método Post");
 
             return resp;
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error no login: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
     }

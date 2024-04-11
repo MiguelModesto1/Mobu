@@ -1,18 +1,13 @@
 ﻿using System.Collections.Immutable;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using mobu_backend.Data;
 using mobu_backend.Models;
-using mobu_backend.Services;
-using static System.Net.WebRequestMethods;
 
 namespace mobu.Controllers.Backend
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class SalasChatController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -166,7 +161,7 @@ namespace mobu.Controllers.Backend
                     {
                         _context.Remove(salasChat);
                     }
-                    
+
                     _logger.LogInformation("Administrador apagado!");
 
                     ModelState.AddModelError("", "Ocorreu um erro com a adição da sala" + salasChat.NomeSala);

@@ -1,16 +1,6 @@
-﻿using System.Buffers;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using mobu_backend.Models;
-using Newtonsoft.Json.Linq;
-using NuGet.Common;
-using NuGet.Protocol;
 
 namespace mobu_backend.Data
 {
@@ -30,7 +20,7 @@ namespace mobu_backend.Data
 		/// <param name="modelBuilder"></param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			
+
 			base.OnModelCreating(modelBuilder);
 
 			//Adicao de dados de teste
@@ -96,9 +86,9 @@ namespace mobu_backend.Data
 						EstadoPedido = (DestinatarioPedidosAmizade.EstadosPedido)1
 					}
 				);*/
-
-
 		}
+
+		
 
 		//definir tabelas da BD
 
@@ -108,6 +98,5 @@ namespace mobu_backend.Data
 		public DbSet<RegistadosSalasChat> RegistadosSalasChat { get; set; }
 		public DbSet<Mensagem> Mensagem { get; set; }
 		public DbSet<Amigo> Amigo { get; set; }
-		public DbSet<Admin> Admin { get; set; }
 	}
 }
