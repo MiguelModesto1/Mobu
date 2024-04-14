@@ -70,7 +70,7 @@ public class MessagesApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
-    [HttpGet]
+    /*[HttpGet]
     [Route("api/messages")]
     public async Task<IActionResult> GetFriendsInformation(string email, int id)
     {
@@ -89,7 +89,7 @@ public class MessagesApiController : ControllerBase
             UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email || u.IDUtilizador == id);
 
             // amigos do utilizador
-            Amigo[] friends = _context.Amigo.Where(a => a.DonoListaFK == user.IDUtilizador).ToArray();
+            //Amigo[] friends = _context.Amigo.Where(a => a.DonoListaFK == user.IDUtilizador).ToArray();
 
             object[] friendsArray = { };
             object[] groupsArray = { };
@@ -200,7 +200,7 @@ public class MessagesApiController : ControllerBase
             }
             info.Add("friends", friendsArray.ToJToken());
             info.Add("groups", groupsArray.ToJToken());
-            info.Add("lengthFriendsList", friends.Length);
+            //info.Add("lengthFriendsList", friends.Length);
             info.Add("lengthGroupsList", userGroups.Length);
             info.Add("ownerInfo", user.IDUtilizador);
 
@@ -217,43 +217,5 @@ public class MessagesApiController : ControllerBase
         finally
         {
             _logger.LogWarning("Saiu do método Get");
-        }
+        }*/
     }
-
-    [HttpPost]
-    [Route("api/block")]
-    public async Task<IActionResult> Block([FromBody] string friendId)
-    {
-
-        JObject obj = JObject.Parse(friendId);
-
-        int id = obj.Value<int>("id");
-        int owner = obj.Value<int>("owner");
-
-        if (id != 0 && owner != 0)
-        {
-
-            int[] ow = _context.RegistadosSalasChat
-            .Where(rs => rs.UtilizadorFK == owner && !rs.Sala.SeGrupo)
-            .Select(rs => rs.SalaFK)
-            .ToArray();
-
-            int[] fr = _context.RegistadosSalasChat
-            .Where(rs => rs.UtilizadorFK == id && !rs.Sala.SeGrupo)
-            .Select(rs => rs.SalaFK)
-            .ToArray();
-
-            int commonRoomId = ow.Intersect(fr).ToArray()[0];
-
-            SalasChat room = await _context.SalasChat
-            .FirstOrDefaultAsync(s => s.IDSala == commonRoomId);
-
-            _context.Remove(room);
-            await _context.SaveChangesAsync();
-
-        }
-
-        return NoContent();
-
-    }
-}

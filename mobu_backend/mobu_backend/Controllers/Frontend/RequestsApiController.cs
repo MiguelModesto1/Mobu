@@ -70,7 +70,7 @@ public class RequestsApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
-    [HttpGet]
+   /* [HttpGet]
     public IActionResult GetRequests(int id)
     {
 
@@ -102,5 +102,5 @@ public class RequestsApiController : ControllerBase
         {
 
         }
-    }
+    }*/
 }
