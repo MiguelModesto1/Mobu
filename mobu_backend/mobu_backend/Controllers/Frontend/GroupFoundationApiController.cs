@@ -22,11 +22,6 @@ public class GroupFoundationApiController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
 
     /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
-    /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
     /// E necessário inicializar este atributo no construtor da classe
@@ -47,7 +42,7 @@ public class GroupFoundationApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -57,7 +52,6 @@ public class GroupFoundationApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -67,7 +61,6 @@ public class GroupFoundationApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -78,7 +71,8 @@ public class GroupFoundationApiController : ControllerBase
     [Route("api/group-foundation")]
     public async Task<IActionResult> RegisterUser([FromBody] string registerDataJson)
     {
-        try{
+        try
+        {
             IActionResult status;
             var valid = false;
             var nomeFoto = "";
@@ -90,10 +84,11 @@ public class GroupFoundationApiController : ControllerBase
             var groupName = registerData.Value<string>("groupName");
             var avatar = registerData.Value<string>("avatar");
             var adminId = registerData.Value<int>("adminId");
-            
+
             // Criacao de grupo com nome e avatar
 
-            if(avatar != ""){
+            if (avatar != "")
+            {
                 // Conversao de imagem
                 byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
 
@@ -128,43 +123,50 @@ public class GroupFoundationApiController : ControllerBase
 
                 System.IO.File.WriteAllBytes(nomeFotoImagem, imageBytes);
 
-            }else{
+            }
+            else
+            {
                 nomeFoto = "default_avatar.png";
             }
-            
+
 
             SalasChat salas_Chat = new()
-                {
-                    NomeFotografia = nomeFoto,
-                    DataFotografia = DateTime.Now,
-                    NomeSala = groupName,
-                    SeGrupo = true
-                };
-                
+            {
+                NomeFotografia = nomeFoto,
+                DataFotografia = DateTime.Now,
+                NomeSala = groupName,
+                SeGrupo = true
+            };
+
             _context.Attach(salas_Chat);
             await _context.SaveChangesAsync();
 
             // associacao com o fundador do grupo
-            RegistadosSalasChat registados_Salas_Chat = new(){
+            RegistadosSalasChat registados_Salas_Chat = new()
+            {
                 IsAdmin = true,
                 UtilizadorFK = adminId,
                 SalaFK = salas_Chat.IDSala
             };
 
-            
+
             _context.Attach(registados_Salas_Chat);
             await _context.SaveChangesAsync();
 
             status = valid ? CreatedAtAction(nameof(groupName), new { id = salas_Chat.IDSala }, salas_Chat) : NotFound();
-            
+
             return status;
-            
-        }catch(Exception ex){
+
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error no registode grupo: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
-        
+
     }
 }

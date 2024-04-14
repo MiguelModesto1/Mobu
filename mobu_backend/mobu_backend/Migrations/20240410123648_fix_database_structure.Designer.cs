@@ -12,17 +12,15 @@ using mobu_backend.Data;
 namespace mobu_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230522222315_foto")]
-#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
-    partial class foto
-#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
+    [Migration("20240410123648_fix_database_structure")]
+    partial class fix_database_structure
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -229,102 +227,112 @@ namespace mobu_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
+                {
+                    b.Property<int>("IDAmizade")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDAmizade"));
+
+                    b.Property<bool>("Bloqueado")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("DonoListaFK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IDAmigo")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDAmizade");
+
+                    b.HasIndex("DonoListaFK");
+
+                    b.ToTable("Amigo");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.DestinatarioPedidosAmizade", b =>
+                {
+                    b.Property<int>("IDPedido")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDPedido"));
+
+                    b.Property<DateTime>("DataHoraPedido")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IDDestinatarioPedido")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RemetenteFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDPedido");
+
+                    b.HasIndex("RemetenteFK");
+
+                    b.ToTable("DestinatarioPedidosAmizade");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.Property<int>("IDMensagem")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("SalaFK")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDMensagem"));
 
                     b.Property<string>("ConteudoMsg")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int>("EstadoMensagem")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("DataHoraMsg")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("RemetenteFK")
                         .HasColumnType("int");
 
-                    b.HasKey("IDMensagem", "SalaFK");
+                    b.Property<int>("SalaFK")
+                        .HasColumnType("int");
+
+                    b.HasKey("IDMensagem");
 
                     b.HasIndex("RemetenteFK");
 
                     b.HasIndex("SalaFK");
 
-                    b.ToTable("mensagem");
+                    b.ToTable("Mensagem");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Pedidos_Amizade", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
                 {
-                    b.Property<int>("RemetenteFK")
+                    b.Property<int>("IDRegisto")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("DestinatarioFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EstadoPedido")
-                        .HasColumnType("int");
-
-                    b.HasKey("RemetenteFK", "DestinatarioFK");
-
-                    b.HasIndex("DestinatarioFK");
-
-                    b.ToTable("Pedidos_Amizade");
-
-                    b.HasData(
-                        new
-                        {
-                            RemetenteFK = 1,
-                            DestinatarioFK = 2,
-                            EstadoPedido = 1
-                        });
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
-                {
-                    b.Property<int>("UtilizadorFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SalaFK")
-                        .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDRegisto"));
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.HasKey("UtilizadorFK", "SalaFK");
-
-                    b.HasIndex("SalaFK");
-
-                    b.ToTable("registados_Salas_Chat");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
-                {
-                    b.Property<int>("UtilizadorFK")
-                        .HasColumnType("int");
-
                     b.Property<int>("SalaFK")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsFundador")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("Sala_Jogo_1_Contra_1IDSala")
+                    b.Property<int>("UtilizadorFK")
                         .HasColumnType("int");
 
-                    b.HasKey("UtilizadorFK", "SalaFK");
+                    b.HasKey("IDRegisto");
 
                     b.HasIndex("SalaFK");
 
-                    b.HasIndex("Sala_Jogo_1_Contra_1IDSala");
+                    b.HasIndex("UtilizadorFK");
 
-                    b.ToTable("registados_Salas_Jogo");
+                    b.ToTable("RegistadosSalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Property<int>("IDSala")
                         .ValueGeneratedOnAdd()
@@ -332,20 +340,14 @@ namespace mobu_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDSala"));
 
-                    b.HasKey("IDSala");
+                    b.Property<DateTime?>("DataFotografia")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("Sala_Jogo_1_Contra_1");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Salas_Chat", b =>
-                {
-                    b.Property<int>("IDSala")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDSala"));
+                    b.Property<string>("NomeFotografia")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeSala")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
@@ -354,10 +356,10 @@ namespace mobu_backend.Migrations
 
                     b.HasKey("IDSala");
 
-                    b.ToTable("Salas_Chat");
+                    b.ToTable("SalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Anonimo", b =>
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
                     b.Property<int>("IDUtilizador")
                         .ValueGeneratedOnAdd()
@@ -365,64 +367,24 @@ namespace mobu_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDUtilizador"));
 
-                    b.Property<string>("EnderecoIPv4")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("EnderecoIPv6")
-                        .HasMaxLength(39)
-                        .HasColumnType("nvarchar(39)");
-
-                    b.Property<string>("Fotografia")
+                    b.Property<string>("AuthenticationID")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NomeUtilizador")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Property<DateTime>("DataFotografia")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("IDUtilizador");
+                    b.Property<DateTime>("DataJuncao")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("Utilizador_Anonimo");
-
-                    b.HasData(
-                        new
-                        {
-                            IDUtilizador = 3,
-                            EnderecoIPv4 = "192.168.1.1",
-                            EnderecoIPv6 = "",
-                            NomeUtilizador = "guest3"
-                        },
-                        new
-                        {
-                            IDUtilizador = 4,
-                            EnderecoIPv4 = "192.168.1.2",
-                            EnderecoIPv6 = "",
-                            NomeUtilizador = "guest4"
-                        },
-                        new
-                        {
-                            IDUtilizador = 5,
-                            EnderecoIPv4 = "",
-                            EnderecoIPv6 = "2001:818:dfba:c100:1464:bee0:19fb:f940",
-                            NomeUtilizador = "guest5"
-                        });
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
-                {
-                    b.Property<int>("IDUtilizador")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDUtilizador"));
+                    b.Property<DateTime>("DataNasc")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Fotografia")
+                    b.Property<string>("NomeFotografia")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NomeUtilizador")
@@ -430,30 +392,9 @@ namespace mobu_backend.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(96)
-                        .HasColumnType("nvarchar(96)");
-
                     b.HasKey("IDUtilizador");
 
-                    b.ToTable("Utilizador_Registado");
-
-                    b.HasData(
-                        new
-                        {
-                            IDUtilizador = 1,
-                            Email = "teste1@teste.com",
-                            NomeUtilizador = "teste1",
-                            Password = "E47E548A9EA2929625FCAD762E4BE370E03EC8F0E747446F1E0A3762C841A988F425DFE385DEF422B79460F8C293E02A"
-                        },
-                        new
-                        {
-                            IDUtilizador = 2,
-                            Email = "teste2@teste.com",
-                            NomeUtilizador = "teste2",
-                            Password = "E47E548A9EA2929625FCAD762E4BE370E03EC8F0E747446F1E0A3762C841A988F425DFE385DEF422B79460F8C293E02A"
-                        });
+                    b.ToTable("UtilizadorRegistado");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -507,15 +448,37 @@ namespace mobu_backend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
+            modelBuilder.Entity("mobu_backend.Models.Amigo", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Remetente")
-                        .WithMany("ListaMensagensEnviadas")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
+                        .WithMany("ListaAmigos")
+                        .HasForeignKey("DonoListaFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DonoListaAmigos");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.DestinatarioPedidosAmizade", b =>
+                {
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "RemetentePedido")
+                        .WithMany("ListaDestinatarios")
                         .HasForeignKey("RemetenteFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
+                    b.Navigation("RemetentePedido");
+                });
+
+            modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
+                {
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
+                        .WithMany("ListaMensagens")
+                        .HasForeignKey("RemetenteFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("mobu_backend.Models.SalasChat", "Sala")
                         .WithMany("ListaMensagensRecebidas")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -526,34 +489,15 @@ namespace mobu_backend.Migrations
                     b.Navigation("Sala");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Pedidos_Amizade", b =>
+            modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
                 {
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "DestinatarioPedido")
-                        .WithMany("ListaPedidosEnviados")
-                        .HasForeignKey("DestinatarioFK")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "RemetentePedido")
-                        .WithMany("ListaPedidosRecebidos")
-                        .HasForeignKey("RemetenteFK")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("DestinatarioPedido");
-
-                    b.Navigation("RemetentePedido");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Chat", b =>
-                {
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
+                    b.HasOne("mobu_backend.Models.SalasChat", "Sala")
                         .WithMany("ListaRegistadosSalasChat")
                         .HasForeignKey("SalaFK")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Utilizador")
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Utilizador")
                         .WithMany("ListaSalasDeChat")
                         .HasForeignKey("UtilizadorFK")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -564,52 +508,22 @@ namespace mobu_backend.Migrations
                     b.Navigation("Utilizador");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Registados_Salas_Jogo", b =>
-                {
-                    b.HasOne("mobu_backend.Models.Salas_Chat", "Sala")
-                        .WithMany()
-                        .HasForeignKey("SalaFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.Sala_Jogo_1_Contra_1", null)
-                        .WithMany("ListaRegistados")
-                        .HasForeignKey("Sala_Jogo_1_Contra_1IDSala");
-
-                    b.HasOne("mobu_backend.Models.Utilizador_Registado", "Utilizador")
-                        .WithMany("ListaSalasJogo")
-                        .HasForeignKey("UtilizadorFK")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Sala");
-
-                    b.Navigation("Utilizador");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Sala_Jogo_1_Contra_1", b =>
-                {
-                    b.Navigation("ListaRegistados");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.Salas_Chat", b =>
+            modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Navigation("ListaMensagensRecebidas");
 
                     b.Navigation("ListaRegistadosSalasChat");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Utilizador_Registado", b =>
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
-                    b.Navigation("ListaMensagensEnviadas");
+                    b.Navigation("ListaAmigos");
 
-                    b.Navigation("ListaPedidosEnviados");
+                    b.Navigation("ListaDestinatarios");
 
-                    b.Navigation("ListaPedidosRecebidos");
+                    b.Navigation("ListaMensagens");
 
                     b.Navigation("ListaSalasDeChat");
-
-                    b.Navigation("ListaSalasJogo");
                 });
 #pragma warning restore 612, 618
         }

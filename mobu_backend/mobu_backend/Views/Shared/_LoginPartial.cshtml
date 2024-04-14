@@ -1,47 +1,47 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using Microsoft.AspNetCore.Authentication.Cookies;
 
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@inject RoleManager<IdentityRole> RoleManager
 @inject IHttpContextAccessor http
+@inject CookieAuthenticationHandler cookies
 
 <ul class="navbar-nav">
 
 @if (SignInManager.IsSignedIn(User))
 {
-    if(!User.IsInRole("Registered"))
+    if (http.HttpContext.Request.Path.ToString().Contains("Login"))
     {
-        <li class="nav-item">@Html.ActionLink("Administradores","Index","Admin", new {area = ""}, new {@class = "nav-link text-dark"})</li>
-        <li class="nav-item">@Html.ActionLink("Amigos","Index","Amigo", new {area = ""}, new {@class = "nav-link text-dark"})</li>
-        <li class="nav-item">@Html.ActionLink("Destinatários de Pedidos","Index","DestinatarioPedidosAmizade", new {area = ""}, new {@class = "nav-link text-dark"})</li>
-        <li class="nav-item">@Html.ActionLink("Registados Salas Chat","Index","RegistadosSalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
-        <li class="nav-item">@Html.ActionLink("Salas Chat","Index","SalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
-            <li class="nav-item">@Html.ActionLink("Registados","Index","UtilizadorRegistado", new {area = ""}, new {@class = "nav-link text-dark"})</li>
+        await SignInManager.SignOutAsync();
+
+        //atualizar página
+        http.HttpContext.Response.Redirect(http.HttpContext.Request.Path.ToString(), true);
     }
     else
     {
-        
+        <li class="nav-item">@Html.ActionLink("Registados Salas Chat","Index","RegistadosSalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
+        <li class="nav-item">@Html.ActionLink("Salas Chat","Index","SalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
+        <li class="nav-item">@Html.ActionLink("Registados","Index","UtilizadorRegistado", new {area = ""}, new {@class = "nav-link text-dark"})</li>
+        <li class="nav-item">
+            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gerir Conta">Olá @User.Identity?.Name!</a>
+        </li>
+        <li class="nav-item">
+            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+            </form>
+        </li>
+        }
+
     }
-    <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gerir Conta">Olá @User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-    }
-else
-{
-    if (!await RoleManager.RoleExistsAsync("Boss"))
+    else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Registar</a>
+        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Registar</a>
         </li>
-    }
         
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
 }
 </ul>

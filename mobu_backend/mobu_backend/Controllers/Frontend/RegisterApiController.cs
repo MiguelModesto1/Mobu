@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
-using mobu_backend.Migrations;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
@@ -25,11 +24,6 @@ public class RegisterApiController : ControllerBase
     /// </summary>
     private readonly UserManager<IdentityUser> _userManager;
 
-    /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
     /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
@@ -56,7 +50,7 @@ public class RegisterApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -67,7 +61,6 @@ public class RegisterApiController : ControllerBase
         IWebHostEnvironment webHostEnvironment,
         IHostEnvironment hostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -78,7 +71,6 @@ public class RegisterApiController : ControllerBase
         _webHostEnvironment = webHostEnvironment;
         _hostEnvironment = hostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -89,7 +81,8 @@ public class RegisterApiController : ControllerBase
     [Route("api/register")]
     public async Task<IActionResult> RegisterUser([FromBody] string registerDataJson)
     {
-        try{
+        try
+        {
             StatusCodeResult status;
             var valid = false;
             var nomeFoto = "";
@@ -102,12 +95,13 @@ public class RegisterApiController : ControllerBase
             var username = registerData.Value<string>("username");
             var email = registerData.Value<string>("email");
             var password = registerData.Value<string>("password");
-            
+
             // Criacao de utilizador com username, email e password
 
             // avatar
 
-            if(avatar != ""){
+            if (avatar != "")
+            {
                 // Conversao de imagem
                 byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
 
@@ -142,11 +136,14 @@ public class RegisterApiController : ControllerBase
 
                 System.IO.File.WriteAllBytes(nomeFotoImagem, imageBytes);
 
-            }else{
+            }
+            else
+            {
                 nomeFoto = "default_avatar.png";
             }
 
-            UtilizadorRegistado user = new(){
+            UtilizadorRegistado user = new()
+            {
                 NomeUtilizador = username,
                 Email = email,
                 NomeFotografia = nomeFoto,
@@ -157,8 +154,9 @@ public class RegisterApiController : ControllerBase
             await _context.SaveChangesAsync();
 
             // guardar dados no identitiy
-            
-            await _userManager.CreateAsync(new IdentityUser(){
+
+            await _userManager.CreateAsync(new IdentityUser()
+            {
                 UserName = username,
                 Email = email
             });
@@ -167,13 +165,7 @@ public class RegisterApiController : ControllerBase
 
             await _userManager.AddPasswordAsync(identityUser, password);
 
-            // adicionar a role se esta existir
-
-            if(!await _roleManager.RoleExistsAsync("Registered")){
-                await _roleManager.CreateAsync(new IdentityRole("Registered"));
-            }
-
-            await _userManager.AddToRoleAsync(identityUser,"Registered");
+            await _userManager.AddToRoleAsync(identityUser, "Registered");
 
             // enviar email de confirmacao
 
@@ -190,21 +182,27 @@ public class RegisterApiController : ControllerBase
             await emailSender.SendEmailAsync(identityUser.Email, "Confirme o seu email", htmlElement);
 
             status = valid ? NoContent() : NotFound();
-            
+
             return status;
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error na edição de um perfil: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
-        
+
     }
 
     [HttpGet]
     [Route("api/confirm-new-account")]
-    public async Task<IActionResult> ConfirmNewAccount (string code, string email){
-        try{
+    public async Task<IActionResult> ConfirmNewAccount(string code, string email)
+    {
+        try
+        {
 
             IActionResult confirmedResp;
             var valid = false;
@@ -214,7 +212,8 @@ public class RegisterApiController : ControllerBase
             var identityProfileList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityProfile = identityProfileList.FirstOrDefault(u => u.Email == email);
 
-            if(identityProfile != null){
+            if (identityProfile != null)
+            {
                 await _userManager.ConfirmEmailAsync(identityProfile, code);
 
                 valid = true;
@@ -224,18 +223,24 @@ public class RegisterApiController : ControllerBase
 
             return confirmedResp;
 
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error na edição de um perfil: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
     }
 
     [HttpPost]
     [Route("api/guest")]
-    public async Task<IActionResult> Guest([FromBody] string create){
-        try{
+    public async Task<IActionResult> Guest([FromBody] string create)
+    {
+        try
+        {
             IActionResult status;
             var valid = false;
             //UtilizadorAnonimo anon = null;
@@ -244,7 +249,7 @@ public class RegisterApiController : ControllerBase
 
             //organizar os dados
             JObject registerData = JObject.Parse(create);
-            
+
             // Criacao de anonimo novo
 
             //if(registerData.Value<bool>("create")){
@@ -263,10 +268,14 @@ public class RegisterApiController : ControllerBase
 
             return status;
 
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error na edição de um perfil: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Post");
         }
     }

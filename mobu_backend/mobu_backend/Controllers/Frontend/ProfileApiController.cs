@@ -1,6 +1,4 @@
-﻿using EllipticCurve.Utils;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -8,7 +6,6 @@ using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
@@ -27,11 +24,6 @@ public class ProfileApiController : ControllerBase
     /// </summary>
     private readonly UserManager<IdentityUser> _userManager;
 
-    /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
     /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
@@ -53,7 +45,7 @@ public class ProfileApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -63,7 +55,6 @@ public class ProfileApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -73,7 +64,6 @@ public class ProfileApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -84,7 +74,8 @@ public class ProfileApiController : ControllerBase
     [Route("api/profile/get-profile")]
     public async Task<IActionResult> GetProfile(int id, bool isGroup)
     {
-        try{
+        try
+        {
             IActionResult profileResp;
             JObject profileObj = JObject.FromObject(new object());
             var valid = false;
@@ -92,16 +83,19 @@ public class ProfileApiController : ControllerBase
             _logger.LogWarning("Entrou no método Get");
 
             // aquisição de perfil
-            if(isGroup){
-            SalasChat profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
-                if(profile != null){
+            if (isGroup)
+            {
+                SalasChat profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
+                if (profile != null)
+                {
                     valid = true;
                     profileObj.Add("avatar", profile.NomeFotografia);
                     profileObj.Add("groupName", profile.NomeSala);
 
-                    object [] registadosSalas = _context.RegistadosSalasChat
+                    object[] registadosSalas = _context.RegistadosSalasChat
                     .Where(rs => rs.SalaFK == id)
-                    .Select(rs => new{
+                    .Select(rs => new
+                    {
                         rs.UtilizadorFK,
                         rs.Utilizador.NomeUtilizador,
                         rs.Utilizador.NomeFotografia,
@@ -111,9 +105,12 @@ public class ProfileApiController : ControllerBase
 
                     profileObj.Add("members", registadosSalas.ToJson());
                 }
-            }else{
+            }
+            else
+            {
                 UtilizadorRegistado profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
-                if(profile != null){
+                if (profile != null)
+                {
                     valid = true;
                     profileObj.Add("avatar", profile.NomeFotografia);
                     profileObj.Add("username", profile.NomeUtilizador);
@@ -123,13 +120,17 @@ public class ProfileApiController : ControllerBase
             }
 
             profileResp = valid ? Ok(profileObj.ToJson()) : NotFound();
-            
+
             return profileResp;
 
-        }catch(Exception ex){
-             _logger.LogError($"Error na aqusição de um perfil: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error na aqusição de um perfil: {ex.Message}");
             return StatusCode(500);
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Get");
         }
     }
@@ -138,7 +139,8 @@ public class ProfileApiController : ControllerBase
     [Route("api/profile/edit-person-profile")]
     public async Task<IActionResult> EditPersonProfile([FromBody] string profileDataJson)
     {
-        try{
+        try
+        {
             StatusCodeResult status;
             var valid = false;
 
@@ -159,10 +161,12 @@ public class ProfileApiController : ControllerBase
             var identityProfileList = await _userManager.GetUsersInRoleAsync("Registered");
             var identityProfile = identityProfileList.FirstOrDefault(u => u.Email == email);
 
-            if(identityProfile != null && profile != null){
+            if (identityProfile != null && profile != null)
+            {
                 // avatar
-                if(avatar == ""){
-                    
+                if (avatar == "")
+                {
+
                     // caminho completo da foto
                     var nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", profile.NomeFotografia);
 
@@ -178,7 +182,9 @@ public class ProfileApiController : ControllerBase
 
                     profile.NomeFotografia = "default_avatar.png";
                     profile.DataFotografia = DateTime.Now;
-                }else{
+                }
+                else
+                {
 
                     // descodificar foto
                     byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
@@ -213,19 +219,22 @@ public class ProfileApiController : ControllerBase
                 }
 
                 // username
-                if(username != ""){
+                if (username != "")
+                {
                     profile.NomeUtilizador = username;
                     await _userManager.SetUserNameAsync(identityProfile, username);
                 }
 
                 // email
-                if(email != ""){
+                if (email != "")
+                {
                     profile.Email = email;
                     await _userManager.SetEmailAsync(identityProfile, email);
                 }
 
                 // password
-                if(newPassword != ""){
+                if (newPassword != "")
+                {
                     await _userManager.ChangePasswordAsync(identityProfile, currPassword, newPassword);
                 }
 
@@ -238,20 +247,25 @@ public class ProfileApiController : ControllerBase
 
             return status;
 
-        }catch(Exception ex){
-             _logger.LogError($"Error na edição de um perfil: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método post");
         }
-        
+
     }
 
     [HttpPost]
     [Route("api/profile/edit-group-profile")]
     public async Task<IActionResult> EditGroupProfile([FromBody] string profileDataJson)
     {
-        try{
+        try
+        {
             StatusCodeResult status;
             var valid = false;
 
@@ -267,10 +281,12 @@ public class ProfileApiController : ControllerBase
             SalasChat profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
 
             // editar perfil
-            if(profile != null){
+            if (profile != null)
+            {
                 // avatar
-                if(avatar == ""){
-                    
+                if (avatar == "")
+                {
+
                     // caminho completo da foto
                     var nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", profile.NomeFotografia);
 
@@ -286,7 +302,9 @@ public class ProfileApiController : ControllerBase
 
                     profile.NomeFotografia = "default_avatar.png";
                     profile.DataFotografia = DateTime.Now;
-                }else{
+                }
+                else
+                {
 
                     // descodificar foto
                     byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
@@ -321,7 +339,8 @@ public class ProfileApiController : ControllerBase
                 }
 
                 // username
-                if(groupName != ""){
+                if (groupName != "")
+                {
                     profile.NomeSala = groupName;
                 }
 
@@ -329,17 +348,21 @@ public class ProfileApiController : ControllerBase
                 await _context.SaveChangesAsync();
                 valid = true;
             }
-            
+
 
             status = valid ? NoContent() : NotFound();
 
             return status;
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error na edição de um perfil: {ex.Message}");
             return StatusCode(500); // 500 Internal Server Error
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método post");
         }
-        
+
     }
 }

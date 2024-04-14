@@ -2,29 +2,23 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using mobu_backend.Data;
 using mobu_backend.Models;
 
 namespace mobu_backend.Areas.Identity.Pages.Account
 {
+    [AllowAnonymous]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -48,7 +42,6 @@ namespace mobu_backend.Areas.Identity.Pages.Account
         /// <summary>
         /// Gestore de papeis de utilizadores
         /// </summary>
-        private readonly RoleManager<IdentityRole> _roleManager;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -57,8 +50,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             ApplicationDbContext context,
-            IWebHostEnvironment webHostEnvironment,
-            RoleManager<IdentityRole> roleManager)
+            IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -68,7 +60,6 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -140,12 +131,12 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
 
             /// <summary>
-            /// Administrador a associar com o registo
+            /// Utilizador a associar com o registo
             /// atraves da UI do Identity por defeito
             /// (Apenas sera possivel criar administradores
             /// na UI do Identity)
             /// </summary>
-            public Admin Administrador { get; set; }
+            public UtilizadorRegistado Utilizador { get; set; }
         }
 
 
@@ -177,53 +168,23 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
 
-                    // criar role de administrador se esta nao existir
-                    if (!await _roleManager.RoleExistsAsync("Administrator"))
-                    {
-                        var role = new IdentityRole
-                        {
-                            Name = "Administrator",
-                            ConcurrencyStamp = Guid.NewGuid().ToString()
-                        };
-                        await _roleManager.CreateAsync(role);
-
-                        role = new IdentityRole
-                        {
-                            Name = "Boss",
-                            ConcurrencyStamp = Guid.NewGuid().ToString()
-                        };
-                        await _roleManager.CreateAsync(role);
-
-                        // atribuir ao primeiro admin a role de chefe dos admins
-                        await _userManager.AddToRoleAsync(user, _roleManager.Roles
-                        .Where(r => r.Name == "Boss")
-                        .Select(r => r.Name)
-                        .ToImmutableArray()[0]);
-                    }
-
-                    // atribuir ao administrador em questao a role
-                    await _userManager.AddToRoleAsync(user, _roleManager.Roles
-                        .Where(r => r.Name == "Administrator")
-                        .Select(r => r.Name)
-                        .ToImmutableArray()[0]);
-
-                    _logger.LogInformation("Foi criado novo administrador!");
+                    _logger.LogInformation("Foi criado novo utilizador!");
 
                     // atualizar dados do administrador
-                    Input.Administrador.Email = Input.Email;
-                    Input.Administrador.Password = Input.Password;
-                    Input.Administrador.NomeAdmin = Input.Name;
-                    Input.Administrador.DataJuncao = DateTime.Now;
-                    Input.Administrador.DataNasc = Input.DataNasc;
-                    Input.Administrador.AuthenticationID = user.Id;
+                    Input.Utilizador.Email = Input.Email;
+                    Input.Utilizador.Password = Input.Password;
+                    Input.Utilizador.NomeUtilizador = Input.Name;
+                    Input.Utilizador.DataJuncao = DateTime.Now;
+                    Input.Utilizador.DataNasc = Input.DataNasc;
+                    Input.Utilizador.AuthenticationID = user.Id;
 
                     // fotografia
                     if (fotografia == null)
                     {
                         // sem foto
                         // foto por predefenicao
-                        Input.Administrador.DataFotografia = DateTime.Now;
-                        Input.Administrador.NomeFotografia = "default_avatar.png";
+                        Input.Utilizador.DataFotografia = DateTime.Now;
+                        Input.Utilizador.NomeFotografia = "default_avatar.png";
                     }
                     else
                     {
@@ -243,8 +204,8 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                             nomeFoto += extensaoFoto;
 
                             // tornar foto do modelo na foto processada acima
-                            Input.Administrador.DataFotografia = DateTime.Now;
-                            Input.Administrador.NomeFotografia = nomeFoto;
+                            Input.Utilizador.DataFotografia = DateTime.Now;
+                            Input.Utilizador.NomeFotografia = nomeFoto;
 
                             // preparar foto p/ser guardada no disco
                             // do servidor
@@ -254,49 +215,49 @@ namespace mobu_backend.Areas.Identity.Pages.Account
                         {
                             // ha ficheiro, mas e invalido
                             // foto predefinida adicionada
-                            Input.Administrador.DataFotografia = DateTime.Now;
-                            Input.Administrador.NomeFotografia = "default_avatar.png";
+                            Input.Utilizador.DataFotografia = DateTime.Now;
+                            Input.Utilizador.NomeFotografia = "default_avatar.png";
                         }
                     }
 
-                        // e possivel guardar imagem em disco
-                        if (haFoto)
+                    // e possivel guardar imagem em disco
+                    if (haFoto)
+                    {
+                        // local p/guardar foto
+                        // perguntar ao servidor pela pasta
+                        // wwwroot/imagens
+                        string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                        // nome ficheiro no disco
+                        nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                        // garantir existencia da pasta
+                        if (!Directory.Exists(nomeLocalImagem))
                         {
-                            // local p/guardar foto
-                            // perguntar ao servidor pela pasta
-                            // wwwroot/imagens
-                            string nomeLocalImagem = _webHostEnvironment.WebRootPath;
-
-                            // nome ficheiro no disco
-                            nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
-
-                            // garantir existencia da pasta
-                            if (!Directory.Exists(nomeLocalImagem))
-                            {
-                                Directory.CreateDirectory(nomeLocalImagem);
-                            }
-
-                            // e possivel efetivamente guardar imagem
-
-                            // definir nome da imagem
-                            string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
-
-                            // criar objeto para manipular imagem
-                            using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
-
-                            // efetivamente guardar ficheiro no disco
-                            await fotografia.CopyToAsync(stream);
+                            Directory.CreateDirectory(nomeLocalImagem);
                         }
+
+                        // e possivel efetivamente guardar imagem
+
+                        // definir nome da imagem
+                        string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+
+                        // criar objeto para manipular imagem
+                        using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                        // efetivamente guardar ficheiro no disco
+                        await fotografia.CopyToAsync(stream);
+                    }
 
                     // adicionar dados do Admin a BD
                     try
                     {
-                        _context.Admin.Attach(Input.Administrador);
+                        _context.UtilizadorRegistado.Attach(Input.Utilizador);
                         await _context.SaveChangesAsync();
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
-                        _logger.LogInformation("Houve problemas com a adição do admin" + Input.Administrador.NomeAdmin + "\nA apagar administrador...");
+                        _logger.LogInformation("Houve problemas com a adição do admin" + Input.Utilizador.NomeUtilizador + "\nA apagar administrador...");
                         await _userManager.DeleteAsync(user);
                         _logger.LogInformation("Administrador apagado!");
                     }

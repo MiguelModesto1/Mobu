@@ -1,10 +1,8 @@
-﻿using System.Collections.Immutable;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
-using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
@@ -27,11 +25,6 @@ public class SearchApiController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
 
     /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
-    /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
     /// E necessário inicializar este atributo no construtor da classe
@@ -52,7 +45,7 @@ public class SearchApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -62,7 +55,6 @@ public class SearchApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -72,7 +64,6 @@ public class SearchApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -82,47 +73,49 @@ public class SearchApiController : ControllerBase
     [HttpGet]
     public IActionResult GetUnknownPeopleAndGroups(string query)
     {
-        try{
+        try
+        {
             JObject unknownPeopleAndGroupsObj = new();
-            object [] unknownPeople = Array.Empty<object>();
-            object [] unknownGroups = Array.Empty<object>();
+            object[] unknownPeople = Array.Empty<object>();
+            object[] unknownGroups = Array.Empty<object>();
 
             _logger.LogWarning("Entrou no método Get");
 
             // fabricar lista de todos os desconhecidos do utilizador com ID=id
 
             // pesquisar por id
-            if(query != null){
+            if (query != null)
+            {
                 unknownPeople = unknownPeople
                 .Union(_context.UtilizadorRegistado
                 .Where(u => u.IDUtilizador.ToString() == query)
-                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .Select(u => new { u.IDUtilizador, u.NomeUtilizador })
                 .ToArray())
                 .ToArray();
                 unknownGroups = unknownGroups
                 .Union(_context.SalasChat
                 .Where(s => s.IDSala.ToString() == query && s.SeGrupo)
-                .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
+                .Select(s => new { s.IDSala, s.NomeSala, s.SeGrupo })
                 .ToArray())
                 .ToArray();
 
                 unknownPeople = unknownPeople
                 .Union(_context.UtilizadorRegistado
                 .Where(u => u.NomeUtilizador == query)
-                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .Select(u => new { u.IDUtilizador, u.NomeUtilizador })
                 .ToArray())
                 .ToArray();
                 unknownGroups = unknownGroups
                 .Union(_context.SalasChat
                 .Where(s => s.NomeSala == query && s.SeGrupo)
-                .Select(s => new {s.IDSala, s.NomeSala, s.SeGrupo})
+                .Select(s => new { s.IDSala, s.NomeSala, s.SeGrupo })
                 .ToArray())
                 .ToArray();
 
                 unknownPeople = unknownPeople
                 .Union(_context.UtilizadorRegistado
                 .Where(u => u.Email == query)
-                .Select(u => new{u.IDUtilizador, u.NomeUtilizador})
+                .Select(u => new { u.IDUtilizador, u.NomeUtilizador })
                 .ToArray())
                 .ToArray();
             }
@@ -139,12 +132,16 @@ public class SearchApiController : ControllerBase
 
             return Ok(unknownPeopleAndGroupsObj.ToJson());
 
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Error na pesquisa de um perfil: {ex.Message}");
             return StatusCode(500);
-        }finally{
+        }
+        finally
+        {
             _logger.LogWarning("Saiu do método Get");
         }
-        
+
     }
 }

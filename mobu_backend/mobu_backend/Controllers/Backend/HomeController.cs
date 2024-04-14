@@ -5,7 +5,7 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

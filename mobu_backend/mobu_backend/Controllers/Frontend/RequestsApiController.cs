@@ -1,10 +1,8 @@
-using System.Collections.Immutable;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Data;
-using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
@@ -27,11 +25,6 @@ public class RequestsApiController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
 
     /// <summary>
-    /// ferramenta com acesso aos papeis de privilegios de cada utilizador
-    /// </summary>
-    private readonly RoleManager<IdentityRole> _roleManager;
-    
-    /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
     /// E necessário inicializar este atributo no construtor da classe
@@ -52,7 +45,7 @@ public class RequestsApiController : ControllerBase
     /// opcoes para ter acesso à chave da API do SendGrid
     /// </summary>
     private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
-    
+
     /// <summary>
     /// Interface para a funcao de logging no controller
     /// </summary>
@@ -62,7 +55,6 @@ public class RequestsApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -72,37 +64,43 @@ public class RequestsApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
-        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
         _optionsAccessor = optionsAccessor;
     }
 
-    [HttpGet]
-    public IActionResult GetRequests(int id){
+   /* [HttpGet]
+    public IActionResult GetRequests(int id)
+    {
 
-        try{
+        try
+        {
             JObject json = new();
 
-             var requests = 
-            _context.DestinatarioPedidosAmizade
-            .Where(dp => dp.IDDestinatarioPedido == id)
-            .Select(dp => new{
-                dp.RemetenteFK,
-                dp.RemetentePedido.NomeUtilizador
-            })
-            .ToArray();
+            var requests =
+           _context.DestinatarioPedidosAmizade
+           .Where(dp => dp.IDDestinatarioPedido == id)
+           .Select(dp => new
+           {
+               dp.RemetenteFK,
+               dp.RemetentePedido.NomeUtilizador
+           })
+           .ToArray();
 
             json.Add("requests", requests.ToJToken());
 
             return Ok(json.ToJson());
 
-        }catch(Exception ex){
+        }
+        catch (Exception ex)
+        {
             _logger.LogError("Error: ", ex.Message);
             return StatusCode(500);
-        }finally{
+        }
+        finally
+        {
 
         }
-    }
+    }*/
 }
