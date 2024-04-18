@@ -8,7 +8,7 @@ import GroupMemberItem from "../../modular/GroupMemberItem"
  * 
  * Perfil de grupo
  * 
- * @param {*} avatarSrc origem do avatar 
+ * @param {*} avatarSrc origem do avatar
  * @param id id do grupo
  * @param isAdmin booleano de administrador de grupo
  * @returns 
@@ -27,7 +27,7 @@ export default function GroupProfile(){
     const id = queryStrings.get("id");
     const isAdmin = queryStrings.get("isAdmin");
 
-    const mapMembers = members.map((member) => {
+    /*const mapMembers = members.map((member) => {
         return (
             <GroupMemberItem
                 key={member[0]}
@@ -40,7 +40,7 @@ export default function GroupProfile(){
                 isEditing={isEditing}
                 onMemberExpeling={handleMemberExpeling} />
         );
-    });
+    });*/
 
     const renderResult = useRef(
         <>
@@ -60,7 +60,7 @@ export default function GroupProfile(){
                 <span className="key-span">Integrantes :</span>
             </div>
             <div className="members-div">
-                {mapMembers}
+                {/*mapMembers*/}
             </div>
             {isAdmin ? <Button
                 text="Editar perfil"
@@ -167,7 +167,7 @@ export default function GroupProfile(){
                     <span className="key-span">Integrantes :</span>
                 </div>
                 <div className="members-div">
-                    {mapMembers}
+                    {/*mapMembers*/}
                 </div>
                 {isAdmin ? <Button 
                 text="Editar perfil"
@@ -207,7 +207,7 @@ export default function GroupProfile(){
                     <span className="key-span">Integrantes :</span>
                 </div>
                 <div className="members-div">
-                    {mapMembers}
+                    {/*mapMembers*/}
                 </div>
                 <Button 
                 text="Guardar"
@@ -219,7 +219,7 @@ export default function GroupProfile(){
 
     return(
         <div className="profile">
-            {renderResult}
+            {renderResult.current}
         </div>
         
     );

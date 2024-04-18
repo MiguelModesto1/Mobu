@@ -47,7 +47,7 @@ export default function SearchPage(){
         .catch((err) => {console.error("error", err)});
     }
 
-    const mapItems = items.map((item) => {
+    /*const mapItems = items.map((item) => {
         if (item.length === 3) {
             return (
                 <PersonGroupFoundItem
@@ -67,7 +67,7 @@ export default function SearchPage(){
                     name={item[1]}
                     isGroup={false} />);
         }
-    });
+    });*/
 
     return(
     <div className="search-div">
@@ -96,7 +96,7 @@ export default function SearchPage(){
             onClick={handleIconClick}/>
         </div>
         <div className="found-div">
-            {mapItems}
+            {/*mapItems*/}
         </div>
     </div>
         

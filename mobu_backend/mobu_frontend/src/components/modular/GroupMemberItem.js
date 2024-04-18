@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect, useState, useRef } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
 import Button from "./Button";
@@ -16,21 +16,21 @@ import Button from "./Button";
  */
 export default function GroupMemberItem({id, connection, avatar, personId, personName, isAdmin, isEditing, onMemberExpeling}){
 
-    const [adminLabel, setAdminLabel] = useState(<></>);
-    const [button, setButton] = useState(<></>);
+    const adminLabel = useRef(<></>);
+    const button = useRef(<></>);
 
     useEffect(() => {
         if(isAdmin){
 
-            setAdminLabel(
+            adminLabel.current = 
                 <div
                 marginRight={isEditing === false ? "80px" : "50px"} 
                 className="group-member-admin-span-div">
                     <span className="group-member-admin-span">Admin</span>
                 </div>
-            );
+            ;
 
-            setButton(isEditing ?
+            button.current = isEditing ?
                 <Button
                 text="Expulsar"
                 color="#ff5f4a"
@@ -44,7 +44,7 @@ export default function GroupMemberItem({id, connection, avatar, personId, perso
                         isAdmin
                     ]);
                     
-                }} /> : <></>);
+                }} /> : <></>;
     
         }
     }, [avatar, connection, id, isAdmin, isEditing, onMemberExpeling, personId, personName])

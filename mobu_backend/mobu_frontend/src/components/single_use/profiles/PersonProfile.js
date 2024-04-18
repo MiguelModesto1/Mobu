@@ -338,7 +338,7 @@ export default function PersonProfile(){
 
     return(
         <div className="profile">
-            {renderResult}
+            {renderResult.current}
         </div>
         
     );

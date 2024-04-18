@@ -32,7 +32,7 @@ export default function Input({input, fromParent=null,onChange=null, display=nul
 
     return(
         <>
-            {span}
+            {span.current}
             <input
                 onChange={e => {
                     e.stopPropagation();

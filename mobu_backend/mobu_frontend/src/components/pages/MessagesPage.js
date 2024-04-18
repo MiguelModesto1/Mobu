@@ -18,18 +18,7 @@ export default function MessagesPage(){
     new signalR.HubConnectionBuilder()
     .withUrl(process.env.REACT_APP_HUB_URL + "/ChatHub")
     .configureLogging(signalR.LogLevel.Information)
-    .build(),
-
-    new signalR.HubConnectionBuilder()
-    .withUrl(process.env.REACT_APP_HUB_URL + "/GameHub")
-    .configureLogging(signalR.LogLevel.Information)
-    .build(),
-
-    new signalR.HubConnectionBuilder()
-    .withUrl(process.env.REACT_APP_HUB_URL + "/RequestHub")
-    .configureLogging(signalR.LogLevel.Information)
-    .build()
-    ]);
+    .build()]);
 
     const owner = useRef();
 

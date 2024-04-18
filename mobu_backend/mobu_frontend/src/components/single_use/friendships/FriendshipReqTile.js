@@ -29,7 +29,7 @@ export default function FriendshipReqTile(){
         ])
     });
 
-    useEffect(() =>{
+    /*useEffect(() =>{
        
         // GET
         var options={
@@ -55,7 +55,7 @@ export default function FriendshipReqTile(){
 
             requests.current = reqData;
         });
-    }, [id]);
+    }, [id]);*/
 
     function handleClick(isAccept, requester)
     {
@@ -77,7 +77,7 @@ export default function FriendshipReqTile(){
         requests.current = aux;
     }
 
-    const mapItems = requests.current.map((item) =>{
+    /*const mapItems = requests.current.map((item) =>{
 
         return(
             <RequestItem
@@ -91,11 +91,11 @@ export default function FriendshipReqTile(){
             }}
             onClick={handleClick}/>
         );
-    })
+    })*/
 
     return(
         <div className='friendship-req-tile'>
-            {mapItems}
+            {/*mapItems*/}
         </div>
     );
 

@@ -11,17 +11,17 @@ import FriendContextMenu from "../single_use/optionMenus/FriendContextMenu";
  */
 export default function TabPanel({owner, connections, selected, friendGroupInfo, display, onItemClick}){ 
     
-    const mapItems = friendGroupInfo.map((item) =>{
+    /*const mapItems = friendGroupInfo.map((item) =>{
         
         return(
             <>
                 <PersonGroupItem
-                owner={owner}
-                connections={connections}
-                key={item[0]}
-                isSelectedProp={item === selected}
-                selected={selected}
-                PIProps={{
+                    key={item[0]}
+                    owner={owner}
+                    connections={connections}
+                    isSelectedProp={item === selected}
+                    selected={selected}
+                    PIProps={{
                     info: item,
                     image: item[item.length - 2],
                     text:{
@@ -34,11 +34,11 @@ export default function TabPanel({owner, connections, selected, friendGroupInfo,
             </>
             
         );
-    })
+    })*/
 
     return(
         <div className="tab-panel" style={{display: display}}>
-            {mapItems}
+            {/*mapItems*/}
         </div>
     );
 

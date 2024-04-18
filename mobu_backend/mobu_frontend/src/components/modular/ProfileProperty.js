@@ -1,4 +1,4 @@
-import React,{ useMemo, useEffect, useState } from "react";
+import React,{ useRef, useEffect, useState } from "react";
 import Input from "./Input";
 
 /**
@@ -14,10 +14,10 @@ import Input from "./Input";
  */
 export default function ProfileProperty({keyProp, isEditing, isChangingPassword, onChangeText=null}){
 
-    const [renderResult, setRenderResult] = useState(<></>);
+    const renderResult = useRef(<></>);
     const [text, setText] = useState("");
 
-    useMemo(() => {
+    useEffect(() => {
         
         const handleTextChange = (value) => {
             setText(value);
@@ -26,28 +26,28 @@ export default function ProfileProperty({keyProp, isEditing, isChangingPassword,
             }
         }
         
-        if(isEditing){
-            setRenderResult(<Input input={{
-                title:"",
-                type:"text",
-                placeholder:"",
-                value:text
+        if (isEditing) {
+            renderResult.current = <Input input={{
+                title: "",
+                type: "text",
+                placeholder: "",
+                value: text
             }}
-            fromParent="profile" 
-            onChange={handleTextChange}/>);
-        }else if(isChangingPassword){
-            setRenderResult(<Input input={{
+                fromParent="profile"
+                onChange={handleTextChange} />;
+        } else if (isChangingPassword) {
+            renderResult.current = <Input input={{
                 title:"",
                 type:"password",
                 placeholder:"",
                 value:""
             }}
             fromParent="profile"
-            onChange={handleTextChange} />);
-        }else{
-            setRenderResult(
+            onChange={handleTextChange} />;
+        } else {
+            renderResult.current = 
                 <span className="profile-value-span">{text}</span>
-            );
+            ;
         }
 
         
@@ -57,7 +57,7 @@ export default function ProfileProperty({keyProp, isEditing, isChangingPassword,
     return(
         <div className="profile-prop-div">
             <span className="profile-key-span">{keyProp + " :"}</span>
-            {renderResult}
+            {renderResult.current}
         </div>
     );
 

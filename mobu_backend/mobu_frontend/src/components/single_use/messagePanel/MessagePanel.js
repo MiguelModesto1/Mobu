@@ -20,7 +20,7 @@ export default function MessagePanel({owner, connections, childrenData}){
     })}, [connections, messages]);
 
 
-    const containers = messages.map((message) => {
+    /*const containers = messages.map((message) => {
         
         let cssClass;
 
@@ -33,11 +33,11 @@ export default function MessagePanel({owner, connections, childrenData}){
         return(
             <MessageContainer key={message[2]} children={message} fromParent={cssClass}/>
         );
-    });
+    });*/
 
     return(
         <div className="message-panel">
-            {containers}
+            {/*containers*/}
         </div>
     );
 

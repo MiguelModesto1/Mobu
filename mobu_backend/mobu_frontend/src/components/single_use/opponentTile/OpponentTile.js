@@ -36,7 +36,7 @@ export default function OpponentTile(){
         .catch(err => console.error("Erro: ", err));
     })
 
-    const mapFriends = friends.current.map((friend) =>{
+    /*const mapFriends = friends.current.map((friend) =>{
 
         return(
             <ChooseOpponentItem
@@ -50,7 +50,7 @@ export default function OpponentTile(){
             onClick={handleClick} />
         );
 
-    });
+    });*/
 
     const handleClick = (value) => {
         setNumOpponents(value)
@@ -59,7 +59,7 @@ export default function OpponentTile(){
     return(
         <div className='opponent-tile'>
             <div className="opponent-tile-scroll-div">
-                {mapFriends}
+                {/*mapFriends*/}
             </div>   
         </div>
     );

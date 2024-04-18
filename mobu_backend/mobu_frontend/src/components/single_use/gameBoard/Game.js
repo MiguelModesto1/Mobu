@@ -32,7 +32,7 @@ export default function Game() {
       setStateReceived(true);
     });*/
 
-    useEffect(() => {});
+    /*useEffect(() => {});*/
   
     function handlePlay(nextSquares) {
       const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];

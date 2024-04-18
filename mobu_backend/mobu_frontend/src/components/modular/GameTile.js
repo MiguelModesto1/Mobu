@@ -33,7 +33,7 @@ export default function GameTile(){
     const [buttonSet,setButtonSet] = useState(<></>);
 
 
-    useEffect(() => {
+    /*useEffect(() => {
 
         var options = {
             method:'GET',
@@ -71,7 +71,7 @@ export default function GameTile(){
         }else{
             setButtonSet(<Button text="Jogar" fromParent="game-tile" onClick={handleRandomButtonClick}/>);
         }
-    }, [connection, id, isRegistered]);
+    }, [connection, id, isRegistered]);*/
 
     return(
     <div className="game-tile">
