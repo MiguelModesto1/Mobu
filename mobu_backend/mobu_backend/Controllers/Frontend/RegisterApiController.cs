@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using mobu_backend.Api_models;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
@@ -37,7 +38,7 @@ public class RegisterApiController : ControllerBase
     private readonly IHostEnvironment _hostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do Remetente de emails
+    /// Interface para a funcao de logging do DonoListaPedidos de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -79,122 +80,166 @@ public class RegisterApiController : ControllerBase
 
     [HttpPost]
     [Route("api/register")]
-    public async Task<IActionResult> RegisterUser([FromBody] string registerDataJson)
+    public async Task<IActionResult> RegisterUser([FromBody] Register registerDataJson, [FromForm] IFormFile fotografia)
     {
-        try
+
+        var nomeFoto = "";
+        bool haFoto = false;
+        _logger.LogWarning("Entrou no método Post");
+
+        // Criacao de utilizador com username, email e password
+
+        var username = registerDataJson.NomeUtilizador;
+        var email = registerDataJson.Email;
+        var password = registerDataJson.Password;
+
+        UtilizadorRegistado utilizadorRegistado = new()
         {
-            StatusCodeResult status;
-            var valid = false;
-            var nomeFoto = "";
-            _logger.LogWarning("Entrou no método Post");
+            NomeUtilizador = username,
+            Email = email,
+            DataJuncao = DateTime.Now
+        };
 
-            //organizar os dados
-            JObject registerData = JObject.Parse(registerDataJson);
-
-            var avatar = registerData.Value<string>("avatar");
-            var username = registerData.Value<string>("username");
-            var email = registerData.Value<string>("email");
-            var password = registerData.Value<string>("password");
-
-            // Criacao de utilizador com username, email e password
-
-            // avatar
-
-            if (avatar != "")
+        var user = new IdentityUser();
+            
+        // fotografia
+            
+        if (fotografia == null)
+        {
+            // sem foto
+            // foto por predefenicao
+            utilizadorRegistado.DataFotografia = DateTime.Now;
+            utilizadorRegistado.NomeFotografia = "default_avatar.png";
+        }
+        else
+        {
+            if (fotografia.ContentType == "image/jpeg" ||
+                fotografia.ContentType == "image/png")
             {
-                // Conversao de imagem
-                byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
-
-                //extensao da foto
-                var extensaoFoto = "." + avatar.Split(",").GetValue(0).ToString().Split(";").GetValue(0).ToString().Split("/").GetValue(1).ToString();
 
                 // nome da imagem
                 Guid g = Guid.NewGuid();
                 nomeFoto = g.ToString();
+                string extensaoFoto =
+                    Path.GetExtension(fotografia.FileName).ToLower();
                 nomeFoto += extensaoFoto;
 
-                // guardar foto
+                // tornar foto do modelo na foto processada acima
+                utilizadorRegistado.DataFotografia = DateTime.Now;
+                utilizadorRegistado.NomeFotografia = nomeFoto;
 
-                // local p/guardar foto
-                // perguntar ao servidor pela pasta
-                // wwwroot/imagens
-                string nomeLocalImagem = _webHostEnvironment.WebRootPath;
-
-                // nome ficheiro no disco
-                nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
-
-                // garantir existencia da pasta
-                if (!Directory.Exists(nomeLocalImagem))
-                {
-                    Directory.CreateDirectory(nomeLocalImagem);
-                }
-
-                // e possivel efetivamente guardar imagem
-
-                // definir nome da imagem
-                string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
-
-                System.IO.File.WriteAllBytes(nomeFotoImagem, imageBytes);
+                // preparar foto p/ser guardada no disco
+                // do servidor
+                haFoto = true;
 
             }
             else
             {
-                nomeFoto = "default_avatar.png";
+                // ha ficheiro, mas e invalido
+                // foto predefinida adicionada
+                utilizadorRegistado.DataFotografia = DateTime.Now;
+                utilizadorRegistado.NomeFotografia = "default_avatar.png";
             }
-
-            UtilizadorRegistado user = new()
-            {
-                NomeUtilizador = username,
-                Email = email,
-                NomeFotografia = nomeFoto,
-                DataFotografia = DateTime.Now
-            };
-
-            _context.Attach(user);
-            await _context.SaveChangesAsync();
-
-            // guardar dados no identitiy
-
-            await _userManager.CreateAsync(new IdentityUser()
-            {
-                UserName = username,
-                Email = email
-            });
-
-            var identityUser = await _userManager.FindByEmailAsync(email);
-
-            await _userManager.AddPasswordAsync(identityUser, password);
-
-            await _userManager.AddToRoleAsync(identityUser, "Registered");
-
-            // enviar email de confirmacao
-
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var request = _http.HttpContext.Request;
-
-            var href = "https://" + request.Host.ToString() + "/api/confirm-new-account?email=" + identityUser.Email + "&code=" + code; // IMPLEMENTAR ROTA PARA A PAGINA DE AGRADECIMENTO
-
-            var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
-
-            EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
-
-            await emailSender.SendEmailAsync(identityUser.Email, "Confirme o seu email", htmlElement);
-
-            status = valid ? NoContent() : NotFound();
-
-            return status;
         }
-        catch (Exception ex)
+
+        if (ModelState.IsValid)
         {
-            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
-            return StatusCode(500); // 500 Internal Server Error
-        }
-        finally
-        {
-            _logger.LogWarning("Saiu do método Post");
-        }
+            try
+            {
 
+                // colocar conteudos nas tabelas
+                // do identity
+
+                await _userManager.SetUserNameAsync(user, utilizadorRegistado.NomeUtilizador);
+                await _userManager.SetEmailAsync(user, utilizadorRegistado.Email);
+
+                var result = await _userManager.CreateAsync(user, password);
+
+                if (result.Succeeded)
+                {
+
+                    _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
+
+                    var userId = await _userManager.GetUserIdAsync(user);
+
+                    // enviar email de confirmacao de email
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var request = _http.HttpContext.Request;
+
+                    var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
+
+                    var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
+
+                    EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                    await emailSender.SendEmailAsync(utilizadorRegistado.Email, "Confirme o seu email", htmlElement);
+                }
+                else
+                {
+                    // se o resultado da adicao nao tiver exito
+                    // lanca excecao para a execucao saltar para
+                    // o bloco 'catch'
+                    throw new Exception();
+                }
+
+                utilizadorRegistado.AuthenticationID = user.Id;
+
+                // adicionar dados do utilizador registado
+                // a BD
+                _context.Attach(utilizadorRegistado);
+
+                // realizar commit
+                await _context.SaveChangesAsync();
+
+                // guardar foto
+
+                if (haFoto)
+                {
+                    // local p/guardar foto
+                    // perguntar ao servidor pela pasta
+                    // wwwroot/imagens
+                    string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                    // nome ficheiro no disco
+                    nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                    // garantir existencia da pasta
+                    if (!Directory.Exists(nomeLocalImagem))
+                    {
+                        Directory.CreateDirectory(nomeLocalImagem);
+                    }
+
+                    // e possivel efetivamente guardar imagem
+
+                    // definir nome da imagem
+                    string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+                }else
+                {
+
+                    // caminho completo da foto
+                    nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
+
+                    //fileInfo da foto
+                    FileInfo fif = new(nomeFoto);
+
+                    // garantir que foto existe
+                    if (fif.Exists && fif.Name != "default_avatar.png")
+                    {
+                        //apagar foto
+                        fif.Delete();
+                    }
+                }
+                return Ok();
+
+            }catch (Exception ex)
+            {
+                _logger.LogError($"Error na edição de um perfil: {ex.Message}");
+            }
+        }
+        _logger.LogWarning("Saiu do método Post");
+        return BadRequest();
     }
 
     [HttpGet]
@@ -222,51 +267,6 @@ public class RegisterApiController : ControllerBase
             confirmedResp = valid ? Redirect(Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "") : NotFound(); //IMPLEMENTAR ROTA PARA PAGINA DE LOGIN
 
             return confirmedResp;
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error na edição de um perfil: {ex.Message}");
-            return StatusCode(500); // 500 Internal Server Error
-        }
-        finally
-        {
-            _logger.LogWarning("Saiu do método Post");
-        }
-    }
-
-    [HttpPost]
-    [Route("api/guest")]
-    public async Task<IActionResult> Guest([FromBody] string create)
-    {
-        try
-        {
-            IActionResult status;
-            var valid = false;
-            //UtilizadorAnonimo anon = null;
-            JObject resp = new();
-            _logger.LogWarning("Entrou no método Post");
-
-            //organizar os dados
-            JObject registerData = JObject.Parse(create);
-
-            // Criacao de anonimo novo
-
-            //if(registerData.Value<bool>("create")){
-            //    valid = true;
-            //    anon = new();
-
-            //    _context.Attach(anon);
-            //    await _context.SaveChangesAsync();
-            //}
-
-            //int  anonId = anon.IDUtilizador;
-
-            //resp.Add("anonymous", anonId.ToJToken());
-
-            status = valid ? Ok(resp.ToJson()) : NotFound();
-
-            return status;
 
         }
         catch (Exception ex)

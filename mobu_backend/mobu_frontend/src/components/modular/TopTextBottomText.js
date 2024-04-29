@@ -12,7 +12,7 @@ export default function TopTextBottomText({isSelected= null, marginRight=null, T
     
     return(
         <div 
-        marginRight={marginRight === null ? undefined : marginRight}
+        //marginRight={marginRight === null ? undefined : marginRight}
         className={fromParent + "top-bottom-text-div"}>
             <span 
             style={isSelected ? undefined: {fontWeight: "bold"}} 

@@ -23,6 +23,8 @@
         <li class="nav-item">@Html.ActionLink("Registados Salas Chat","Index","RegistadosSalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
         <li class="nav-item">@Html.ActionLink("Salas Chat","Index","SalasChat", new {area = ""}, new {@class = "nav-link text-dark"})</li>
         <li class="nav-item">@Html.ActionLink("Registados","Index","UtilizadorRegistado", new {area = ""}, new {@class = "nav-link text-dark"})</li>
+        <li class="nav-item">@Html.ActionLink("Amizades", "Index", "Amizade", new { area = "" }, new { @class = "nav-link text-dark" })</li>
+        <li class="nav-item">@Html.ActionLink("Pedidos de Amizade", "Index", "PedidosAmizade", new { area = "" }, new { @class = "nav-link text-dark" })</li>
         <li class="nav-item">
             <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gerir Conta">Olá @User.Identity?.Name!</a>
         </li>

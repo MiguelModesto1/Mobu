@@ -1,8 +1,7 @@
-import React,{ useState, useEffect, useRef } from "react";
-import { useLocation } from 'react-router-dom';
-import {HubConnection as signalR} from "@microsoft/signalr";
-import TabsDiv from "../single_use/tabsDiv/TabsDiv";
+import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import React, { useMemo, useEffect, useRef, useState } from "react";
 import MessagesDiv from "../single_use/messagesDiv/MessagesDiv";
+import TabsDiv from "../single_use/tabsDiv/TabsDiv";
 
 /**
  * 
@@ -10,18 +9,13 @@ import MessagesDiv from "../single_use/messagesDiv/MessagesDiv";
  * 
  * @returns 
  */
-export default function MessagesPage(){
-    const queryParam = new URLSearchParams(window.location.href).get('email');
-    const queryParamId = new URLSearchParams(window.location.href).get('id');
+export default function MessagesPage() {
 
-    const connections = useRef([
-    new signalR.HubConnectionBuilder()
-    .withUrl(process.env.REACT_APP_HUB_URL + "/ChatHub")
-    .configureLogging(signalR.LogLevel.Information)
-    .build()]);
+    const queryParamId = new URLSearchParams(window.location.search).get('id');
 
     const owner = useRef();
 
+    const [connections, setConnections] = useState();
     const [selectedItem, setSelectedItem] = useState([]);
     const [friendsTab, setFriendsTab] = useState(true);
     const [friendsData, setFriendsData] = useState([]);
@@ -36,14 +30,14 @@ export default function MessagesPage(){
             redirect:"follow"
         }
 
-        var queryParams=`?email=${queryParam}&id=${queryParamId}`;
+        var queryParams=`?id=${queryParamId}`;
 
         fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
         .then(response => {
             if(response.status !== 404){
                 return response.json();
             }else{
-                window.location.assign("./error-404")
+                window.location.assign("/error-404")
             }
         })
         .then(data => {
@@ -72,10 +66,23 @@ export default function MessagesPage(){
         .catch(err => console.error("error", err));
 
         // inicar conexao ao Hub de chat
-        start(connections.current);        
-    });
+        const conn =
+            new HubConnectionBuilder()
+                .withUrl(process.env.REACT_APP_HUB_URL + "/RealTimeHub", {
+                    skipNegotiation: true,
+                    transport: HttpTransportType.WebSockets
+                    })
+                .configureLogging(LogLevel.Debug)
+                .build();
+        conn.start();
+        setConnections(conn);
 
-    async function start(connection){
+        console.log(friendsData);
+        console.log(groupsData);
+
+    }, [friendsData, groupsData, queryParamId]);
+
+    const start = async (connection) => {
         try {
             await connection.start();
             console.log("SignalR Connected.");
@@ -83,7 +90,7 @@ export default function MessagesPage(){
             console.log(err);
             setTimeout(start, 5000);
         }
-    }
+    };
 
     const handleTabHeaderClick = (friends) =>{
         if(friends){
@@ -99,9 +106,9 @@ export default function MessagesPage(){
 
     return(<>
     
-        <TabsDiv 
+        {/*<TabsDiv 
         owner={owner.current} 
-        connections={connections.current} 
+        connections={connections} 
         selected={selectedItem} 
         childrenData={{friends: friendsData, groups: groupsData}} 
         displayFriends={friendsTab} 
@@ -112,7 +119,7 @@ export default function MessagesPage(){
         owner={owner.current} 
         text={{top: selectedItem.length !== 0 ? selectedItem[1] : "", bottom: selectedItem.length !== 0 ? friendsTab ? selectedItem[5] : selectedItem[3] : ""}} 
         messageContainersData={selectedItem} 
-        connections={connections.current}/>
+        connections={connections}/>*/}
 
     </>);
 

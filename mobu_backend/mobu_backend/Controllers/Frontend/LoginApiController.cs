@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
@@ -24,6 +26,11 @@ public class LoginApiController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
 
     /// <summary>
+    /// ferramenta com acesso a gestao de acessos
+    /// </summary>
+    private readonly SignInManager<IdentityUser> _signInManager;
+
+    /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
     /// E necessário inicializar este atributo no construtor da classe
@@ -31,7 +38,7 @@ public class LoginApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do Remetente de emails
+    /// Interface para a funcao de logging do DonoListaPedidos de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -54,6 +61,7 @@ public class LoginApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -63,6 +71,7 @@ public class LoginApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
+        _signInManager = signInManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -71,42 +80,41 @@ public class LoginApiController : ControllerBase
 
 
     [HttpPost]
-    public async Task<IActionResult> UserValidation(Login loginDataJson)
+    public async Task<IActionResult> UserValidation([FromBody] Login loginDataJson)
     {
         try
         {
             IActionResult resp;
+            JObject info = new();
             var valid = false;
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
 
-            var email = loginDataJson.Email;
+            var username = loginDataJson.NomeUtilizador;
             var password = loginDataJson.Password;
 
-            // Validacao de email e password
-            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
-            var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
+            // Validacao de username e password
+            var identityUser = _context.Users.FirstOrDefault(u => u.UserName == username);
 
             //user da BD
-            var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.NomeUtilizador == username);
 
+            var userId = 0;
 
-
-            if (identityUser != null)
+            if (identityUser != null || user != null)
             {
+                userId = user.IDUtilizador;
                 var confirmPassword = await _userManager.CheckPasswordAsync(identityUser, password);
                 if (confirmPassword)
                 {
                     valid = true;
-                    user.DataNasc = DateTime.Now;
-
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
+                    await _signInManager.SignInAsync(identityUser, true);
                 }
             }
 
-            resp = valid ? Ok() : NotFound(); // Implementar rota pagina mensagens
+            info.Add("userId", userId);
+            resp = valid ? Ok(info.ToJson()) : NotFound(); // Implementar rota pagina mensagens
 
             _logger.LogWarning("Saiu do método Post");
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using mobu_backend.Api_models;
 using mobu_backend.Data;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
@@ -31,7 +32,7 @@ public class ForgotPasswordApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do Remetente de emails
+    /// Interface para a funcao de logging do DonoListaPedidos de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -127,7 +128,7 @@ public class ForgotPasswordApiController : ControllerBase
 
     [HttpPost]
     [Route("api/forgot-password/reset-password")]
-    public async Task<IActionResult> ResetPassword([FromBody] string passwordJson, string email)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPassword passwordResetJson)
     {
         try
         {
@@ -136,13 +137,12 @@ public class ForgotPasswordApiController : ControllerBase
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
-            JObject registerData = JObject.Parse(passwordJson);
-            var newPassword = registerData.Value<string>("newPassword");
-            var currPassword = registerData.Value<string>("currentPassword");
+            var newPassword = passwordResetJson.NewPassword;
+            var currPassword = passwordResetJson.CurrentPassword;
+            var email = passwordResetJson.Email;
 
             // mudanca de password
-            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
-            var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
+            var identityUser = _context.Users.FirstOrDefault(u => u.Email == email);
 
             if (identityUser != null && newPassword != "" && currPassword != "")
             {

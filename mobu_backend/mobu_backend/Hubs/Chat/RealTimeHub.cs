@@ -137,9 +137,13 @@ namespace mobu_backend.Hubs.Chat
                     a => a.IDUtilizador == toUserId
                 ).ToArray()[0];
 
-            user.ListaAmigos.Remove(friend);
+            // amizade
+            var friendship = _context.Amizade
+                .Where(
+                    f => f.DonoListaAmigosFK == user.IDUtilizador && f.AmigoFK == friend.IDUtilizador
+                );
 
-            _context.Update(user);
+            _context.Remove(friendship);
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveBlock(fromUser);
@@ -157,22 +161,27 @@ namespace mobu_backend.Hubs.Chat
             // utilizador
             var user = _context.UtilizadorRegistado.
                 Where(
-                    a => a.DonoListaAmigosId == fromUserId
+                    a => a.IDUtilizador == fromUserId
                 )
-                .Select(a => a.DonoListaAmigos)
                 .ToArray()[0];
 
             // amigo
             var friend = _context.UtilizadorRegistado.
                 Where(
-                    a => a.DonoListaAmigosId == toUserId
+                    a => a.IDUtilizador == toUserId
                 )
-                .Select(a => a.DonoListaAmigos)
                 .ToArray()[0];
 
-            user.ListaAmigos.Add(friend);
+            // amizade
+            var friendship = new Amizade()
+            {
+                 DonoListaAmigos = user,
+                 DonoListaAmigosFK = fromUserId,
+                 Amigo = friend,
+                 AmigoFK = toUserId
+            };
 
-            _context.Update(user);
+            _context.Attach(friendship);
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveUnblock(fromUser);
@@ -230,20 +239,27 @@ namespace mobu_backend.Hubs.Chat
                 return;
             }
 
-            //remetente
+            // remetente
             var from = _context.UtilizadorRegistado.Where(
                     u => u.IDUtilizador == fromUserId
-                )
-                .ToArray()[0];
+                ).ToArray()[0];
 
-            //destinatario
+            // destinatario
             var dest = _context.UtilizadorRegistado.Where(
                     u => u.IDUtilizador == toUserId
                 ).ToArray()[0];
 
-            dest.ListaPedidos.Add(from);
+            // pedido
 
-            _context.Update(dest);
+            var req = new PedidosAmizade()
+            {
+                DonoListaPedidos = from,
+                DonoListaPedidosFK = fromUserId,
+                Remetente = dest,
+                RemetenteFK = toUserId
+            };
+
+            _context.Attach(req);
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveRequest(fromUser, dest.NomeUtilizador);
@@ -271,9 +287,27 @@ namespace mobu_backend.Hubs.Chat
                 .Where(u => u.IDUtilizador == toUserId)
                 .ToArray()[0];
 
-                replierUser.ListaPedidos.Remove(to);
-                replierUser.ListaAmigos.Add(to);
-                to.ListaAmigos.Add(replierUser);
+                // pedido
+                var req = _context.PedidosAmizade
+                    .Where(p => p.DonoListaPedidosFK == replierId && p.RemetenteFK == toUserId)
+                    .ToArray()[0];
+
+                // amizades
+                var friend_1 = new Amizade()
+                {
+                    DonoListaAmigos = replierUser,
+                    DonoListaAmigosFK = replierId,
+                    Amigo = to,
+                    AmigoFK = toUserId
+                };
+
+                var friend_2 = new Amizade()
+                {
+                    DonoListaAmigos = to,
+                    DonoListaAmigosFK = toUserId,
+                    Amigo = replierUser,
+                    AmigoFK = replierId
+                };
 
                 // sala
 
@@ -285,25 +319,26 @@ namespace mobu_backend.Hubs.Chat
                     DataFotografia = DateTime.Now
                 };
 
-                // criara sala primeiro
+                // criar a sala primeiro
                 _context.Attach(sala);
                 await _context.SaveChangesAsync();
 
                 RegistadosSalasChat toUserRs = new()
                 {
                     SalaFK = _context.SalasChat.Where(s => s.NomeSala == sala.NomeSala).Select(s => s.IDSala).ToArray()[0],
-                    UtilizadorFK = int.Parse(toUser)
+                    UtilizadorFK = toUserId
                 };
 
                 RegistadosSalasChat replierRs = new()
                 {
                     SalaFK = _context.SalasChat.Where(s => s.NomeSala == sala.NomeSala).Select(s => s.IDSala).ToArray()[0],
-                    UtilizadorFK = int.Parse(replier)
+                    UtilizadorFK = replierId
                 };
 
                 // ... depois criar o amigo
-                _context.Update(replierUser);
-                _context.Update(to);
+                _context.Remove(req);
+                _context.Attach(friend_1);
+                _context.Attach(friend_2);
                 _context.Attach(toUserRs);
                 _context.Attach(replierRs);
                 await _context.SaveChangesAsync();

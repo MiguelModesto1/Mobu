@@ -12,8 +12,8 @@ namespace mobu_backend.Models
         {
             ListaSalasDeChat = new HashSet<RegistadosSalasChat>();
             ListaMensagens = new HashSet<Mensagem>();
-            ListaPedidos = new HashSet<UtilizadorRegistado>();
-            ListaAmigos = new HashSet<UtilizadorRegistado>();
+            // PedidosRecebidos = new HashSet<PedidosAmizade>();
+            // Amigos = new HashSet<Amizade>();
         }
         /// <summary>
         /// ID para a tabela do utilizador registado (PK)
@@ -88,18 +88,20 @@ namespace mobu_backend.Models
         /// <summary>
         /// Referência ao dono do grupo de amigos, proveniente do autorrelacionamento
         /// </summary>
-        public int? DonoListaAmigosId { get; set; }
-        public UtilizadorRegistado? DonoListaAmigos { get; set; }
+        //public int? DonoListaAmigosFK { get; set; }
+        //public UtilizadorRegistado? DonoListaAmigos { get; set; }
 
         /// <summary>
         /// Referência ao dono do grupo de destinatários de pedidos, proveniente do autorrelacionamento
         /// </summary>
-        public int? DonoListaDestinatáriosId { get; set; }
-        public UtilizadorRegistado? DonoListaDestinatários { get; set; }
+        // public int? DonoListaPedidosFK { get; set; }
+        // public UtilizadorRegistado? DonoListaPedidos { get; set; }
 
         public ICollection<RegistadosSalasChat> ListaSalasDeChat { get; set; }
         public ICollection<Mensagem> ListaMensagens { get; set; }
-        public ICollection<UtilizadorRegistado>? ListaPedidos { get; set; }
-        public ICollection<UtilizadorRegistado>? ListaAmigos { get; set; }
+        public ICollection<PedidosAmizade> PedidosRecebidos { get; set; }
+        public ICollection<PedidosAmizade> DonosPedidosRecebidos { get; set; }
+        public ICollection<Amizade> Amigos { get; set; }
+        public ICollection<Amizade> DonosAmigos { get; set; }
     }
 }

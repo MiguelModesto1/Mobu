@@ -47,7 +47,7 @@ namespace mobu.Controllers.Backend
         // GET: RegistadosSalasChat/Create
         public IActionResult Create()
         {
-            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "IDSala");
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala");
             ViewData["UtilizadorFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
             return View();
         }
@@ -65,7 +65,7 @@ namespace mobu.Controllers.Backend
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "IDSala", registadosSalasChat.SalaFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", registadosSalasChat.SalaFK);
             ViewData["UtilizadorFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", registadosSalasChat.UtilizadorFK);
             return View(registadosSalasChat);
         }
@@ -83,7 +83,7 @@ namespace mobu.Controllers.Backend
             {
                 return NotFound();
             }
-            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "IDSala", registadosSalasChat.SalaFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", registadosSalasChat.SalaFK);
             ViewData["UtilizadorFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", registadosSalasChat.UtilizadorFK);
             return View(registadosSalasChat);
         }
@@ -120,7 +120,7 @@ namespace mobu.Controllers.Backend
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "IDSala", registadosSalasChat.SalaFK);
+            ViewData["SalaFK"] = new SelectList(_context.SalasChat, "IDSala", "NomeSala", registadosSalasChat.SalaFK);
             ViewData["UtilizadorFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", registadosSalasChat.UtilizadorFK);
             return View(registadosSalasChat);
         }

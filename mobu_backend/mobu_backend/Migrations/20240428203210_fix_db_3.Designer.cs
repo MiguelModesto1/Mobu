@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using mobu_backend.Data;
 
@@ -11,13 +12,15 @@ using mobu_backend.Data;
 namespace mobu_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240428203210_fix_db_3")]
+    partial class fix_db_3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -226,23 +229,15 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
                 {
-                    b.Property<int>("IdAmizade")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("DonoListaAmigosFK")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAmizade"));
 
                     b.Property<int>("AmigoFK")
                         .HasColumnType("int");
 
-                    b.Property<int>("DonoListaAmigosFK")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdAmizade");
+                    b.HasKey("DonoListaAmigosFK", "AmigoFK");
 
                     b.HasIndex("AmigoFK");
-
-                    b.HasIndex("DonoListaAmigosFK");
 
                     b.ToTable("Amizade");
                 });
@@ -280,21 +275,13 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.PedidosAmizade", b =>
                 {
-                    b.Property<int>("IdPedido")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPedido"));
-
                     b.Property<int>("DonoListaPedidosFK")
                         .HasColumnType("int");
 
                     b.Property<int>("RemetenteFK")
                         .HasColumnType("int");
 
-                    b.HasKey("IdPedido");
-
-                    b.HasIndex("DonoListaPedidosFK");
+                    b.HasKey("DonoListaPedidosFK", "RemetenteFK");
 
                     b.HasIndex("RemetenteFK");
 
@@ -446,13 +433,13 @@ namespace mobu_backend.Migrations
             modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
                 {
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Amigo")
-                        .WithMany("DonosAmigos")
+                        .WithMany()
                         .HasForeignKey("AmigoFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
-                        .WithMany("Amigos")
+                        .WithMany()
                         .HasForeignKey("DonoListaAmigosFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -484,13 +471,13 @@ namespace mobu_backend.Migrations
             modelBuilder.Entity("mobu_backend.Models.PedidosAmizade", b =>
                 {
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaPedidos")
-                        .WithMany("PedidosRecebidos")
+                        .WithMany()
                         .HasForeignKey("DonoListaPedidosFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
-                        .WithMany("DonosPedidosRecebidos")
+                        .WithMany()
                         .HasForeignKey("RemetenteFK")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -528,17 +515,9 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
-                    b.Navigation("Amigos");
-
-                    b.Navigation("DonosAmigos");
-
-                    b.Navigation("DonosPedidosRecebidos");
-
                     b.Navigation("ListaMensagens");
 
                     b.Navigation("ListaSalasDeChat");
-
-                    b.Navigation("PedidosRecebidos");
                 });
 #pragma warning restore 612, 618
         }

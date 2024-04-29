@@ -6,7 +6,6 @@
         Task ReceiveMessage(int user, string meassage);
         Task OnConnectedAsyncPrivate(string message);
         Task ReceiveBlock(string fromUser);
-
         Task ReceiveUnblock(string fromUser);
         Task ReceiveEntry(string fromUser);
         Task ReceiveLeaving(string fromUser);

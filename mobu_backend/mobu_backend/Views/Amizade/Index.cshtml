@@ -1,0 +1,41 @@
+﻿@model IEnumerable<mobu_backend.Models.Amizade>
+
+@{
+    ViewData["Title"] = "Índice";
+}
+
+<h1>Índice</h1>
+
+<p>
+    <a asp-action="Create">Criar nova amizade</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DonoListaAmigos)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amigo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DonoListaAmigos.NomeUtilizador)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amigo.NomeUtilizador)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdAmizade">Editar</a> |
+                <a asp-action="Details" asp-route-id="@item.IdAmizade">Detalhes</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdAmizade">Apagar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

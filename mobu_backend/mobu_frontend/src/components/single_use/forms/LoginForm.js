@@ -9,12 +9,12 @@ import Input from "../../modular/Input";
  */
 export default function LoginForm(){
 
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [warningText, setWarningText] = useState("");
 
-    function handleEmailChange(value){
-        setEmail(value);
+    function handleUsernameChange(value){
+        setUsername(value);
     }
 
     function handlePasswordChange(value){
@@ -27,22 +27,23 @@ export default function LoginForm(){
             method: 'POST',
             redirect: 'follow',
             body: JSON.stringify({
-                email: email,
-                password: password
+                NomeUtilizador: username,
+                Password: password
             }).toString(),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
             }
         }
 
-        await fetch("https://localhost:7273/api/login", options)
+        await fetch(process.env.REACT_APP_API_URL + "/login", options)
         .then((response) => {
             if(response.status === 404){
-                setWarningText("Tentativa de login inválida");
-            }else{
+                setWarningText("Tentativa de login inválida!");
+            } else {
                 return response.json();
             }
         })
+        .then(data => window.location.replace("/messages?id=" + data.userId))
         .then(data => console.log(data))
         .catch(err => {console.error("error", err)});
     }
@@ -51,16 +52,6 @@ export default function LoginForm(){
         <>
         <div className="mobu-img-div">
             <img className="mobu-image" src="./assets/images/logo.png" alt="mobu logo" />
-           <span> 
-            aluno 23033 | Miguel Bruno Gonçalves Modesto
-            <br />
-            Créditos a terceiros:
-            <br />
-            https://www.pluralsight.com/guides/how-to-create-a-right-click-menu-using-react
-            <br />
-            https://react.dev/learn/tutorial-tic-tac-toe
-            </span>
-
         </div>
         <div className="form">
             {warningText !== "" ?
@@ -71,21 +62,21 @@ export default function LoginForm(){
             <></>}
             <div className="form-input-div">
                 <Input input={{
-                type:"email",
-                title:"E-mail",
-                value:"",
-                placeholder:""
+                    type:"string",
+                    title: "Nome de utilizador",
+                    value: username,
+                    placeholder:""
                 }}
                 fromParent="form"
-                id="email"
-                onChange={handleEmailChange}/>
+                id="username"
+                onChange={handleUsernameChange}/>
             </div>
             
             <div className="form-input-div">
                 <Input input={{
                     type:"password",
-                    title:"Palavra-passe",
-                    value:"",
+                    title: "Palavra-passe",
+                    value: password,
                     placeholder:""
                 }}
                 fromParent="form"
@@ -108,13 +99,6 @@ export default function LoginForm(){
                     text:"Não tenho uma conta"
                 }}
                 fromParent="form"/>
-                <span>    </span>
-                <Link 
-                linkProps={{
-                    href: "https://localhost:7273",
-                    text:"Sou administrador"
-                }}
-                fromParent="form" />
             </div>
         </div>
         </>

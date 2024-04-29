@@ -15,7 +15,7 @@ export default function MessagePanel({owner, connections, childrenData}){
 
     useEffect(() => {
         const nextMessages = messages;
-        connections[0].on("ReceiveMessage", function(user, message, idMsg){
+        connections.on("ReceiveMessage", function(user, message, idMsg){
             setMessages(nextMessages.push([message, parseInt(user), idMsg]))
     })}, [connections, messages]);
 

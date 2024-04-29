@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace mobu_backend.Areas.Identity.Pages.Account
 {
-    [Authorize]
     public class ConfirmEmailModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;

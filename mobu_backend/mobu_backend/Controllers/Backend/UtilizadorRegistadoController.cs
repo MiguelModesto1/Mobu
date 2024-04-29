@@ -39,7 +39,7 @@ namespace mobu.Controllers.Backend
         private readonly ILogger<RegisterModel> _logger;
 
         /// <summary>
-        /// Interface para a funcao de logging do Remetente de emails
+        /// Interface para a funcao de logging do DonoListaPedidos de emails
         /// </summary>
         private readonly ILogger<EmailSender> _emailLogger;
 
@@ -117,6 +117,7 @@ namespace mobu.Controllers.Backend
         [AllowAnonymous]
         public async Task<IActionResult> Create([Bind("IDUtilizador,NomeUtilizador,Email,Password,DataJuncao,DataNasc,NomeFotografia,DataFotografia,AuthenticationID")] UtilizadorRegistado utilizadorRegistado, IFormFile fotografia)
         {
+
             // data de juncao
             utilizadorRegistado.DataJuncao = DateTime.Now;
 

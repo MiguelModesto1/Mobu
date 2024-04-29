@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using mobu_backend.Data;
 
@@ -11,13 +12,15 @@ using mobu_backend.Data;
 namespace mobu_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240428154402_fix_db")]
+    partial class fix_db
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -224,29 +227,6 @@ namespace mobu_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
-                {
-                    b.Property<int>("IdAmizade")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAmizade"));
-
-                    b.Property<int>("AmigoFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DonoListaAmigosFK")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdAmizade");
-
-                    b.HasIndex("AmigoFK");
-
-                    b.HasIndex("DonoListaAmigosFK");
-
-                    b.ToTable("Amizade");
-                });
-
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.Property<int>("IDMensagem")
@@ -276,29 +256,6 @@ namespace mobu_backend.Migrations
                     b.HasIndex("SalaFK");
 
                     b.ToTable("Mensagem");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.PedidosAmizade", b =>
-                {
-                    b.Property<int>("IdPedido")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPedido"));
-
-                    b.Property<int>("DonoListaPedidosFK")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RemetenteFK")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdPedido");
-
-                    b.HasIndex("DonoListaPedidosFK");
-
-                    b.HasIndex("RemetenteFK");
-
-                    b.ToTable("PedidosAmizade");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
@@ -374,6 +331,12 @@ namespace mobu_backend.Migrations
                     b.Property<DateTime>("DataNasc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DonoListaAmigosFK")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DonoListaPedidosFK")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -388,6 +351,10 @@ namespace mobu_backend.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("IDUtilizador");
+
+                    b.HasIndex("DonoListaAmigosFK");
+
+                    b.HasIndex("DonoListaPedidosFK");
 
                     b.ToTable("UtilizadorRegistado");
                 });
@@ -443,25 +410,6 @@ namespace mobu_backend.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
-                {
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Amigo")
-                        .WithMany("DonosAmigos")
-                        .HasForeignKey("AmigoFK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
-                        .WithMany("Amigos")
-                        .HasForeignKey("DonoListaAmigosFK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Amigo");
-
-                    b.Navigation("DonoListaAmigos");
-                });
-
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
@@ -479,25 +427,6 @@ namespace mobu_backend.Migrations
                     b.Navigation("Remetente");
 
                     b.Navigation("Sala");
-                });
-
-            modelBuilder.Entity("mobu_backend.Models.PedidosAmizade", b =>
-                {
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaPedidos")
-                        .WithMany("PedidosRecebidos")
-                        .HasForeignKey("DonoListaPedidosFK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
-                        .WithMany("DonosPedidosRecebidos")
-                        .HasForeignKey("RemetenteFK")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("DonoListaPedidos");
-
-                    b.Navigation("Remetente");
                 });
 
             modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
@@ -519,6 +448,23 @@ namespace mobu_backend.Migrations
                     b.Navigation("Utilizador");
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
+                {
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
+                        .WithMany("ListaAmigos")
+                        .HasForeignKey("DonoListaAmigosFK")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaPedidos")
+                        .WithMany("ListaPedidos")
+                        .HasForeignKey("DonoListaPedidosFK")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DonoListaAmigos");
+
+                    b.Navigation("DonoListaPedidos");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Navigation("ListaMensagensRecebidas");
@@ -528,17 +474,13 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
-                    b.Navigation("Amigos");
-
-                    b.Navigation("DonosAmigos");
-
-                    b.Navigation("DonosPedidosRecebidos");
+                    b.Navigation("ListaAmigos");
 
                     b.Navigation("ListaMensagens");
 
-                    b.Navigation("ListaSalasDeChat");
+                    b.Navigation("ListaPedidos");
 
-                    b.Navigation("PedidosRecebidos");
+                    b.Navigation("ListaSalasDeChat");
                 });
 #pragma warning restore 612, 618
         }

@@ -32,7 +32,7 @@ public class MessagesApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do Remetente de emails
+    /// Interface para a funcao de logging do DonoListaPedidos de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -70,9 +70,9 @@ public class MessagesApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
-    /*[HttpGet]
+    [HttpGet]
     [Route("api/messages")]
-    public async Task<IActionResult> GetFriendsInformation(string email, int id)
+    public async Task<IActionResult> GetFriendsInformation(int id)
     {
 
         try
@@ -86,10 +86,13 @@ public class MessagesApiController : ControllerBase
             _logger.LogWarning("Entrou no método Get");
 
             // user da BD
-            UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.Email == email || u.IDUtilizador == id);
+            UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
 
             // amigos do utilizador
-            //Amigo[] friends = _context.Amigo.Where(a => a.DonoListaFK == user.IDUtilizador).ToArray();
+            UtilizadorRegistado[] friends = _context.Amizade
+                .Where(a => a.DonoListaAmigosFK == id)
+                .Select(a => a.Amigo)
+                .ToArray();
 
             object[] friendsArray = { };
             object[] groupsArray = { };
@@ -101,15 +104,14 @@ public class MessagesApiController : ControllerBase
                 {
 
                     // amigo
-                    var friend = await _context.UtilizadorRegistado
-                    .FirstOrDefaultAsync(u => u.IDUtilizador == friends[i].IDAmigo);
+                    var friend = friends[i];
 
                     int friendId = friend.IDUtilizador;
                     string friendName = friend.NomeUtilizador;
                     string friendEmail = friend.Email;
 
                     // avatar do amigo
-                    string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + Path.Combine(_webHostEnvironment.WebRootPath, "images", friend.NomeFotografia);
+                    string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + friend.NomeFotografia;
 
                     // salas
                     var userRoomsId = _context.RegistadosSalasChat
@@ -126,15 +128,11 @@ public class MessagesApiController : ControllerBase
 
                     var msgs = _context.Mensagem
                     .Where(m => m.SalaFK == commonRoomId)
-                    .Select(m => new
-                    {
-                        m.ConteudoMsg,
-                        m.RemetenteFK,
-                        m.IDMensagem
-                    })
+                    .Select(m => m.ConteudoMsg)
                     .ToArray();
 
-                    object[] msgTrunk = new object[25];
+                    // truncar mensagens
+                    /*object[] msgTrunk = new object[25];
 
                     if (msgs.Length >= 25)
                     {
@@ -148,9 +146,9 @@ public class MessagesApiController : ControllerBase
                     else
                     {
                         msgTrunk = msgs;
-                    }
+                    }*/
 
-                    object[] friendArray = { friendId, friendName, friendEmail, commonRoomId, imageURL, msgTrunk };
+                    object[] friendArray = { friendId, friendName, friendEmail, commonRoomId, imageURL, msgs };
 
                     friendsArray.Append(friendArray);
 
@@ -166,16 +164,11 @@ public class MessagesApiController : ControllerBase
             {
 
                 var msgs = _context.Mensagem.Where(m => m.SalaFK == userGroups[i].IDSala)
-                .Select(m => new
-                {
-                    m.ConteudoMsg,
-                    m.RemetenteFK,
-                    m.IDMensagem
-                }
-                    )
+                .Select(m => m.ConteudoMsg)
                 .ToArray();
 
-                object[] msgTrunk = new object[25];
+                // truncar mensagens
+                /*object[] msgTrunk = new object[25];
 
                 if (msgs.Length >= 25)
                 {
@@ -190,17 +183,17 @@ public class MessagesApiController : ControllerBase
                 {
                     msgTrunk = msgs;
                 }
-
+                */
                 // avatar do grupo
-                string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + Path.Combine(_webHostEnvironment.WebRootPath, "images", userGroups[i].NomeFotografia);
+                string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + userGroups[i].NomeFotografia;
 
-                object[] userGroup = { userGroups[i].IDSala, userGroups[i].NomeSala, imageURL, msgTrunk };
+                object[] userGroup = { userGroups[i].IDSala, userGroups[i].NomeSala, imageURL, msgs };
 
                 groupsArray.Append(userGroup);
             }
             info.Add("friends", friendsArray.ToJToken());
             info.Add("groups", groupsArray.ToJToken());
-            //info.Add("lengthFriendsList", friends.Length);
+            info.Add("lengthFriendsList", friends.Length);
             info.Add("lengthGroupsList", userGroups.Length);
             info.Add("ownerInfo", user.IDUtilizador);
 
@@ -217,5 +210,6 @@ public class MessagesApiController : ControllerBase
         finally
         {
             _logger.LogWarning("Saiu do método Get");
-        }*/
+        }
     }
+}

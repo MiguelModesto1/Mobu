@@ -31,7 +31,7 @@ export default function ForgotPasswordForm(){
         await fetch(process.env.REACT_APP_API_URL + "/forgot-password/send-email", options)
         .then((response) => {
             if(response.status === 204){
-                window.location.assign("./password-reset");
+                window.location.assign("/password-reset");
             }else{
                 setWarningText("Tentativa de envio de email inválida");
             }

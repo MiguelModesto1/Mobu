@@ -11,7 +11,7 @@ export default function PasswordResetForm(){
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [passwordVerf, setPasswordVerf] = useState("");
-    const[warningText, setWarningText] = useState("");
+    const [warningText, setWarningText] = useState("");
     
     function handleCurrentPasswordChange(value){
         setCurrentPassword(value);
