@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using mobu_backend.Api_models;
+using mobu_backend.ApiModels;
 using mobu_backend.Data;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
@@ -32,7 +33,7 @@ public class ForgotPasswordApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do DonoListaPedidos de emails
+    /// Interface para a funcao de logging do Destinatario de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -72,7 +73,7 @@ public class ForgotPasswordApiController : ControllerBase
 
     [HttpPost]
     [Route("api/forgot-password/send-email")]
-    public async Task<IActionResult> SendEmail([FromBody] string emailJson)
+    public async Task<IActionResult> SendEmail([FromBody] ForgotPassworEmail emailJson)
     {
         try
         {
@@ -82,15 +83,14 @@ public class ForgotPasswordApiController : ControllerBase
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
-            JObject registerData = JObject.Parse(emailJson);
-
-            var email = registerData.Value<string>("email");
+            //JObject registerData = JObject.Parse(emailJson);
+            var email = emailJson.Email;
 
             // verificacao e envio de email
-            var identityUserList = await _userManager.GetUsersInRoleAsync("Registered");
-            var identityUser = identityUserList.FirstOrDefault(u => u.Email == email);
+            var identityUser = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = _context.UtilizadorRegistado.FirstOrDefault(u => u.Email == email);
 
-            if (identityUser != null)
+            if (identityUser != null && user != null)
             {
 
                 valid = true;
@@ -98,9 +98,9 @@ public class ForgotPasswordApiController : ControllerBase
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                var href = "https://" + request.Host.ToString() + "?email=" + identityUser.Email; //INSERIR ROTA PARA O FORMULARIO DE MUDANCA DE PASSWORD
+                var href = Environment.GetEnvironmentVariable("FRONTEND_APP_URL") + "/password-reset?email=" + user.Email;
 
-                var htmlElement = "Para mudar a sua palavra-passe <a href='" + href + "' target='_blank'>clique aqui</a>.";
+                var htmlElement = "Para mudar a sua palavra-passe <a href='" + href + "'>clique aqui</a>.";
 
                 EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
 
@@ -108,7 +108,7 @@ public class ForgotPasswordApiController : ControllerBase
             }
 
 
-            status = valid ? NoContent() : NotFound();
+            status = valid ? Ok() : NotFound();
 
             return status;
 
@@ -144,7 +144,7 @@ public class ForgotPasswordApiController : ControllerBase
             // mudanca de password
             var identityUser = _context.Users.FirstOrDefault(u => u.Email == email);
 
-            if (identityUser != null && newPassword != "" && currPassword != "")
+            if (identityUser != null && newPassword is not "" or null && currPassword is not "" or null)
             {
                 valid = true;
                 await _userManager.ChangePasswordAsync(identityUser, currPassword, newPassword);
@@ -152,7 +152,7 @@ public class ForgotPasswordApiController : ControllerBase
 
             valid = true;
 
-            status = valid ? NoContent() : NotFound();
+            status = valid ? Ok() : NotFound();
 
             return status;
         }

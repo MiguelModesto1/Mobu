@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using mobu_backend.Data;
@@ -26,6 +27,7 @@ namespace mobu_backend.Hubs.Chat
     /// <para>SendRequestReply(string replier, string toUser, bool reply) - responde ao pedido de 'toUser';</para>
     ///
     /// </summary>
+    [Authorize]
     public class RealTimeHub : Hub<IRealTimeHub>
     {
 
@@ -140,10 +142,12 @@ namespace mobu_backend.Hubs.Chat
             // amizade
             var friendship = _context.Amizade
                 .Where(
-                    f => f.DonoListaAmigosFK == user.IDUtilizador && f.AmigoFK == friend.IDUtilizador
-                );
+                    f => f.RemetenteFK == user.IDUtilizador && f.DestinatarioFK == friend.IDUtilizador
+                ).ToArray()[0];
 
-            _context.Remove(friendship);
+            friendship.Desbloqueado = false;
+
+            _context.Update(friendship);
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveBlock(fromUser);
@@ -173,15 +177,14 @@ namespace mobu_backend.Hubs.Chat
                 .ToArray()[0];
 
             // amizade
-            var friendship = new Amizade()
-            {
-                 DonoListaAmigos = user,
-                 DonoListaAmigosFK = fromUserId,
-                 Amigo = friend,
-                 AmigoFK = toUserId
-            };
+            var friendship = _context.Amizade
+                .Where(
+                    f => f.RemetenteFK == user.IDUtilizador && f.DestinatarioFK == friend.IDUtilizador
+                ).ToArray()[0];
 
-            _context.Attach(friendship);
+            friendship.Desbloqueado = true;
+
+            _context.Update(friendship);
             await _context.SaveChangesAsync();
 
             await Clients.User(toUser).ReceiveUnblock(fromUser);
@@ -251,12 +254,14 @@ namespace mobu_backend.Hubs.Chat
 
             // pedido
 
-            var req = new PedidosAmizade()
+            var req = new Amizade()
             {
-                DonoListaPedidos = from,
-                DonoListaPedidosFK = fromUserId,
-                Remetente = dest,
-                RemetenteFK = toUserId
+                DataPedido = DateTime.Now,
+                Desbloqueado = true,
+                Remetente = from,
+                RemetenteFK = fromUserId,
+                Destinatario = dest,
+                DestinatarioFK = toUserId
             };
 
             _context.Attach(req);
@@ -288,25 +293,22 @@ namespace mobu_backend.Hubs.Chat
                 .ToArray()[0];
 
                 // pedido
-                var req = _context.PedidosAmizade
-                    .Where(p => p.DonoListaPedidosFK == replierId && p.RemetenteFK == toUserId)
+                var req = _context.Amizade
+                    .Where(p => p.DestinatarioFK == replierId && p.RemetenteFK == toUserId)
                     .ToArray()[0];
 
-                // amizades
-                var friend_1 = new Amizade()
-                {
-                    DonoListaAmigos = replierUser,
-                    DonoListaAmigosFK = replierId,
-                    Amigo = to,
-                    AmigoFK = toUserId
-                };
+                req.DataResposta = DateTime.Now;
 
-                var friend_2 = new Amizade()
+                // amizades
+                var friend = new Amizade()
                 {
-                    DonoListaAmigos = to,
-                    DonoListaAmigosFK = toUserId,
-                    Amigo = replierUser,
-                    AmigoFK = replierId
+                    DataPedido = DateTime.Now,
+                    DataResposta = DateTime.Now,
+                    Desbloqueado = true,
+                    Destinatario = to,
+                    DestinatarioFK = toUserId,
+                    Remetente = replierUser,
+                    RemetenteFK = replierId
                 };
 
                 // sala
@@ -336,9 +338,8 @@ namespace mobu_backend.Hubs.Chat
                 };
 
                 // ... depois criar o amigo
-                _context.Remove(req);
-                _context.Attach(friend_1);
-                _context.Attach(friend_2);
+                _context.Update(req);
+                _context.Attach(friend);
                 _context.Attach(toUserRs);
                 _context.Attach(replierRs);
                 await _context.SaveChangesAsync();

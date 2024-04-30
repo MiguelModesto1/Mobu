@@ -43,7 +43,7 @@ export default function LoginForm(){
                 return response.json();
             }
         })
-        .then(data => window.location.replace("/messages?id=" + data.userId))
+        .then(data => window.location.assign("/messages?id=" + data.userId))
         .then(data => console.log(data))
         .catch(err => {console.error("error", err)});
     }
@@ -55,50 +55,37 @@ export default function LoginForm(){
         </div>
         <div className="form">
             {warningText !== "" ?
-            <div className="warning-span-div">
-                <span className="warning-span" color="#ff5f4a">{warningText}</span>
-            </div>
-            :
-            <></>}
+                <div className="warning-span-div">
+                    <span className="warning-span" style={{ color:"#ff5f4a"}}>{warningText}</span>
+                </div> : <></>
+            }
             <div className="form-input-div">
-                <Input input={{
-                    type:"string",
-                    title: "Nome de utilizador",
-                    value: username,
-                    placeholder:""
-                }}
-                fromParent="form"
-                id="username"
-                onChange={handleUsernameChange}/>
+                <span>Nome de utilizador</span>
+                <br />
+                <input
+                    type="text"
+                    value={username}
+                    className="form-input"
+                    onChange={e => handleUsernameChange(e.target.value)}
+                />
             </div>
             
             <div className="form-input-div">
-                <Input input={{
-                    type:"password",
-                    title: "Palavra-passe",
-                    value: password,
-                    placeholder:""
-                }}
-                fromParent="form"
-                id="password"
-                onChange={handlePasswordChange}/>
+                <span>Palavra-passe</span>
+                <br />
+                <input
+                    type="password"
+                    value={password}
+                    className="form-input"
+                    onChange={e => handlePasswordChange(e.target.value)}
+                />
             </div>
-            <Button
-            text="Log in"
-            fromParent="form"
-            onClick={handleButtonClick} />
+
+            <button className="form-button" onClick={() => handleButtonClick()}>Log in</button>
             <div className="links-div">
-                <Link linkProps={{
-                    href:window.location.origin + "/forgot-password",
-                    text:"Esqueci-me da palavra-passe"
-                }}
-                fromParent="form"/>
+                <a href={window.location.origin + "/forgot-password"} className="form-link">Esqueci-me da palavra-passe</a>
                 <span>    </span>
-                <Link linkProps={{
-                    href:window.location.origin + "/register",
-                    text:"Não tenho uma conta"
-                }}
-                fromParent="form"/>
+                <a href={window.location.origin + "/register"} className="form-link">Não tenho uma conta</a>
             </div>
         </div>
         </>

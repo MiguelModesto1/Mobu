@@ -32,7 +32,7 @@ public class MessagesApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do DonoListaPedidos de emails
+    /// Interface para a funcao de logging do Destinatario de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -72,7 +72,7 @@ public class MessagesApiController : ControllerBase
 
     [HttpGet]
     [Route("api/messages")]
-    public async Task<IActionResult> GetFriendsInformation(int id)
+    public async Task<IActionResult> GetFriendsInformation([FromQuery(Name = "id")]int id)
     {
 
         try
@@ -90,8 +90,8 @@ public class MessagesApiController : ControllerBase
 
             // amigos do utilizador
             UtilizadorRegistado[] friends = _context.Amizade
-                .Where(a => a.DonoListaAmigosFK == id)
-                .Select(a => a.Amigo)
+                .Where(f => f.RemetenteFK == id)
+                .Select(f => f.Destinatario)
                 .ToArray();
 
             object[] friendsArray = { };

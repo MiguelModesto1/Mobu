@@ -32,7 +32,7 @@ public class RequestsApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do DonoListaPedidos de emails
+    /// Interface para a funcao de logging do Destinatario de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -83,7 +83,7 @@ public class RequestsApiController : ControllerBase
            .Where(dp => dp.IDDestinatarioPedido == id)
            .Select(dp => new
            {
-               dp.DonoListaPedidosFK,
+               dp.DestinatarioFK,
                dp.RemetentePedido.NomeUtilizador
            })
            .ToArray();

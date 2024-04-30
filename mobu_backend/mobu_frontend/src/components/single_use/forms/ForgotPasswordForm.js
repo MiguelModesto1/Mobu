@@ -11,7 +11,7 @@ export default function ForgotPasswordForm(){
     const[email, setEmail] = useState("");
     const[warningText, setWarningText] = useState("");
     
-    function handleChange(value){
+    function handleEmailChange(value){
         setEmail(value);
     }
 
@@ -21,7 +21,7 @@ export default function ForgotPasswordForm(){
             method: 'POST',
             redirect: 'follow',
             body: JSON.stringify({
-                email: email
+                Email: email
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
@@ -30,9 +30,7 @@ export default function ForgotPasswordForm(){
 
         await fetch(process.env.REACT_APP_API_URL + "/forgot-password/send-email", options)
         .then((response) => {
-            if(response.status === 204){
-                window.location.assign("/password-reset");
-            }else{
+            if(response.status !== 200){
                 setWarningText("Tentativa de envio de email inválida");
             }
         })
@@ -42,25 +40,22 @@ export default function ForgotPasswordForm(){
     return(
         <div className="form">
             {warningText !== "" ?
-            <div className="warning-span-div">
-                <span className="warning-span" color="#ff5f4a">{warningText}</span>
-            </div>
-            :
-            <></>}
+                <div className="warning-span-div">
+                    <span className="warning-span" style={{ color: "#ff5f4a" }}>{warningText}</span>
+                </div> : <></>
+            }
             <div className="form-input-div">
-                <Input input={{
-                    type:"email",
-                    title:"E-mail",
-                    value:"",
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handleChange}/>
+                <span>Insira o seu e-mail</span>
+                <br />
+                <input 
+                type="email"
+                value={email}
+                className="form-input"
+                onChange={e => handleEmailChange(e.target.value)} />
             </div>
-            <Button
-            text="Enviar email"
-            fromParent="form"
-            onClick={handleButtonClick} />
+            <button className="form-button" onClick={() => handleButtonClick()} >Enviar email</button>
+            <br />
+            <a href={window.location.origin} className="form-link">Voltar ao login</a>
         </div>
     );
 

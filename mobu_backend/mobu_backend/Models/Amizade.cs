@@ -4,25 +4,34 @@ namespace mobu_backend.Models
 {
     public class Amizade
     {
-        /// <summary>
-        /// Chave primaria
-        /// </summary>
-        [Key]
-        public int IdAmizade { get; set; }
 
         /// <summary>
-        /// Referencia ao dono da lista de amigos, proveniente do autorrelacionamento
+        /// Data do pedido
         /// </summary>
-        public int DonoListaAmigosFK { get; set; }
-
-        [Display(Name = "Dono da lista")]
-        public UtilizadorRegistado DonoListaAmigos { get; set; }
+        public DateTime DataPedido { get; set; }
 
         /// <summary>
-        /// Referencia o amigo, proveniente do autorrelacionamento
+        /// Data de avaliação do pedido
         /// </summary>
-        public int AmigoFK { get; set; }
-        public UtilizadorRegistado Amigo { get; set; }
+        public DateTime? DataResposta { get; set; }
 
+        /// <summary>
+        /// Amizade bloqueada ou não
+        /// </summary>
+        public bool? Desbloqueado { get; set; }
+
+        /// <summary>
+        /// Referência ao dono da lista de remetentes de pedidos de amizade, proveniente do autorrelacionamento
+        /// </summary>
+        public int DestinatarioFK { get; set; }
+        
+        [Display(Name = "Destinatário")]
+        public UtilizadorRegistado Destinatario { get; set; }
+
+        /// <summary>
+        /// Referência ao remetente do pedido de amizade, proveniente do autorrelacionamento
+        /// </summary>
+        public int RemetenteFK { get; set; }
+        public UtilizadorRegistado Remetente { get; set; }
     }
 }

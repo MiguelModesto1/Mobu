@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Api_models;
 using mobu_backend.Data;
@@ -38,7 +39,7 @@ public class RegisterApiController : ControllerBase
     private readonly IHostEnvironment _hostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do DonoListaPedidos de emails
+    /// Interface para a funcao de logging do Destinatario de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
@@ -80,24 +81,27 @@ public class RegisterApiController : ControllerBase
 
     [HttpPost]
     [Route("api/register")]
-    public async Task<IActionResult> RegisterUser([FromBody] Register registerDataJson, [FromForm] IFormFile fotografia)
+    public async Task<IActionResult> RegisterUser([FromForm] Register registerData)
     {
 
         var nomeFoto = "";
         bool haFoto = false;
         _logger.LogWarning("Entrou no método Post");
 
-        // Criacao de utilizador com username, email e password
+        // Criacao de utilizador com username, email e password e fotografia
 
-        var username = registerDataJson.NomeUtilizador;
-        var email = registerDataJson.Email;
-        var password = registerDataJson.Password;
+        var username = registerData.NomeUtilizador;
+        var email = registerData.Email;
+        var password = registerData.Password;
+        var fotografia = registerData.Avatar;
+        var dataNascimento = registerData.DataNascimento;
 
         UtilizadorRegistado utilizadorRegistado = new()
         {
             NomeUtilizador = username,
             Email = email,
-            DataJuncao = DateTime.Now
+            DataJuncao = DateTime.Now,
+            DataNasc = dataNascimento
         };
 
         var user = new IdentityUser();
@@ -215,7 +219,13 @@ public class RegisterApiController : ControllerBase
 
                     // definir nome da imagem
                     string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
-                }else
+
+                    // criar objeto para manipular imagem
+                    using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                    // efetivamente guardar ficheiro no disco
+                    await fotografia.CopyToAsync(stream);                
+                }/*else
                 {
 
                     // caminho completo da foto
@@ -230,19 +240,38 @@ public class RegisterApiController : ControllerBase
                         //apagar foto
                         fif.Delete();
                     }
-                }
+                }*/
                 return Ok();
 
             }catch (Exception ex)
             {
-                _logger.LogError($"Error na edição de um perfil: {ex.Message}");
+                //informar de erro de adicao
+                _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + utilizadorRegistado.NomeUtilizador + "\nA apagar utilizador...");
+
+                if (UtilizadorRegistadoExists(utilizadorRegistado.IDUtilizador))
+                {
+                    _context.Remove(utilizadorRegistado);
+
+                    // realizar commit
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("Utilizador apagado!");
+                }
+
+                // se exisitr user na base de dados do negocio 
+                if (await _context.UtilizadorRegistado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizadorRegistado.IDUtilizador) != null)
+                {
+                    await _userManager.DeleteAsync(user);
+
+                    _logger.LogInformation("Utilizador apagado do Identity!");
+                }
             }
         }
         _logger.LogWarning("Saiu do método Post");
         return BadRequest();
     }
 
-    [HttpGet]
+ /*   [HttpGet]
     [Route("api/confirm-new-account")]
     public async Task<IActionResult> ConfirmNewAccount(string code, string email)
     {
@@ -278,5 +307,10 @@ public class RegisterApiController : ControllerBase
         {
             _logger.LogWarning("Saiu do método Post");
         }
+    }*/
+
+    private bool UtilizadorRegistadoExists(int id)
+    {
+        return _context.UtilizadorRegistado.Any(e => e.IDUtilizador == id);
     }
 }

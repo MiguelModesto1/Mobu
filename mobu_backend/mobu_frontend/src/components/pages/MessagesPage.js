@@ -80,7 +80,7 @@ export default function MessagesPage() {
         console.log(friendsData);
         console.log(groupsData);
 
-    }, [friendsData, groupsData, queryParamId]);
+    }, []);
 
     const start = async (connection) => {
         try {

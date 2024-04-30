@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,6 @@ using mobu_backend.Models;
 
 namespace mobu_backend.Controllers.Backend
 {
-    [Authorize]
     public class AmizadeController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,22 +22,24 @@ namespace mobu_backend.Controllers.Backend
         // GET: Amizade
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Amizade.Include(a => a.Amigo).Include(a => a.DonoListaAmigos);
+            var applicationDbContext = _context.Amizade
+                .Include(a => a.Destinatario)
+                .Include(a => a.Remetente);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Amizade/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? remetenteId, int? destinatarioId)
         {
-            if (id == null)
+            if (remetenteId == null || destinatarioId == null)
             {
                 return NotFound();
             }
 
             var amizade = await _context.Amizade
-                .Include(a => a.Amigo)
-                .Include(a => a.DonoListaAmigos)
-                .FirstOrDefaultAsync(m => m.IdAmizade == id);
+                .Include(a => a.Destinatario)
+                .Include(a => a.Remetente)
+                .FirstOrDefaultAsync(m => m.DestinatarioFK == destinatarioId && m.RemetenteFK == remetenteId);
             if (amizade == null)
             {
                 return NotFound();
@@ -51,8 +51,8 @@ namespace mobu_backend.Controllers.Backend
         // GET: Amizade/Create
         public IActionResult Create()
         {
-            ViewData["AmigoFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
-            ViewData["DonoListaAmigosFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
+            ViewData["DestinatarioFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
             return View();
         }
 
@@ -61,34 +61,35 @@ namespace mobu_backend.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdAmizade,DonoListaAmigosFK,AmigoFK")] Amizade amizade)
+        public async Task<IActionResult> Create([Bind("DataPedido,DataResposta,Desbloqueado,DestinatarioFK,RemetenteFK")] Amizade amizade)
         {
             if (ModelState.IsValid)
             {
+
                 _context.Add(amizade);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AmigoFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.AmigoFK);
-            ViewData["DonoListaAmigosFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DonoListaAmigosFK);
+            ViewData["DestinatarioFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DestinatarioFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.RemetenteFK);
             return View(amizade);
         }
 
         // GET: Amizade/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? remetenteId, int? destinatarioId)
         {
-            if (id == null)
+            if (remetenteId == null || destinatarioId == null)
             {
                 return NotFound();
             }
 
-            var amizade = await _context.Amizade.FindAsync(id);
+            var amizade = await _context.Amizade.FindAsync(remetenteId, destinatarioId);
             if (amizade == null)
             {
                 return NotFound();
             }
-            ViewData["AmigoFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.AmigoFK);
-            ViewData["DonoListaAmigosFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DonoListaAmigosFK);
+            ViewData["DestinatarioFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DestinatarioFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.RemetenteFK);
             return View(amizade);
         }
 
@@ -97,9 +98,9 @@ namespace mobu_backend.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdAmizade,DonoListaAmigosFK,AmigoFK")] Amizade amizade)
+        public async Task<IActionResult> Edit(int remetenteId, int destinatarioId, [Bind("DataPedido,DataResposta,Desbloqueado,DestinatarioFK,RemetenteFK")] Amizade amizade)
         {
-            if (id != amizade.IdAmizade)
+            if (remetenteId != amizade.DestinatarioFK || destinatarioId != amizade.DestinatarioFK)
             {
                 return NotFound();
             }
@@ -113,7 +114,7 @@ namespace mobu_backend.Controllers.Backend
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AmizadeExists(amizade.IdAmizade))
+                    if (!AmizadeExists(amizade.RemetenteFK, amizade.DestinatarioFK))
                     {
                         return NotFound();
                     }
@@ -124,23 +125,23 @@ namespace mobu_backend.Controllers.Backend
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AmigoFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.AmigoFK);
-            ViewData["DonoListaAmigosFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DonoListaAmigosFK);
+            ViewData["DestinatarioFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.DestinatarioFK);
+            ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador", amizade.RemetenteFK);
             return View(amizade);
         }
 
         // GET: Amizade/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? remetenteId, int? destinatarioId)
         {
-            if (id == null)
+            if (remetenteId == null || destinatarioId == null)
             {
                 return NotFound();
             }
 
             var amizade = await _context.Amizade
-                .Include(a => a.Amigo)
-                .Include(a => a.DonoListaAmigos)
-                .FirstOrDefaultAsync(m => m.IdAmizade == id);
+                .Include(a => a.Destinatario)
+                .Include(a => a.Remetente)
+                .FirstOrDefaultAsync(m => m.RemetenteFK == remetenteId && m.DestinatarioFK == destinatarioId);
             if (amizade == null)
             {
                 return NotFound();
@@ -152,9 +153,9 @@ namespace mobu_backend.Controllers.Backend
         // POST: Amizade/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int remetenteId, int destinatarioId)
         {
-            var amizade = await _context.Amizade.FindAsync(id);
+            var amizade = await _context.Amizade.FindAsync(remetenteId, destinatarioId);
             if (amizade != null)
             {
                 _context.Amizade.Remove(amizade);
@@ -164,9 +165,9 @@ namespace mobu_backend.Controllers.Backend
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AmizadeExists(int id)
+        private bool AmizadeExists(int remetenteId, int destinatarioId)
         {
-            return _context.Amizade.Any(e => e.IdAmizade == id);
+            return _context.Amizade.Any(e => e.RemetenteFK == remetenteId && e.DestinatarioFK == destinatarioId);
         }
     }
 }

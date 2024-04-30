@@ -25,9 +25,9 @@ namespace mobu.Controllers.Backend
         }
 
         // GET: RegistadosSalasChat/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? utilizadorId, int? salaId)
         {
-            if (id == null || _context.RegistadosSalasChat == null)
+            if (utilizadorId == null || salaId == null || _context.RegistadosSalasChat == null)
             {
                 return NotFound();
             }
@@ -35,7 +35,7 @@ namespace mobu.Controllers.Backend
             var registadosSalasChat = await _context.RegistadosSalasChat
                 .Include(r => r.Sala)
                 .Include(r => r.Utilizador)
-                .FirstOrDefaultAsync(m => m.IDRegisto == id);
+                .FirstOrDefaultAsync(m => m.UtilizadorFK == utilizadorId && m.SalaFK == salaId);
             if (registadosSalasChat == null)
             {
                 return NotFound();
@@ -57,7 +57,7 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IDRegisto,IsAdmin,UtilizadorFK,SalaFK")] RegistadosSalasChat registadosSalasChat)
+        public async Task<IActionResult> Create([Bind("IsAdmin,UtilizadorFK,SalaFK")] RegistadosSalasChat registadosSalasChat)
         {
             if (ModelState.IsValid)
             {
@@ -71,14 +71,14 @@ namespace mobu.Controllers.Backend
         }
 
         // GET: RegistadosSalasChat/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? utilizadorId, int? salaId)
         {
-            if (id == null || _context.RegistadosSalasChat == null)
+            if (utilizadorId == null || salaId == null || _context.RegistadosSalasChat == null)
             {
                 return NotFound();
             }
 
-            var registadosSalasChat = await _context.RegistadosSalasChat.FindAsync(id);
+            var registadosSalasChat = await _context.RegistadosSalasChat.FindAsync(utilizadorId, salaId);
             if (registadosSalasChat == null)
             {
                 return NotFound();
@@ -93,9 +93,9 @@ namespace mobu.Controllers.Backend
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IDRegisto,IsAdmin,UtilizadorFK,SalaFK")] RegistadosSalasChat registadosSalasChat)
+        public async Task<IActionResult> Edit(int utilizadorId, int salaId, [Bind("IsAdmin,UtilizadorFK,SalaFK")] RegistadosSalasChat registadosSalasChat)
         {
-            if (id != registadosSalasChat.IDRegisto)
+            if (utilizadorId != registadosSalasChat.UtilizadorFK || salaId != registadosSalasChat.SalaFK)
             {
                 return NotFound();
             }
@@ -109,7 +109,7 @@ namespace mobu.Controllers.Backend
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RegistadosSalasChatExists(registadosSalasChat.IDRegisto))
+                    if (!RegistadosSalasChatExists(registadosSalasChat.UtilizadorFK, registadosSalasChat.SalaFK))
                     {
                         return NotFound();
                     }
@@ -126,9 +126,9 @@ namespace mobu.Controllers.Backend
         }
 
         // GET: RegistadosSalasChat/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? utilizadorId, int? salaId)
         {
-            if (id == null || _context.RegistadosSalasChat == null)
+            if (utilizadorId == null || salaId == null || _context.RegistadosSalasChat == null)
             {
                 return NotFound();
             }
@@ -136,7 +136,7 @@ namespace mobu.Controllers.Backend
             var registadosSalasChat = await _context.RegistadosSalasChat
                 .Include(r => r.Sala)
                 .Include(r => r.Utilizador)
-                .FirstOrDefaultAsync(m => m.IDRegisto == id);
+                .FirstOrDefaultAsync(m => m.UtilizadorFK == utilizadorId && m.SalaFK == salaId);
             if (registadosSalasChat == null)
             {
                 return NotFound();
@@ -164,9 +164,9 @@ namespace mobu.Controllers.Backend
             return RedirectToAction(nameof(Index));
         }
 
-        private bool RegistadosSalasChatExists(int id)
+        private bool RegistadosSalasChatExists(int utilizadorId, int salaId)
         {
-            return _context.RegistadosSalasChat.Any(e => e.IDRegisto == id);
+            return _context.RegistadosSalasChat.Any(e => e.UtilizadorFK == utilizadorId && e.SalaFK == salaId);
         }
     }
 }

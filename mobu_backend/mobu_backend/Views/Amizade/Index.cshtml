@@ -13,10 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DonoListaAmigos)
+                @Html.DisplayNameFor(model => model.Remetente)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Amigo)
+                @Html.DisplayNameFor(model => model.Destinatario)
             </th>
             <th></th>
         </tr>
@@ -25,15 +25,15 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.DonoListaAmigos.NomeUtilizador)
+                @Html.DisplayFor(modelItem => item.Remetente.NomeUtilizador)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Amigo.NomeUtilizador)
+                @Html.DisplayFor(modelItem => item.Destinatario.NomeUtilizador)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.IdAmizade">Editar</a> |
-                <a asp-action="Details" asp-route-id="@item.IdAmizade">Detalhes</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdAmizade">Apagar</a>
+                @Html.ActionLink("Detalhes", "Details", new { remetenteId = item.RemetenteFK, destinatarioId = item.DestinatarioFK }) |
+                @Html.ActionLink("Editar", "Edit", new { remetenteId = item.RemetenteFK, destinatarioId = item.DestinatarioFK }) |
+                @Html.ActionLink("Apagar", "Delete", new { remetenteId = item.RemetenteFK, destinatarioId = item.DestinatarioFK })
             </td>
         </tr>
 }

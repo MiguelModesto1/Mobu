@@ -23,27 +23,15 @@ namespace mobu_backend.Data
 
 			base.OnModelCreating(modelBuilder);
 
-			//modelBuilder.Entity<Amizade>().HasKey(f => new { f.DonoListaAmigosFK, f.AmigoFK });
+			modelBuilder.Entity<Amizade>().HasKey(f => new { f.DestinatarioFK, f.RemetenteFK });
 			modelBuilder.Entity<Amizade>()
-			.HasOne(u => u.DonoListaAmigos)              
-			.WithMany(u => u.Amigos)       
-			.HasForeignKey(u => u.DonoListaAmigosFK)
+			.HasOne(u => u.Destinatario)              
+			.WithMany(u => u.PedidosAmizadeRecebidos)       
+			.HasForeignKey(u => u.DestinatarioFK)
 			.OnDelete(DeleteBehavior.Restrict);
 			modelBuilder.Entity<Amizade>()
-			.HasOne(u => u.Amigo)              
-			.WithMany(u => u.DonosAmigos)       
-			.HasForeignKey(u => u.AmigoFK)
-			.OnDelete(DeleteBehavior.Restrict);
-
-			//modelBuilder.Entity<PedidosAmizade>().HasKey(f => new { f.DonoListaPedidosFK, f.RemetenteFK });
-			modelBuilder.Entity<PedidosAmizade>()
-			.HasOne(u => u.DonoListaPedidos)              
-			.WithMany(u => u.PedidosRecebidos)       
-			.HasForeignKey(u => u.DonoListaPedidosFK)
-			.OnDelete(DeleteBehavior.Restrict);
-			modelBuilder.Entity<PedidosAmizade>()
 			.HasOne(u => u.Remetente)              
-			.WithMany(u => u.DonosPedidosRecebidos)       
+			.WithMany(u => u.PedidosAmizadeEfetuados)       
 			.HasForeignKey(u => u.RemetenteFK)
 			.OnDelete(DeleteBehavior.Restrict);
 
@@ -55,7 +43,6 @@ namespace mobu_backend.Data
 
 		public DbSet<UtilizadorRegistado> UtilizadorRegistado { get; set; }
 		public DbSet<Amizade> Amizade { get; set; }
-		public DbSet<PedidosAmizade> PedidosAmizade { get; set; }
 		public DbSet<SalasChat> SalasChat { get; set; }
 		public DbSet<RegistadosSalasChat> RegistadosSalasChat { get; set; }
 		public DbSet<Mensagem> Mensagem { get; set; }

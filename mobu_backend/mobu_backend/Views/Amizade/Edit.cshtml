@@ -4,7 +4,7 @@
     ViewData["Title"] = "Editar";
 }
 
-<h1>Editar</h1>
+<h1>Edit</h1>
 
 <h4>Amizade</h4>
 <hr />
@@ -12,17 +12,23 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="IdAmizade" />
             <div class="form-group">
-                <label asp-for="DonoListaAmigosFK" class="control-label"></label>
-                <select asp-for="DonoListaAmigosFK" class="form-control" asp-items="ViewBag.DonoListaAmigosFK"></select>
-                <span asp-validation-for="DonoListaAmigosFK" class="text-danger"></span>
+                <label asp-for="DataPedido" class="control-label"></label>
+                <input asp-for="DataPedido" class="form-control" />
+                <span asp-validation-for="DataPedido" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AmigoFK" class="control-label"></label>
-                <select asp-for="AmigoFK" class="form-control" asp-items="ViewBag.AmigoFK"></select>
-                <span asp-validation-for="AmigoFK" class="text-danger"></span>
+                <label asp-for="DataResposta" class="control-label"></label>
+                <input asp-for="DataResposta" class="form-control" />
+                <span asp-validation-for="DataResposta" class="text-danger"></span>
             </div>
+            <div class="form-group">
+                <label asp-for="Desbloqueado" class="control-label"></label>
+                <input asp-for="Desbloqueado" class="form-control" />
+                <span asp-validation-for="Desbloqueado" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="DestinatarioFK" />
+            <input type="hidden" asp-for="RemetenteFK" />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

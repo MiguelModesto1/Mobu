@@ -6,7 +6,9 @@ import Input from "../../modular/Input";
  * Formulario de mudanca de password
  * @returns 
  */
-export default function PasswordResetForm(){ 
+export default function PasswordResetForm() { 
+
+    const email = new URLSearchParams(window.location.search).get('email');
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -17,7 +19,7 @@ export default function PasswordResetForm(){
         setCurrentPassword(value);
     }
 
-    function handlePasswordChange(value){
+    function handleNewPasswordChange(value){
         setNewPassword(value);
     }
 
@@ -31,8 +33,9 @@ export default function PasswordResetForm(){
             method: 'POST',
             redirect: 'follow',
             body: JSON.stringify({
-                newPassword: newPassword,
-                currentPassword: currentPassword
+                NewPassword: newPassword,
+                CurrentPassword: currentPassword,
+                Email: email
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
@@ -42,8 +45,8 @@ export default function PasswordResetForm(){
         if(newPassword === passwordVerf){
             await fetch(process.env.REACT_APP_API_URL + "/forgot-password/reset-password", options)
             .then((response) => {
-                if(response.status === 204){
-                    window.location.assign("./login")
+                if (response.status === 200) {
+                    window.location.assign("/")
                 }else{
                     setWarningText("Tentativa de reiniciar password inválida");
                 }
@@ -58,40 +61,44 @@ export default function PasswordResetForm(){
         <div className="form">
             {warningText !== "" ?
             <div className="warning-span-div">
-                <span className="warning-span" color="#ff5f4a">{warningText}</span>
+                    <span className="warning-span" style={{ color: "#ff5f4a" }}>{warningText}</span>
             </div>
             :
             <></>}
             <div className="form-input-div">
-                <Input input={{
-                    type:"password",
-                    title:"Palavra-passe atual",
-                    value:"",
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handleCurrentPasswordChange}/>
-                <Input input={{
-                    type:"password",
-                    title:"Nova palavra-passe",
-                    value:"",
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handlePasswordChange}/>
-                <Input input={{
-                    type:"password",
-                    title:"Repetir nova palavra-passe",
-                    value:"",
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handlePasswordVerfChange}/>
+                <span>Palavra-passe atual</span>
+                <br />
+                <input
+                    type="password"
+                    value={currentPassword}
+                    className="form-input"
+                    onChange={e => handleCurrentPasswordChange(e.target.value)}
+                />
             </div>
-            <Button
-            text="Mudar palavra-passe"
-            fromParent="form"
-            onClick={handleButtonClick} />
+
+            <div className="form-input-div">
+                <span>Nova palavra-passe</span>
+                <br />
+                <input
+                    type="password"
+                    value={newPassword}
+                    className="form-input"
+                    onChange={e => handleNewPasswordChange(e.target.value)}
+                />
+            </div>
+
+            <div className="form-input-div">
+                <span>Repetir nova palavra-passe</span>
+                <br />
+                <input
+                    type="password"
+                    value={passwordVerf}
+                    className="form-input"
+                    onChange={e => handlePasswordVerfChange(e.target.value)}
+                />
+            </div>
+
+            <button className="form-button" onClick={() => handleButtonClick()}>Mudar palavra-passe</button>
         </div>
     );
 

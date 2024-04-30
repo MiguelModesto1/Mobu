@@ -16,25 +16,22 @@ export default function RegisterForm(){
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVerf, setPasswordVerf] = useState("");
-    const [avatar, setAvatar] = useState("");
+    const [dataNascimento, setDataNascimento] = useState(new Date())
+    const [avatar, setAvatar] = useState(new File([""], ""));
     const [warningText, setWarningText] = useState("");
 
     const avatarImg = useMemo(() => {
         return <><Avatar avatarProps={{
-            src: avatar,
             size: "240px",
             alt: "Meu avatar"
         }}
         />
-            <Input
-                input={{
-                    title: "",
-                    type: "file",
-                    value:avatar,
-                    placeholder: ""
-                }}
-                fromParent="avatar"
-                onChange={handleAvatarSrcChange}
+            <span>Avatar</span>
+            <br/>
+            <input
+                type="file"
+                className="avatar-input"
+                onChange={e => handleAvatarChange(e.target)}
                 accept=".jpg,.jpeg,.png"
                 name="fotografia" />
             {/*<ClickableIcon
@@ -68,8 +65,24 @@ export default function RegisterForm(){
         setPasswordVerf(value);
     }
 
-    function handleAvatarSrcChange(value){
-        setAvatar(value);
+    function handleDataNascimentoChange(value) {
+        setDataNascimento(value);
+    }
+
+    function handleAvatarChange(value) {
+        displayImage(value)
+        setAvatar(value.files[0]);
+    }
+    function displayImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementsByClassName('avatar')[0].setAttribute('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
     function handleIconClick(){
@@ -78,117 +91,106 @@ export default function RegisterForm(){
 
     async function handleButtonClick(){
 
-        const fileInput = document.getElementsByClassName("avatar-input")[0];
-        // const reader = new FileReader();
+        var formData = new FormData();
 
-        //if (fileInput.files.length > 0) {
-            // var selectedFile = fileInput.files[0];
+        formData.append("NomeUtilizador", username);
+        formData.append("Email", email);
+        formData.append("Password", password);
+        formData.append("DataNascimento", dataNascimento);
+        formData.append("Avatar", avatar);
 
-            //reader.onload = async function(event) {
+        var options={
+            method: 'POST',
+            body: formData
+        }
 
-                //const base64String = event.target.result;
-
-                var options={
-                    method: 'POST',
-                    redirect: 'follow',
-                    body: JSON.stringify({
-                        NomeUtilizador: username,
-                        Email: email,
-                        Password: password
-                    }),
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8'
-                    }
-                }
-
-                if(password === passwordVerf){
-                    await fetch(process.env.REACT_APP_API_URL + "/register", options)
-                    .then((response) => {
-                        if(response.status === 204){
-                            window.location.assign("./")
-                        }else{
-                            setWarningText("Tentativa de registo inválida!");
-                        }
-                    })
-                    .catch(err => {console.error("error", err)});
+        if(password === passwordVerf){
+            await fetch(process.env.REACT_APP_API_URL + "/register", options)
+            .then((response) => {
+                if(response.status === 200){
+                    window.location.assign("./")
                 }else{
-                    setWarningText("Passwords têm que conicidir!");
+                    setWarningText("Tentativa de registo inválida!");
                 }
+            })
+            .catch(err => {console.error("error", err)});
+        }else{
+            setWarningText("Passwords têm que conicidir!");
+        }
 
-             // };  
-             
-             // reader.readAsDataURL(selectedFile);
-            
-        // }
     }
 
     return(
 
         <div className="form">
             {warningText !== "" ?
-            <div className="warning-span-div">
-                <span className="warning-span" color="#ff5f4a">{warningText}</span>
-            </div>
-            :
-            <></>}
+                <div className="warning-span-div">
+                    <span className="warning-span" style={{ color: "#ff5f4a" }}>{warningText}</span>
+                </div> : <></>
+            }
             <div className="avatar-div">
                 {avatarImg}
             </div>
             
             <div className="form-input-div">
-                <Input input={{
-                    type:"text",
-                    title: "Nome de utilizador",
-                    value: username,
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handleUsernameChange}/>
+                <span>Nome de utilizador</span>
+                <br />
+                <input 
+                    type = "text"
+                    value={username}
+                    className="form-input"
+                    onChange={e => handleUsernameChange(e.target.value)}
+                />
             </div>
 
             <div className="form-input-div">
-                <Input input={{
-                    type:"email",
-                    title:"E-mail",
-                    value: email,
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handleEmailChange}/>
+                <span>Email</span>
+                <br />
+                <input
+                    type="email"
+                    value={email}
+                    className="form-input"
+                    onChange={e => handleEmailChange(e.target.value)}
+                />
+            </div>
+
+            <div className="form-input-div">
+                <span>Data de nascimento</span>
+                <br />
+                <input
+                    type="datetime-local"
+                    value={dataNascimento}
+                    className="form-input"
+                    onChange={e => handleDataNascimentoChange(e.target.value)}
+                />
             </div>
             
             <div className="form-input-div">
-                <Input input={{
-                    type:"password",
-                    title: "Palavra-passe",
-                    value: password,
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handlePasswordChange}/>
+                <span>Palavra-passe</span>
+                <br />
+                <input
+                    type="password"
+                    value={password}
+                    className="form-input"
+                    onChange={e => handlePasswordChange(e.target.value)}
+                />
             </div>
             
             <div className="form-input-div">
-                <Input input={{
-                    type:"password",
-                    title: "Repetir palavra-passe",
-                    value: passwordVerf,
-                    placeholder:""
-                }}
-                fromParent="form"
-                onChange={handlePasswordVerfChange}/>
+                <span>Repetir palavra-passe</span>
+                <br />
+                <input
+                    type="password"
+                    value={passwordVerf}
+                    className="form-input"
+                    onChange={e => handlePasswordVerfChange(e.target.value)}
+                />
             </div>
-            
-            <Button
-            text="Registar"
-            fromParent="form"
-            onClick={handleButtonClick} />
+
+            <button className="form-button" onClick={() => handleButtonClick()}>Registar</button>
+
             <div className="links-div">
-                <Link linkProps={{
-                    href:window.location.origin,
-                    text:"Já tenho conta"
-                }}
-                fromParent="form"/>
+                <a href={window.location.origin} className="form-link">Já tenho conta</a>
             </div>
         </div>
     );

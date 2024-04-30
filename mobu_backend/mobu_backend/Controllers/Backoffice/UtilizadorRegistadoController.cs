@@ -39,7 +39,7 @@ namespace mobu.Controllers.Backend
         private readonly ILogger<RegisterModel> _logger;
 
         /// <summary>
-        /// Interface para a funcao de logging do DonoListaPedidos de emails
+        /// Interface para a funcao de logging do Destinatario de emails
         /// </summary>
         private readonly ILogger<EmailSender> _emailLogger;
 
@@ -373,13 +373,20 @@ namespace mobu.Controllers.Backend
                     // do identity
                     var user = _userManager.FindByIdAsync(utilizadorRegistado.AuthenticationID).Result;
 
+                    //verificar mudanca de email
+                    var emailUnchanged = user.Email == utilizadorRegistado.Email;
+
+                    if (!emailUnchanged)
+                    {
+                        await _userManager.SetEmailAsync(user, utilizadorRegistado.Email);
+                    }
+                    
                     await _userManager.SetUserNameAsync(user, utilizadorRegistado.NomeUtilizador);
-                    await _userManager.SetEmailAsync(user, utilizadorRegistado.Email);
                     string token = await _userManager.GeneratePasswordResetTokenAsync(user);
                     await _userManager.ResetPasswordAsync(user, token, utilizadorRegistado.Password);
                     var result = await _userManager.UpdateAsync(user);
 
-                    if (result.Succeeded)
+                    if (result.Succeeded && !emailUnchanged)
                     {
                         _logger.LogInformation("Utilizador editou uma conta.");
 
@@ -400,7 +407,7 @@ namespace mobu.Controllers.Backend
                         await emailSender.SendEmailAsync(utilizadorRegistado.Email, "Confirme o seu email", htmlElement);
 
                     }
-                    else
+                    else if(!result.Succeeded)
                     {
                         // se o resultado da adicao nao tiver exito
                         // lanca excecao para a execucao saltar para

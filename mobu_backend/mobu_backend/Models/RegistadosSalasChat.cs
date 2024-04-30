@@ -1,17 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace mobu_backend.Models
 {
+    [PrimaryKey(nameof(UtilizadorFK),nameof(SalaFK))]
     public class RegistadosSalasChat
     {
-
-        /// <summary>
-        /// ID do registo do Utilizador na sala de chat
-        /// </summary>
-        [Key]
-        [Display(Name = "ID do Registo")]
-        public int IDRegisto { get; set; }
 
         /// <summary>
         /// Guarda o valor que representa se o utilizador 

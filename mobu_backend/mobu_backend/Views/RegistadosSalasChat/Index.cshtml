@@ -18,9 +18,6 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IDRegisto)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Utilizador)
             </th>
             <th>
@@ -39,9 +36,6 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.IDRegisto)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Utilizador.NomeUtilizador)
             </td>
             <td>
@@ -54,9 +48,9 @@
                 <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
             </td>
             <td>
-                    @Html.ActionLink("Detalhes", "Details", new {id=item.IDRegisto}) | 
-                    @Html.ActionLink("Editar", "Edit", new {id=item.IDRegisto}) | 
-                    @Html.ActionLink("Apagar", "Delete", new {id=item.IDRegisto})
+                    @Html.ActionLink("Detalhes", "Details", new { utilizadorId=item.UtilizadorFK, salaId=item.SalaFK }) |
+                    @Html.ActionLink("Editar", "Edit", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK }) |
+                    @Html.ActionLink("Apagar", "Delete", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK })
             </td>
         </tr>
 }

@@ -29,7 +29,7 @@ public class GroupFoundationApiController : ControllerBase
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     /// <summary>
-    /// Interface para a funcao de logging do DonoListaPedidos de emails
+    /// Interface para a funcao de logging do Destinatario de emails
     /// </summary>
     private readonly ILogger<EmailSender> _loggerEmail;
 
