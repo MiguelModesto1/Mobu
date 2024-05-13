@@ -1,3 +1,4 @@
+import { createContext, useState } from 'react'
 import LoginForm from '../forms/LoginForm'
 import RegisterForm from '../forms/RegisterForm';
 import ForgotPasswordForm from '../forms/ForgotPasswordForm';
@@ -11,11 +12,25 @@ import PersonProfile from '../profiles/PersonProfile';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import FriendshipReqTile from '../friendships/FriendshipReqTile';
 import SearchPage from '../searchPeople/SearchPage';
-import { createSignalRContext } from "react-signalr/signalr";
+import {HubConnectionBuilder} from "@microsoft/signalr";
+import Error500Page from '../../pages/Error500Page';
+import Error403Page from '../../pages/Error403Page';
 
-const SignalRContext = createSignalRContext();
+var messagingContextInterface = {
+    context: {
+        friendsData: [],
+        groupsData: [],
+        connection: new HubConnectionBuilder()
+    },
+    setContext: () => { }
+}
 
-export default function App(){
+export const UserDataContext = createContext({ ...messagingContextInterface });
+
+export default function App() {
+
+    const [context, setContext] = useState({ ...messagingContextInterface.context });
+
     try {
 
         return (
@@ -28,9 +43,11 @@ export default function App(){
                     <Route path="/password-reset" Component={PasswordResetForm} />
 
                     <Route path="/error-404" Component={Error404Page} />
-                    <Route path="/messages" Component={MessagesPage} />
+                    <Route path="/error-500" Component={Error500Page} />
+                    <Route path="/error-403" Component={Error403Page} />
                     <Route path="/thanks" Component={ThanksPage} />
 
+                    <Route path="/messages" Component={MessagesPage} />
                     <Route path="/requests" Component={FriendshipReqTile} />
                     <Route path="/group-profile" Component={GroupProfile} />
                     <Route path="/person-profile" Component={PersonProfile} />

@@ -20,13 +20,6 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddErrorDescriber<PortugueseIdentityErrorDescriber>();
 builder.Services.AddControllersWithViews();
 
-//Política de login
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("OnlyLoggedIn", policy =>
-//        policy.AddRequirements()
-//});
-
 // Adicionar envio de emails
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);

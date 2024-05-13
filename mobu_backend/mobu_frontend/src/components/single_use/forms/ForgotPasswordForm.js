@@ -10,11 +10,16 @@ export default function ForgotPasswordForm(){
 
     const[email, setEmail] = useState("");
     const[warningText, setWarningText] = useState("");
-    
-    function handleEmailChange(value){
+
+    /**
+     * mudanca no estado do email
+     */
+    function handleEmailChange(value) {
         setEmail(value);
     }
-
+    /**
+     * clique no botao de submissao
+     */
     async function handleButtonClick(){
 
         var options={

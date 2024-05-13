@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React,{ useState, useEffect } from "react";
 import Button from "../../modular/Button";
 import Link from "../../modular/Link";
 import Input from "../../modular/Input";
@@ -13,16 +13,25 @@ export default function LoginForm(){
     const [password, setPassword] = useState("");
     const [warningText, setWarningText] = useState("");
 
-    function handleUsernameChange(value){
+    /**
+     * mudanca no estado do nome de utilizador
+     */
+     function handleUsernameChange(value){
         setUsername(value);
     }
 
+    /**
+     * mudanca no estado da palavra-passe
+     */
     function handlePasswordChange(value){
         setPassword(value);
     }
 
-    async function handleButtonClick(){
-
+    /**
+     * clique no botao de submissao
+     */
+    async function handleButtonClick() {
+        //debugger;
         var options={
             method: 'POST',
             redirect: 'follow',
@@ -32,20 +41,23 @@ export default function LoginForm(){
             }).toString(),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
-            }
+            },
+            credentials: "include"
         }
-
+        
         await fetch(process.env.REACT_APP_API_URL + "/login", options)
-        .then((response) => {
-            if(response.status === 404){
-                setWarningText("Tentativa de login inválida!");
-            } else {
-                return response.json();
-            }
-        })
-        .then(data => window.location.assign("/messages?id=" + data.userId))
-        .then(data => console.log(data))
-        .catch(err => {console.error("error", err)});
+            .then((response) => {
+                //debugger;
+                if(response.status === 404){
+                    setWarningText("Tentativa de login inválida!");
+                } else {
+                    return response.json();
+                }
+
+            })
+            .then(data => window.location.assign("/messages?id=" + data.userId))
+            .then(data => console.log(data))
+            .catch(err => {console.error("error", err)});
     }
 
     return(

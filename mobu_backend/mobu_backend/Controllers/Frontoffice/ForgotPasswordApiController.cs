@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using mobu_backend.Api_models;
 using mobu_backend.ApiModels;
@@ -142,17 +143,17 @@ public class ForgotPasswordApiController : ControllerBase
             var email = passwordResetJson.Email;
 
             // mudanca de password
-            var identityUser = _context.Users.FirstOrDefault(u => u.Email == email);
+            var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            if (identityUser != null && newPassword is not "" or null && currPassword is not "" or null)
+            if (identityUser != null && 
+                newPassword != "" && newPassword != null && 
+                currPassword != "" && currPassword != null)
             {
                 valid = true;
                 await _userManager.ChangePasswordAsync(identityUser, currPassword, newPassword);
             }
 
-            valid = true;
-
-            status = valid ? Ok() : NotFound();
+            status = valid ? Ok() : BadRequest();
 
             return status;
         }

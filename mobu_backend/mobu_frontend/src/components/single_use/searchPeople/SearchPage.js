@@ -53,7 +53,7 @@ export default function SearchPage(){
                 <PersonGroupFoundItem
                     key={item[0]}
                     connection={"connection"}
-                    owner={owner}
+                    ownerId={ownerId}
                     personId={item[0]}
                     name={item[1]}
                     isGroup={true} />);
@@ -62,7 +62,7 @@ export default function SearchPage(){
                 <PersonGroupFoundItem
                     key={item[0]}
                     connection={"connection"}
-                    owner={owner}
+                    ownerId={ownerId}
                     personId={item[0]}
                     name={item[1]}
                     isGroup={false} />);

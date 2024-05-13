@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using mobu_backend.ApiModels;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
@@ -23,6 +26,11 @@ public class MessagesApiController : ControllerBase
     /// ferramenta com acesso a gestao de users
     /// </summary>
     private readonly UserManager<IdentityUser> _userManager;
+
+    /// <summary>
+    /// ferramenta com acesso a gestao de login
+    /// </summary>
+    private readonly SignInManager<IdentityUser> _signInManager;
 
     /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
@@ -55,6 +63,7 @@ public class MessagesApiController : ControllerBase
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -64,6 +73,7 @@ public class MessagesApiController : ControllerBase
         _context = context;
         _webHostEnvironment = webHostEnvironment;
         _userManager = userManager;
+        _signInManager = signInManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -71,13 +81,12 @@ public class MessagesApiController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     [Route("api/messages")]
     public async Task<IActionResult> GetFriendsInformation([FromQuery(Name = "id")]int id)
     {
-
         try
         {
-
 
             IActionResult resp;
             JObject info = new();
@@ -88,14 +97,28 @@ public class MessagesApiController : ControllerBase
             // user da BD
             UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
 
+            //validar cookie de sessao
+            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            {
+                return Unauthorized();
+            }
+
+            var sessionClaim = await _context.UserClaims
+                .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && user.AuthenticationID == u.UserId);
+
+            if(sessionClaim == null)
+            {
+                return Unauthorized();
+            }
+
             // amigos do utilizador
             UtilizadorRegistado[] friends = _context.Amizade
                 .Where(f => f.RemetenteFK == id)
                 .Select(f => f.Destinatario)
                 .ToArray();
 
-            object[] friendsArray = { };
-            object[] groupsArray = { };
+            List<object> friendsList = [];
+            List<object> groupsList = [];
 
             if (friends.Length > 0)
             {
@@ -127,9 +150,14 @@ public class MessagesApiController : ControllerBase
                     // mensagens
 
                     var msgs = _context.Mensagem
-                    .Where(m => m.SalaFK == commonRoomId)
-                    .Select(m => m.ConteudoMsg)
-                    .ToArray();
+                        .Where(m => m.SalaFK == commonRoomId)
+                        .Select(m => new Messages()
+                        {
+                            IDMensagem = m.IDMensagem,
+                            IDRemetente = m.RemetenteFK,
+                            ConteudoMsg = m.ConteudoMsg
+                        })
+                        .ToArray();
 
                     // truncar mensagens
                     /*object[] msgTrunk = new object[25];
@@ -148,9 +176,18 @@ public class MessagesApiController : ControllerBase
                         msgTrunk = msgs;
                     }*/
 
-                    object[] friendArray = { friendId, friendName, friendEmail, commonRoomId, imageURL, msgs };
+                    FriendObject friendObject = new()
+                    { 
+                        ItemId = i,
+                        FriendId = friendId, 
+                        FriendName = friendName, 
+                        FriendEmail = friendEmail, 
+                        CommonRoomId = commonRoomId, 
+                        ImageURL = imageURL, 
+                        Messages = msgs 
+                    };
 
-                    friendsArray.Append(friendArray);
+                    friendsList.Add(friendObject);
 
                 }
             }
@@ -163,8 +200,15 @@ public class MessagesApiController : ControllerBase
             for (int i = 0; i < userGroups.Length; i++)
             {
 
+                valid = true;
+
                 var msgs = _context.Mensagem.Where(m => m.SalaFK == userGroups[i].IDSala)
-                .Select(m => m.ConteudoMsg)
+                .Select(m => new Messages()
+                {
+                    IDMensagem = m.IDMensagem,
+                    IDRemetente = m.RemetenteFK,
+                    ConteudoMsg = m.ConteudoMsg
+                })
                 .ToArray();
 
                 // truncar mensagens
@@ -187,14 +231,19 @@ public class MessagesApiController : ControllerBase
                 // avatar do grupo
                 string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + userGroups[i].NomeFotografia;
 
-                object[] userGroup = { userGroups[i].IDSala, userGroups[i].NomeSala, imageURL, msgs };
+                GroupObject groupObject = new()
+                { 
+                    ItemId = i,
+                    IDSala = userGroups[i].IDSala,
+                    NomeSala = userGroups[i].NomeSala,
+                    ImageURL = imageURL,
+                    Mensagens = msgs 
+                };
 
-                groupsArray.Append(userGroup);
+                groupsList.Add(groupObject);
             }
-            info.Add("friends", friendsArray.ToJToken());
-            info.Add("groups", groupsArray.ToJToken());
-            info.Add("lengthFriendsList", friends.Length);
-            info.Add("lengthGroupsList", userGroups.Length);
+            info.Add("friends", friendsList.ToJToken());
+            info.Add("groups", groupsList.ToJToken());
             info.Add("ownerInfo", user.IDUtilizador);
 
             resp = valid ? Ok(info.ToJson()) : NotFound();

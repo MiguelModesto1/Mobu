@@ -1,43 +1,60 @@
-import React,{ useState,useEffect } from "react";
-import MessageContainer from "../../modular/MessageContainer"
+import React,{ useRef, useMemo, useEffect } from "react";
 import "./MessagePanel.css"
 
 /**
  * 
  * Painel de mensagens
  * 
- * @param {*} children filhos
  * @returns 
  */
-export default function MessagePanel({owner, connections, childrenData}){ 
+export default function MessagePanel({ownerId, friendGroupData, selectedFriendItem, selectedGroupItem, isFriends}){ 
+    //debugger;
+    const messages = useRef(
+        [{
+            IDMensagem: 0,
+            IDRemetente: 0,
+            ConteudoMsg: ""
+        }]
+    );
+    
+    useMemo(() => {
+        messages.current = friendGroupData.length !== 0 ?
+            isFriends ?
+                friendGroupData[selectedFriendItem].Messages
+                :
+                friendGroupData[selectedGroupItem].Mensagens
+            :
+            [{
+                IDMensagem: 0,
+                IDRemetente: 0,
+                ConteudoMsg: ""
+            }]
+    }, [friendGroupData, isFriends, selectedFriendItem, selectedGroupItem]);
 
-    const [messages, setMessages] = useState(childrenData[childrenData.length - 1]);
+    const containers =
+        messages.current.map(
+            message => {
 
-    useEffect(() => {
-        const nextMessages = messages;
-        connections.on("ReceiveMessage", function(user, message, idMsg){
-            setMessages(nextMessages.push([message, parseInt(user), idMsg]))
-    })}, [connections, messages]);
+                if (message.IDRemetente === ownerId) {
 
-
-    /*const containers = messages.map((message) => {
-        
-        let cssClass;
-
-        if(message[1] === owner){
-            cssClass="owner"
-        }else{
-            cssClass="other-users"
-        }
-
-        return(
-            <MessageContainer key={message[2]} children={message} fromParent={cssClass}/>
+                    return (
+                        <div key={message.IDMensagem} className="owner-container-div">
+                            <p>{message.ConteudoMsg}</p>
+                        </div>
+                    );
+                } else {
+                    return (
+                        <div key={message.IDMensagem} className="other-users-container-div">
+                            <p>{message.ConteudoMsg}</p>
+                        </div>
+                    );
+                }
+            }
         );
-    });*/
 
     return(
         <div className="message-panel">
-            {/*containers*/}
+            {containers}
         </div>
     );
 

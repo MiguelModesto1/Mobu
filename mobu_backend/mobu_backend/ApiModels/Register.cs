@@ -1,5 +1,8 @@
 ﻿namespace mobu_backend.Api_models
 {
+    /// <summary>
+    /// Modelo da API para o registo
+    /// </summary>
     public class Register
     {
         public string Email { get; set; }

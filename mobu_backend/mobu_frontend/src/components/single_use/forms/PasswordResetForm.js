@@ -15,18 +15,30 @@ export default function PasswordResetForm() {
     const [passwordVerf, setPasswordVerf] = useState("");
     const [warningText, setWarningText] = useState("");
     
+    /**
+     * mudanca no estado da password atual
+     */
     function handleCurrentPasswordChange(value){
         setCurrentPassword(value);
     }
 
+    /**
+     * mudanca no estado da nova password
+     */
     function handleNewPasswordChange(value){
         setNewPassword(value);
     }
 
+    /**
+     * mudanca no estado da repeticao da nova password
+     */
     function handlePasswordVerfChange(value){
         setPasswordVerf(value);
     }
 
+    /**
+     * clique no botao de submissao
+     */
     async function handleButtonClick(){
 
         var options={

@@ -49,30 +49,52 @@ export default function RegisterForm(){
             />*/}</>;
     }, [avatar])
 
+    /**
+     * mudanca no estado do nome de utilizador
+     */
     function handleUsernameChange(value){
         setUsername(value);
     }
 
+    /**
+     * mudanca no estado do email
+     */
     function handleEmailChange(value){
         setEmail(value);
     }
 
+    /**
+     * mudanca no estado da password
+     */
     function handlePasswordChange(value){
         setPassword(value);
     }
 
+    /**
+     * mudanca no estado da verificacao da password
+     */
     function handlePasswordVerfChange(value){
         setPasswordVerf(value);
     }
 
+    /**
+     * mudanca no estado da data de nascimento
+     */
     function handleDataNascimentoChange(value) {
         setDataNascimento(value);
     }
 
+    /**
+     * mudanca no estado do avatar do utilizador
+     */
     function handleAvatarChange(value) {
         displayImage(value)
         setAvatar(value.files[0]);
     }
+
+    /**
+     * mostrar imagem introduzida
+     */
     function displayImage(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -85,10 +107,16 @@ export default function RegisterForm(){
         }
     }
 
+    /** 
+     * clique no icone
+     */
     function handleIconClick(){
         document.getElementsByClassName('avatar-input')[0].click();
     }
 
+    /**
+     * clique no botao de submissao
+     */
     async function handleButtonClick(){
 
         var formData = new FormData();

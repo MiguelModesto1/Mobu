@@ -4,14 +4,14 @@ import ErrorComponent from "../single_use/ErrorComponent/ErrorComponent"
 
 /**
  * 
- * Pagina de erro 404
+ * Pagina de erro 500
  * 
  * @returns 
  */
-export default function Error404Page(){
+export default function Error500Page(){
     return(
         <div className="error-page-div">
-            <ErrorComponent error="404" text="Não encontrado :(" />
+            <ErrorComponent error="500" text="Erro no servidor :(" />
         </div>
     );
 }

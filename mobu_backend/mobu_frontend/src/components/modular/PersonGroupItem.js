@@ -1,4 +1,4 @@
-import React,{ useEffect, useRef, useState } from "react";
+import React,{ useEffect, useMemo, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
 import GroupContextMenu from "../single_use/optionMenus/GroupContextMenu"
@@ -8,50 +8,52 @@ import FriendContextMenu from "../single_use/optionMenus/FriendContextMenu"
  * 
  * Item de amigos ou grupos do utilizador
  * 
- * @param {*} PIProps propriedades do item : image, text
- * @param onClick gestor de clique no item
- * @param isGroup booleano de grupo 
  * @returns 
  */
-export default function PersonGroupItem({owner, connections, isSelectedProp, PIProps, onClick, isGroup}){ 
-    
-    const[showMenu, setShowMenu] = useState(false);
+export default function PersonGroupItem({ friendGroupData, onItemClick, connection, isSelectedItem, isFriends }) {
 
-    useEffect(() => {
-        if(isSelectedProp){
-            connections[0].invoke("AddToRoom", PIProps.info[isGroup ? 0 : 3] + "", connections[0].connectionId);
-        }else{
-            connections[0].invoke("RemoveFromRoom", PIProps.info[isGroup ? 0 : 3] + "", connections[0].connectionId);
-        }
-    },[PIProps.info, connections, isGroup, isSelectedProp])
+    const itemId = useRef();
 
-    const handleMouseEnter = () => {
-        setShowMenu(true);
-    }
+    useMemo(() => {
+        itemId.current = friendGroupData.ItemId
+    }, [friendGroupData.ItemId]);
 
-    const handleMouseOut = () => {
-        setShowMenu(false);
-    }
+    const lastMessage = useRef();
 
-    return(
-        <div
-        onClick={e => {
-            e.stopPropagation();
-            onClick(PIProps.info);
-        }}
-        onMouseEnter={e => {
-            e.stopPropagation();
-            handleMouseEnter();
-        }}
-        onMouseLeave={e => {
-            e.stopPropagation();
-            handleMouseOut();
-        }}
-        className="person-group-item"
-        style={isSelectedProp ? {background:"#c4dcf2"}: {background:"#8ab9e5"}}>
-            <Avatar avatarProps={PIProps.image}/>
-            <TopTextBottomText isSelected={isSelectedProp} TTBTProps={PIProps.text} fromParent="item"/>
-            {isGroup ? <GroupContextMenu showMenuOnRightClick={showMenu}/> : <FriendContextMenu showMenuOnRightClick={showMenu}/>}
+    useMemo(() => {
+        lastMessage.current =
+            isFriends ?
+                friendGroupData.Messages[friendGroupData.Messages.length - 1]
+                :
+                friendGroupData.Mensagens[friendGroupData.Mensagens.length - 1]
+    }, [friendGroupData, isFriends]);
+
+    const roomId = useRef();
+
+    useMemo(() => {
+        roomId.current =
+            isFriends ?
+                friendGroupData.CommonRoomId
+                :
+                friendGroupData.IDSala
+    }, [friendGroupData.CommonRoomId, friendGroupData.IDSala, isFriends]);
+
+    return (
+        <div className="person-group-item" onClick={async () => {
+
+            await connection.invoke("RemoveConnection", roomId.current + "");
+            onItemClick(itemId.current);
+            await connection.invoke("AddConnection", roomId.current + "");
+        }}>
+            <TopTextBottomText
+                itemId={itemId.current}
+                isSelectedItem={isSelectedItem}
+                TTBTProps={{
+                    top: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala,
+                    bottom: lastMessage.current !== undefined ? lastMessage.current.ConteudoMsg : "Sem mensagens"
+                }}
+                fromParent="preson-group-item"
+            />
         </div>
     );
 

@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React,{ useMemo, useRef, useState } from "react";
 import Input from "../../modular/Input";
 import ClickableIcon from "../../modular/ClickableIcon";
 import "./MessageFooterBar.css";
@@ -10,19 +10,36 @@ import "./MessageFooterBar.css";
  * 
  * @returns 
  */
-export default function MessageFooterBar({owner, connections, footerProps}){
+export default function MessageFooterBar({ ownerId, friendGroupData, selectedFriendItem, selectedGroupItem, isFriends, connection }) {
     
     const [message, setMessage] = useState("");
 
-    const handleClickSend = () => {
-        if(message !== ""){
-            connections[0].invoke(
-                "SendMessageToRoom", 
-                owner + "", 
-                footerProps[footerProps.length === 6 ? 3 : 1], 
-                message, 
-                footerProps[footerProps.length -1][2].prevMessageId + 1);
+    const roomId = useRef();
+
+    useMemo(() => {
+        roomId.current = friendGroupData.length !== 0 ?
+            isFriends ?
+                friendGroupData[selectedFriendItem].CommonRoomId
+                :
+                friendGroupData[selectedGroupItem].IDSala
+            :
+            0
+    },[friendGroupData, isFriends, selectedFriendItem, selectedGroupItem])
+
+    const handleClickSend = async () => {
+        try {
+            if (message !== "") {
+                if (isFriends) {
+                    await connection.invoke("SendMessageToRoom", selectedFriendItem + "", ownerId + "", roomId.current + "", message);
+                } else {
+                    await connection.invoke("SendMessageToRoom", selectedGroupItem + "", ownerId + "", roomId.current + "", message);
+                }
+                
+            }
+        } catch (err) {
+            console.log(err);
         }
+        
     }
 
     const handleMsgChange = (value) => {
@@ -32,14 +49,12 @@ export default function MessageFooterBar({owner, connections, footerProps}){
     return(
         <div className="message-header-bar">
             <div className="footer-bar-input-div">
-                <Input input={{
-                type:"text",
-                tile:"",
-                value:"",
-                placeholder:""
-                }}
-                fromParent="footer-bar"
-                onChange={handleMsgChange}/>
+                <input
+                    type="text"
+                    value={message}
+                    className="footer-bar-input"
+                    onChange={e => handleMsgChange(e.target.value)}
+                />
             </div>
             <ClickableIcon 
             CIProps={{

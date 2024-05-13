@@ -8,11 +8,13 @@ namespace mobu_backend.Models
         /// <summary>
         /// Data do pedido
         /// </summary>
+        [Display(Name = "Data do pedido")]
         public DateTime DataPedido { get; set; }
 
         /// <summary>
         /// Data de avaliação do pedido
         /// </summary>
+        [Display(Name = "Data da resposta")]
         public DateTime? DataResposta { get; set; }
 
         /// <summary>
@@ -23,6 +25,7 @@ namespace mobu_backend.Models
         /// <summary>
         /// Referência ao dono da lista de remetentes de pedidos de amizade, proveniente do autorrelacionamento
         /// </summary>
+        [Display(Name = "ID do destinatário")]
         public int DestinatarioFK { get; set; }
         
         [Display(Name = "Destinatário")]
@@ -31,6 +34,7 @@ namespace mobu_backend.Models
         /// <summary>
         /// Referência ao remetente do pedido de amizade, proveniente do autorrelacionamento
         /// </summary>
+        [Display(Name = "ID do remetente")]
         public int RemetenteFK { get; set; }
         public UtilizadorRegistado Remetente { get; set; }
     }
