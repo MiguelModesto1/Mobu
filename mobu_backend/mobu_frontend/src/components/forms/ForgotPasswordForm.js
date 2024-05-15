@@ -1,6 +1,4 @@
 import React,{ useState } from "react";
-import Button from "../../modular/Button";
-import Input from "../../modular/Input";
 
 /**
  * Formulario de password esquecida

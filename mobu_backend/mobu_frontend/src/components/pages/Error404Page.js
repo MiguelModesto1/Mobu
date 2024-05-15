@@ -1,6 +1,6 @@
 import React,{ useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router,Routes, Route, Link } from 'react-router-dom';
-import ErrorComponent from "../single_use/ErrorComponent/ErrorComponent"
+import ErrorComponent from "../modular/ErrorComponent"
 
 /**
  * 

@@ -4,17 +4,17 @@ import RegisterForm from '../forms/RegisterForm';
 import ForgotPasswordForm from '../forms/ForgotPasswordForm';
 import GroupFoundationForm from '../forms/GroupFoundationForm';
 import PasswordResetForm from '../forms/PasswordResetForm';
-import Error404Page from '../../pages/Error404Page';
-import MessagesPage from '../../pages/MessagesPage';
-import ThanksPage from '../../pages/ThanksPage';
-import GroupProfile from '../profiles/GroupProfile';
-import PersonProfile from '../profiles/PersonProfile';
+import Error404Page from '../pages/Error404Page';
+import MessagesPage from '../pages/MessagesPage';
+import ThanksPage from '../pages/ThanksPage';
+import GroupProfilePage from '../pages/GroupProfilePage';
+import PersonProfilePage from '../pages/PersonProfilePage';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import FriendshipReqTile from '../friendships/FriendshipReqTile';
-import SearchPage from '../searchPeople/SearchPage';
+import FriendshipReqTile from '../single_use/friendships/FriendshipReqTile';
+import SearchPage from '../pages/SearchPage';
 import {HubConnectionBuilder} from "@microsoft/signalr";
-import Error500Page from '../../pages/Error500Page';
-import Error403Page from '../../pages/Error403Page';
+import Error500Page from '../pages/Error500Page';
+import Error403Page from '../pages/Error403Page';
 
 var messagingContextInterface = {
     context: {
@@ -49,8 +49,8 @@ export default function App() {
 
                     <Route path="/messages" Component={MessagesPage} />
                     <Route path="/requests" Component={FriendshipReqTile} />
-                    <Route path="/group-profile" Component={GroupProfile} />
-                    <Route path="/person-profile" Component={PersonProfile} />
+                    <Route path="/group-profile" Component={GroupProfilePage} />
+                    <Route path="/person-profile" Component={PersonProfilePage} />
 
                     <Route path="/search" Component={SearchPage} />
                 </Routes>

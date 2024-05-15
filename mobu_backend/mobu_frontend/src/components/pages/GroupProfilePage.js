@@ -1,8 +1,8 @@
 import React,{ useEffect, useRef, useState } from "react";
-import ProfileProperty from "../../modular/ProfileProperty";
-import Button from "../../modular/Button";
-import Avatar from "../../modular/Avatar";
-import GroupMemberItem from "../../modular/GroupMemberItem"
+import ProfileProperty from "../modular/ProfileProperty";
+import Button from "../modular/Button";
+import Avatar from "../modular/Avatar";
+import GroupMemberItem from "../modular/GroupMemberItem"
 
 /**
  * 
@@ -13,7 +13,7 @@ import GroupMemberItem from "../../modular/GroupMemberItem"
  * @param isAdmin booleano de administrador de grupo
  * @returns 
  */
-export default function GroupProfile(){
+export default function GroupProfilePage(){
 
     const [members, setMembers] = useState([]);
     const [isEditing, setIsEditing] = useState(false);

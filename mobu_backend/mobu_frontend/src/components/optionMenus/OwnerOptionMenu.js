@@ -1,22 +1,22 @@
 import React from "react";
-import MenuItem from "../../modular/MenuItem";
+import MenuItem from "../modular/MenuItem";
 
 export default function OwnerOptionMenu({owner, showMenu, logoutCallback}){ 
 
     const handleClick = (endpoint) => {
         switch (endpoint) {
             case "perfil":
-                window.location.assign("/person-profile&id=" + owner);
+                window.location.assign("/person-profile&id=" + owner + "&isOwner=true");
                 break;
             case "procurar":
-                window.location.assign("/search" + owner);
+                window.location.assign("/search&id=" + owner);
                 break;
             case "terminar":
                 logoutCallback();
                 window.location.assign("/");
                 break;
             default:
-                window.location.assign("/group-foundation");
+                window.location.assign("/group-foundation&id=" + owner);
                 break;
         
         }

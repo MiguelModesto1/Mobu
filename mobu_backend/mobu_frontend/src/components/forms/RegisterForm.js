@@ -1,10 +1,6 @@
 import React,{ useEffect, useLayoutEffect, useMemo, useState } from "react";
-import Link from "../../modular/Link";
-import Button from "../../modular/Button";
-import Input from "../../modular/Input";
-import Avatar from "../../modular/Avatar";
-import ClickableIcon from "../../modular/ClickableIcon";
-import {HubConnectionBuilder as signalR} from "@microsoft/signalr";
+import Avatar from "../modular/Avatar";
+import ClickableIcon from "../modular/ClickableIcon";
 
 /**
  * Formulario de registo

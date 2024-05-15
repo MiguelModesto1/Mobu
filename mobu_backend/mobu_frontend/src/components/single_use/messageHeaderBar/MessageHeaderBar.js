@@ -1,8 +1,7 @@
 import React,{ useState, useEffect, useRef, useMemo } from "react";
 import TopTextBottomText from "../../modular/TopTextBottomText";
 import ClickableIcon from "../../modular/ClickableIcon";
-import "./MessageHeaderBar.css";
-import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
+import OwnerOptionMenu from "../../optionMenus/OwnerOptionMenu";
 import Button from "../../modular/Button";
 import Avatar from "../../modular/Avatar";
 

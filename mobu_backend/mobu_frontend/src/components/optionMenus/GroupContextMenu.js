@@ -1,6 +1,6 @@
 import React,{ useState } from "react";
-import { useContextMenu } from "../../../hooks/useContextMenu";
-import MenuItem from "../../modular/MenuItem";
+import { useContextMenu } from "../../hooks/useContextMenu";
+import MenuItem from "../modular/MenuItem";
 
 export default function GroupContextMenu({showMenuOnRightClick}){ 
 

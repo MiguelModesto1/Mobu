@@ -1,7 +1,7 @@
 import React,{ useState, useEffect } from "react";
-import Button from "../../modular/Button";
-import Link from "../../modular/Link";
-import Input from "../../modular/Input";
+import Button from "../modular/Button";
+import Link from "../modular/Link";
+import Input from "../modular/Input";
 
 /**
  * Formulario de login

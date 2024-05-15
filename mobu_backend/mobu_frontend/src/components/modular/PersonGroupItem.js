@@ -1,8 +1,8 @@
 import React,{ useEffect, useMemo, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
-import GroupContextMenu from "../single_use/optionMenus/GroupContextMenu"
-import FriendContextMenu from "../single_use/optionMenus/FriendContextMenu"
+import GroupContextMenu from "../optionMenus/GroupContextMenu"
+import FriendContextMenu from "../optionMenus/FriendContextMenu"
 
 /**
  * 

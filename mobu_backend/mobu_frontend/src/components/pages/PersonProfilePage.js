@@ -1,8 +1,8 @@
 import React,{ useEffect, useRef, useState } from "react";
-import ProfileProperty from "../../modular/ProfileProperty";
-import Button from "../../modular/Button";
-import Link from "../../modular/Link";
-import Avatar from "../../modular/Avatar"
+import ProfileProperty from "../modular/ProfileProperty";
+import Button from "../modular/Button";
+import Link from "../modular/Link";
+import Avatar from "../modular/Avatar"
 
 /**
  * 
@@ -10,12 +10,12 @@ import Avatar from "../../modular/Avatar"
  * 
  * @returns 
  */
-export default function PersonProfile(){
+export default function PersonProfilePage(){
 
     const queryStrings = new URLSearchParams(window.location.href);
 
     const id = queryStrings.get("id");
-    const isOwner = queryStrings.get("isOwner");
+    const isOwner = queryStrings.get("isOwner") === "true";
 
     const [username, setUsername] = useState("");
     const [birthDate, setBirthDate] = useState("");
@@ -87,8 +87,26 @@ export default function PersonProfile(){
             setBirthDate(data.birthDate);
         })
         .catch((err) => {console.error("error", err)});
-    },[id]);
+    }, [id]);
 
+    /**
+     * mostrar imagem introduzida
+     */
+    function displayImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementsByClassName('avatar')[0].setAttribute('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    /**
+     * enviar edicoes do perfil
+     */
     const postProfile = async () =>{
 
         const fileInput = document.getElementsByClassName("avatar")[0];

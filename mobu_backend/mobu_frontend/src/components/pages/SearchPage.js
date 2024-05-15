@@ -1,7 +1,7 @@
 import React,{ useState } from "react";
-import Input from "../../modular/Input";
-import ClickableIcon from "../../modular/ClickableIcon";
-import PersonGroupFoundItem from "../../modular/PersonGroupFoundItem";
+import Input from "../modular/Input";
+import ClickableIcon from "../modular/ClickableIcon";
+import PersonGroupFoundItem from "../modular/PersonGroupFoundItem";
 /*import {HubConnection as signalR} from "@microsoft/signalr";*/
 
 /**

@@ -1,7 +1,6 @@
 import React,{ useContext } from "react";
 import PersonGroupItem from "./PersonGroupItem";
-import FriendContextMenu from "../single_use/optionMenus/FriendContextMenu";
-import { UserDataContext } from "../single_use/app/App";
+import FriendContextMenu from "../optionMenus/FriendContextMenu";
 
 /**
  * 
