@@ -20,7 +20,6 @@ export default function MessagesPage() {
     const connection = useRef();
 
     const [hasFetchedData, setHasFetchedData] = useState(false);
-    const [hasRenderedFirstTime, setHasRenderedFirstTime] = useState(false);
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
     const [selectedGroupItem, setSelectedGroupItem] = useState(0);
     const [lastMessageReceived, setLastMessageReceived] = useState({
@@ -30,6 +29,8 @@ export default function MessagesPage() {
         {
             IDMensagem: -1,
             IDRemetente: -1,
+            URLImagemRemetente: "",
+            NomeRemetente: "",
             ConteudoMsg: ""
         }
     });
@@ -45,6 +46,8 @@ export default function MessagesPage() {
                 {
                     IDMensagem: -1,
                     IDRemetente: -1,
+                    URLImagemRemetente: "",
+                    NomeRemetente: "",
                     ConteudoMsg: ""
                 }
             )
@@ -60,6 +63,8 @@ export default function MessagesPage() {
                 {
                     IDMensagem: -1,
                     IDRemetente: -1,
+                    URLImagemRemetente: "",
+                    NomeRemetente: "",
                     ConteudoMsg: ""
                 }
             )
@@ -68,7 +73,6 @@ export default function MessagesPage() {
     
     useEffect(() => {
 
-        setHasRenderedFirstTime(true);
 
         //debugger;
         if (hasFetchedData) {
@@ -226,7 +230,7 @@ export default function MessagesPage() {
      * funcao de logout
      */
     const logout = async() => {
-        debugger;
+
         await connection.current.stop();
 
         var options = {
@@ -279,6 +283,8 @@ export default function MessagesPage() {
                 Message: {
                     IDMensagem: messageObject.idMensagem,
                     IDRemetente: messageObject.idRemetente,
+                    URLImagemRemetente: messageObject.urlImagemRemetente,
+                    NomeRemetente: messageObject.nomeRemetente,
                     ConteudoMsg: messageObject.conteudoMsg
                 }
             });

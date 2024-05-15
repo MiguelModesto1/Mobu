@@ -155,6 +155,8 @@ public class MessagesApiController : ControllerBase
                         {
                             IDMensagem = m.IDMensagem,
                             IDRemetente = m.RemetenteFK,
+                            URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,
+                            NomeRemetente = m.Remetente.NomeUtilizador,
                             ConteudoMsg = m.ConteudoMsg
                         })
                         .ToArray();
@@ -207,6 +209,8 @@ public class MessagesApiController : ControllerBase
                 {
                     IDMensagem = m.IDMensagem,
                     IDRemetente = m.RemetenteFK,
+                    URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,
+                    NomeRemetente = m.Remetente.NomeUtilizador,
                     ConteudoMsg = m.ConteudoMsg
                 })
                 .ToArray();

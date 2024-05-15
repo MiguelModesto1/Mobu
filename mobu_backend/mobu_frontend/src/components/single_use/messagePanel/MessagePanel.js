@@ -1,5 +1,6 @@
 import React,{ useRef, useMemo, useEffect } from "react";
 import "./MessagePanel.css"
+import Avatar from "../../modular/Avatar";
 
 /**
  * 
@@ -39,12 +40,22 @@ export default function MessagePanel({ownerId, friendGroupData, selectedFriendIt
 
                     return (
                         <div key={message.IDMensagem} className="owner-container-div">
+                            <Avatar avatarProps={{
+                                size: "40px",
+                                src: message.URLImagemRemetente,
+                                alt: message.NomeRemetente
+                            }} />
                             <p>{message.ConteudoMsg}</p>
                         </div>
                     );
                 } else {
                     return (
                         <div key={message.IDMensagem} className="other-users-container-div">
+                            <Avatar avatarProps={{
+                                size: "40px",
+                                src: message.URLImagemRemetente,
+                                alt: message.NomeRemetente
+                            }} />
                             <p>{message.ConteudoMsg}</p>
                         </div>
                     );

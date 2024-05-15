@@ -4,6 +4,7 @@ import ClickableIcon from "../../modular/ClickableIcon";
 import "./MessageHeaderBar.css";
 import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
 import Button from "../../modular/Button";
+import Avatar from "../../modular/Avatar";
 
 /**
  * 
@@ -60,6 +61,19 @@ export default function MessageHeaderBar({owner, personGroupData, selectedFriend
 
     return(
         <div className="message-header-bar">
+            <Avatar avatarProps={{
+                size: "40px",
+                src:
+                    isFriends ?
+                        personGroupData[selectedFriendItem].ImageURL
+                        :
+                        personGroupData[selectedGroupItem].ImageURL,
+                alt:
+                    isFriends ?
+                        personGroupData[selectedFriendItem].FriendName
+                        :
+                        personGroupData[selectedGroupItem].NomeSala
+            }} />
             <TopTextBottomText TTBTProps={{ top: roomName.current, bottom: lastMessage.current }} />
             <ClickableIcon 
             CIProps={{

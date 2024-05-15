@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using mobu_backend.Data;
 using mobu_backend.Models;
-using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
 using Org.BouncyCastle.Utilities.Encoders;
 
 namespace mobu_backend.Hubs.Chat
@@ -16,6 +14,9 @@ namespace mobu_backend.Hubs.Chat
     [Authorize]
     public class RealTimeHub : Hub<IRealTimeHub>
     {
+        /// <summary>
+        /// Contexto da base de dados
+        /// </summary>
         private readonly ApplicationDbContext _context;
 
         /// <summary>
@@ -156,6 +157,8 @@ namespace mobu_backend.Hubs.Chat
             {
                 IDMensagem = msg.IDMensagem,
                 IDRemetente = msg.RemetenteFK,
+                URLImagemRemetente = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + msg.Remetente.NomeFotografia,
+                NomeRemetente = msg.Remetente.NomeUtilizador,
                 ConteudoMsg = msg.ConteudoMsg
             };
 

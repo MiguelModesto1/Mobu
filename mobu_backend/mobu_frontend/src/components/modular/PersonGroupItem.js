@@ -45,6 +45,11 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
             onItemClick(itemId.current);
             await connection.invoke("AddConnection", roomId.current + "");
         }}>
+            <Avatar avatarProps={{
+                size: "40px",
+                src: friendGroupData.ImageURL,
+                alt: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala
+            }} />
             <TopTextBottomText
                 itemId={itemId.current}
                 isSelectedItem={isSelectedItem}
