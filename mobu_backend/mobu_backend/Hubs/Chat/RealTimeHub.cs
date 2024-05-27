@@ -43,8 +43,17 @@ namespace mobu_backend.Hubs.Chat
             {
                 token = this.GenerateTokenFromHeader(header);
             }
-            
             await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+        }
+
+        /// <summary>
+        /// Método assíncrono que é invocado quando uma conexão é desestabelecida.
+        /// </summary>
+        /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+        public override async Task OnDisconnectedAsync(Exception ex)
+        {
+            Context.Abort();
+            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Saíste!");
         }
 
         /// <summary>
@@ -266,8 +275,6 @@ namespace mobu_backend.Hubs.Chat
             _context.Attach(registados);
             await _context.SaveChangesAsync();
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, group);
-
             // Notifica o grupo sobre a entrada do utilizador
             await Clients.Group(group).ReceiveEntry(fromUser + " juntou-se!");
         }
@@ -278,7 +285,7 @@ namespace mobu_backend.Hubs.Chat
         /// <param name="userRemoved">O ID do utilizador que saiu.</param>
         /// <param name="group">O ID do grupo de que o utilizador saiu.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        public async Task LeaveGroup(string userRemoved, string group)
+        public async Task LeaveGroup(string itemId, string userRemoved, string group)
         {
             if (!int.TryParse(userRemoved, out var userRemovedId) || !int.TryParse(group, out var groupId))
             {
@@ -295,7 +302,10 @@ namespace mobu_backend.Hubs.Chat
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
 
             // Notifica o grupo sobre a saída do utilizador
-            await Clients.Group(group).ReceiveLeaving(userRemoved + " abandonou o grupo!");
+            await Clients.Group(group).ReceiveLeaving(itemId, userRemoved + " abandonou o grupo!");
+
+            //Notifica o cliente sobre a sua saída
+            await Clients.Client(Context.ConnectionId).ReceiveLeaving(itemId, "Abandonou o grupo " + group);
         }
 
         /// <summary>
@@ -424,6 +434,31 @@ namespace mobu_backend.Hubs.Chat
 
             // Notifica o utilizador sobre a resposta
             await Clients.User(toUser).ReceiveRequestReply(replier, reply);
+        }
+
+        /// <summary>
+        /// Expulsa a um utilizador de um grupo
+        /// </summary>
+        /// <param name="itemId">indice item do utilizador expulso</param>
+        /// <param name="toUser">Utilizador expulso</param>
+        /// <param name="roomId">Sala de que <see cref="toUser"/> foi expulso></param>
+        /// <returns></returns>
+        public async Task ExpelFromGroup(string itemId, string toUser, string roomId)
+        {
+
+            if(!int.TryParse(itemId, out var itemIdInt) || !int.TryParse(toUser, out var toUserId) || !int.TryParse(roomId, out var roomIdInt))
+            {
+                return;
+            }
+
+            var expelledUser = _context.RegistadosSalasChat
+                .Where(rs => rs.UtilizadorFK == toUserId && rs.SalaFK == roomIdInt)
+                .ToArray()[0];
+
+            _context.Remove(expelledUser);
+            await _context.SaveChangesAsync();
+
+            await Clients.Client(Context.ConnectionId).ReceiveExpelling(itemId);
         }
     }
 }

@@ -69,9 +69,10 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Notifica a receção da saída de um utilizador.
         /// </summary>
+        /// <param name="itemId">O ID do item utilizador que saiu.</param>
         /// <param name="fromUser">O utilizador que saiu.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveLeaving(string fromUser);
+        Task ReceiveLeaving(string itemId, string fromUser);
 
         /// <summary>
         /// Recebe um pedido de um utilizador.
@@ -88,5 +89,12 @@ namespace mobu_backend.Hubs.Chat
         /// <param name="reply">A resposta à solicitação (verdadeiro para aceitar, falso para recusar).</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         Task ReceiveRequestReply(string user, bool reply);
+
+        /// <summary>
+        /// Recebe uma expulsao de um grupo
+        /// </summary>
+        /// <param name="user">Indice do item do utilizador expulso</param>
+        /// <returns></returns>
+        Task ReceiveExpelling(string itemId);
     }
 }

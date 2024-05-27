@@ -84,7 +84,56 @@ public class LoginApiController : ControllerBase
         _config = config;
     }
 
+    [HttpGet]
+    [Authorize]
+    [Route("api/get-new-cookie")]
+    public async Task<IActionResult> GetNewCookie([FromQuery(Name = "id")] int id)
+    {
+        JObject info = new();
+        var expiry = new DateTimeOffset();
 
+        //user da BD
+        var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+
+        // Validacao de id
+        var identityUser = await _context.Users.FirstOrDefaultAsync(u => user.AuthenticationID == u.Id);
+
+        if (identityUser == null || user == null)
+        {
+            return Unauthorized();
+        }
+
+        //validar cookie de sessao
+        if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+        {
+            return Unauthorized();
+        }
+
+        var sessionClaim = await _context.UserClaims
+            .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && identityUser.Id == u.UserId);
+
+        if (sessionClaim == null)
+        {
+            return Unauthorized();
+        }
+
+        // Reatribuir novo cookie
+        Response.Cookies.Delete("Session-Id");
+
+        expiry = DateTimeOffset.Now.AddMinutes(15);
+        Response.Cookies.Append("Session-Id", sessionId, new CookieOptions { HttpOnly = true, Secure = true, Expires = expiry });
+
+        info.Add("expiryDate", expiry.ToUniversalTime().ToJToken());
+        info.Add("startDate", expiry.AddMinutes(-15).ToUniversalTime().ToJToken());
+
+        return Ok(info.ToJson());
+    }
+
+    /// <summary>
+    /// Metodo de login
+    /// </summary>
+    /// <param name="loginDataJson"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("api/login")]
     public async Task<IActionResult> UserValidation([FromBody] Login loginDataJson)
@@ -94,6 +143,7 @@ public class LoginApiController : ControllerBase
             IActionResult resp;
             JObject info = new();
             var valid = false;
+            var expiry = new DateTimeOffset();
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
@@ -101,7 +151,7 @@ public class LoginApiController : ControllerBase
             var username = loginDataJson.NomeUtilizador;
             var password = loginDataJson.Password;
 
-            // Validacao de id e password
+            // Validacao de id
             var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
 
             //user da BD
@@ -112,13 +162,13 @@ public class LoginApiController : ControllerBase
             if (identityUser != null && user != null)
             {
                 userId = user.IDUtilizador;
-                
+
                 var confirmPassword = await _userManager.CheckPasswordAsync(identityUser, password);
                 if (confirmPassword)
                 {
                     valid = true;
 
-                    await _signInManager.SignInAsync(identityUser, true);
+                    await _signInManager.SignInAsync(identityUser, false);
 
                     // criar cookie e adicionar nova claim a BD
 
@@ -134,12 +184,15 @@ public class LoginApiController : ControllerBase
                     _context.UserClaims.Attach(claim);
                     await _context.SaveChangesAsync();
 
-                    Response.Cookies.Append("Session-Id", claimValue, new CookieOptions{HttpOnly=true, Secure=true, Expires=DateTimeOffset.Now.AddMinutes(15)});
+                    expiry = DateTimeOffset.Now.AddMinutes(15);
+                    Response.Cookies.Append("Session-Id", claimValue, new CookieOptions { HttpOnly = true, Secure = true, Expires = expiry });
 
                 }
             }
 
             info.Add("userId", userId);
+            info.Add("expiryDate", expiry.ToUniversalTime().ToJToken());
+            info.Add("startDate", expiry.AddMinutes(-15).ToUniversalTime().ToJToken());
             resp = valid ? Ok(info.ToJson()) : NotFound();
 
             _logger.LogWarning("Saiu do método Post");
@@ -157,8 +210,12 @@ public class LoginApiController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Metodo de logout
+    /// </summary>
+    /// <param name="logoutDataJson"></param>
+    /// <returns></returns>
     [HttpPost]
-    [Authorize]
     [Route("api/logout")]
     public async Task<IActionResult> Logout([FromBody] Logout logoutDataJson)
     {
@@ -167,7 +224,6 @@ public class LoginApiController : ControllerBase
 
             IActionResult resp;
             JObject info = new();
-            var valid = false;
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
@@ -180,34 +236,34 @@ public class LoginApiController : ControllerBase
             // Validacao de id
             var identityUser = await _context.Users.FirstOrDefaultAsync(u => user.AuthenticationID == u.Id);
 
-            if (identityUser != null && user != null)
+            if (identityUser == null || user == null)
             {
-                //validar cookie de sessao
-                if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
-                {
-                    return Unauthorized();
-                }
-
-                var sessionClaim = await _context.UserClaims
-                    .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && identityUser.Id == u.UserId);
-
-                if(sessionClaim == null)
-                {
-                    return Unauthorized();
-                }
-
-                valid = true;
-
-                await _signInManager.SignOutAsync();
-
-                // apagar cookie de sessao e claim
-                Response.Cookies.Delete("Session-Id");
-
-                _context.Remove(sessionClaim);
-                await _context.SaveChangesAsync();
+                return Unauthorized();
             }
 
-            resp = valid ? Ok() : NotFound();
+            //validar cookie de sessao
+            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            {
+                return Unauthorized();
+            }
+
+            var sessionClaim = await _context.UserClaims
+                .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && identityUser.Id == u.UserId);
+
+            if (sessionClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            await _signInManager.SignOutAsync();
+
+            // apagar cookie de sessao e claim
+            Response.Cookies.Delete("Session-Id");
+
+            _context.Remove(sessionClaim);
+            await _context.SaveChangesAsync();
+
+            resp = Ok();
 
             _logger.LogWarning("Saiu do método Post");
 

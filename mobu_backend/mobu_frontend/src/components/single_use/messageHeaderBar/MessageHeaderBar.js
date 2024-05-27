@@ -12,7 +12,7 @@ import Avatar from "../../modular/Avatar";
  * @param {*} text propriedades para o conjunto de textos
  * @returns 
  */
-export default function MessageHeaderBar({owner, personGroupData, selectedFriendItem, selectedGroupItem, isFriends, logoutCallback }) {
+export default function MessageHeaderBar({owner, personGroupData, selectedFriendItem, selectedGroupItem, isFriends, connection, logoutCallback }) {
 
     const [showMenu, setShowMenu] = useState(false);
 
@@ -87,7 +87,7 @@ export default function MessageHeaderBar({owner, personGroupData, selectedFriend
                 }
             }}
                 onClick={handleMenuIconClick} />
-            <OwnerOptionMenu owner={owner} showMenu={showMenu ? "block" : "none"} logoutCallback={logoutCallback} />
+            <OwnerOptionMenu owner={owner} showMenu={showMenu ? "block" : "none"} connection={connection} logoutCallback={logoutCallback} />
         </div>
     );
 

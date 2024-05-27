@@ -96,6 +96,12 @@ public class MessagesApiController : ControllerBase
 
             // user da BD
             UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+            var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.AuthenticationID);
+            
+            if (user == null || identityUser == null)
+            {
+                return Unauthorized();
+            }
 
             //validar cookie de sessao
             if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))

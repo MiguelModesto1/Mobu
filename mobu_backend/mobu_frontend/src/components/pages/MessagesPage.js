@@ -5,6 +5,8 @@ import TabPanel from "../modular/TabPanel";
 import MessageHeaderBar from "../single_use/messageHeaderBar/MessageHeaderBar";
 import MessageFooterBar from "../single_use/messageFooterBar/MessageFooterBar";
 import MessagePanel from "../single_use/messagePanel/MessagePanel";
+import GroupContextMenu from "../optionMenus/GroupContextMenu"
+import FriendContextMenu from "../optionMenus/FriendContextMenu"
 
 /**
  * 
@@ -18,8 +20,13 @@ export default function MessagesPage() {
 
     const owner = useRef();
     const connection = useRef();
+    const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
+    const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
+    const timeout = useRef(0);
 
     const [hasFetchedData, setHasFetchedData] = useState(false);
+    const [overFriendItem, setOverFriendItem] = useState(0);
+    const [overGroupItem, setOverGroupItem] = useState(0);
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
     const [selectedGroupItem, setSelectedGroupItem] = useState(0);
     const [lastMessageReceived, setLastMessageReceived] = useState({
@@ -70,9 +77,8 @@ export default function MessagesPage() {
             )
         }
     ]);
-    
-    useEffect(() => {
 
+    useEffect(() => {
 
         //debugger;
         if (hasFetchedData) {
@@ -155,11 +161,11 @@ export default function MessagesPage() {
             }
 
             var queryParams = `?id=${queryParamId}`;
-
+            //debugger;
             fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
                 .then(response => {
                     if (response.status === 404) {
-                        window.location.assign("/error-404");
+                        window.location.assign(`/search?id=${queryParamId}`);
                     }
                     else if (response.status === 500) {
                         window.location.assign("/error-500");
@@ -197,20 +203,81 @@ export default function MessagesPage() {
                     .configureLogging(LogLevel.Debug)
                     .build();
             //debugger;
-            start(connection.current);
+            connection.current.start();
             logSignalRAccess(connection.current);
             listenToSignalRMessages(connection.current);
             listenToSignalRGroupChange(connection.current);
+            listenToGroupLeaving(connection.current);
 
-            setTimeout(() => {
+            //verificar novo cookie
+            document.addEventListener("mousemove", () => getNewCookie());
+            document.addEventListener("keydown", () => getNewCookie());
+            
+            //debugger
+            var expiryIntervalInit = expiry.current - startDate.current;
+            //debugger
+            if (expiryIntervalInit !== 15 * 1000 * 60) {
+                window.location.assign("/");
+            }
+
+            var expiryInterval = expiry.current - Date.now();
+            //debugger;
+            timeout.current = setTimeout(() => {
                 logout();
                 window.location.assign("/");
 
-            }, 15 * 1000 * 60);
+            }, expiryInterval);
         }
     }, [lastMessageReceived]);
 
+    useEffect(() => {
+        if (friendsData.length === 0 && groupsData.length === 0) {
+            window.location.assign(`/search?id=${queryParamId}`);
+        }
+    }, [friendsData.length, groupsData.length, queryParamId])
 
+    const getNewCookie = async () => {
+
+        console.log("getNewCookie!!");
+        //debugger;
+        var expiryInterval = expiry.current - Date.now();
+
+        if (expiryInterval < (15 * 1000 * 60) / 2) {
+
+            var options = {
+                method: "GET",
+                redirect: "follow",
+                credentials: "include"
+            }
+
+            var queryParams = `?id=${queryParamId}`;
+            await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
+                .then(response => {
+                    if (response.status === 401) {
+                        window.history.back();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    sessionStorage.setItem("expiry", data.expiryDate);
+                    sessionStorage.setItem("startDate", data.startDate);
+                    expiry.current = Date.parse(data.expiryDate);
+                    startDate.current = Date.parse(data.sartDate);
+
+                    expiryInterval = expiry.current - Date.now();
+
+                    clearTimeout(timeout.current);
+                    timeout.current = setTimeout(
+                        () => {
+                            logout();
+                            window.location.assign("/");
+
+                        }, expiryInterval);
+                })
+                .catch(err => console.error("error: ", err));
+        }
+
+    };
 
     /**
      * ligacao ao hub signalR
@@ -229,9 +296,11 @@ export default function MessagesPage() {
     /**
      * funcao de logout
      */
-    const logout = async() => {
+    const logout = async () => {
 
         await connection.current.stop();
+        sessionStorage.removeItem("expiry");
+        sessionStorage.removeItem("startDate");
 
         var options = {
             method: "POST",
@@ -308,6 +377,22 @@ export default function MessagesPage() {
     }
 
     /**
+     * ouvir a saida de um grupo
+     * @param {any} connection
+     */
+    const listenToGroupLeaving = (connection) => {
+        connection.on("ReceiveLeaving", (itemId, message) => {
+
+            var aux = [...groupsData];
+            delete aux[itemId];
+            aux.length = aux.length - 1;
+            setGroupsData([...aux]);
+
+            console.log(message);
+        });
+    }
+
+    /**
      * clique no separador dos amigos
      */
     const handleFriendsTabHeaderClick = () => {
@@ -335,87 +420,124 @@ export default function MessagesPage() {
         setSelectedGroupItem(itemKey);
     }
 
+    /**
+     * mudanca de cursor do rato (amigos)
+     * @param {any} itemKey
+     */
+    function handleOverFriendItem(itemKey) {
+        //debugger;
+        setOverFriendItem(itemKey)
+    }
+
+    /**
+     * mudanca de cursor do rato (grupos)
+     * @param {any} itemKey
+     */
+    function handleOverGroupItem(itemKey) {
+        //debugger
+        setOverGroupItem(itemKey)
+    }
+
     return (
         <>
             {
-            hasFetchedData ?
-                <>
-                    <div className="tabs-div">
-                        <div className="tabs-headers-div">
-                            <TabHeader
-                                text="Amigos"
-                                onHeaderClick={handleFriendsTabHeaderClick}
-                                personGroupData={{
-                                    friend: friendsData,
-                                    group: groupsData
-                                }}
-                                selectedItem={{
-                                    friend: selectedFriendItem,
-                                    group: selectedGroupItem
-                                }}
+                hasFetchedData ?
+                    <>
+                        <div className="tabs-div">
+                            <div className="tabs-headers-div">
+
+                                <TabHeader
+                                    text="Amigos"
+                                    onHeaderClick={handleFriendsTabHeaderClick}
+                                    personGroupData={{
+                                        friend: friendsData,
+                                        group: groupsData
+                                    }}
+                                    selectedItem={{
+                                        friend: selectedFriendItem,
+                                        group: selectedGroupItem
+                                    }}
+                                    connection={connection.current}
+                                    isFriends={friendsTab}
+                                />
+                                
+                                <TabHeader
+                                    text="Grupos"
+                                    onHeaderClick={handleGroupsTabHeaderClick}
+                                    personGroupData={{
+                                        friend: friendsData,
+                                        group: groupsData
+                                    }}
+                                    selectedItem={{
+                                        friend: selectedFriendItem,
+                                        group: selectedGroupItem
+                                    }}
+                                    connection={connection.current}
+                                    isFriends={friendsTab}
+                                />
+                            </div>
+                            <div className="tabs-panels-div">
+                                <TabPanel
+                                    display={friendsTab ? "block" : "none"}
+                                    personGroupData={friendsData}
+                                    onItemClick={handleFriendItemClick}
+                                    isSelectedItem={selectedFriendItem}
+                                    connection={connection.current}
+                                    isFriends={true}
+                                    onOverItem={handleOverFriendItem}
+                                />
+                                <TabPanel
+                                    display={friendsTab ? "none" : "block"}
+                                    personGroupData={groupsData}
+                                    onItemClick={handleGroupItemClick}
+                                    isSelectedItem={selectedGroupItem}
+                                    connection={connection.current}
+                                    isFriends={false}
+                                    onOverItem={handleOverGroupItem}
+                                />
+                            </div>
+                        </div>
+                        <div className="messages-div">
+                            <MessageHeaderBar
+                                owner={owner.current}
+                                personGroupData={friendsTab ? friendsData : groupsData}
+                                selectedFriendItem={selectedFriendItem}
+                                selectedGroupItem={selectedGroupItem}
+                                isFriends={friendsTab}
                                 connection={connection.current}
+                                logoutCallback={logout}
+                            />
+                            <MessagePanel
+                                ownerId={owner.current}
+                                friendGroupData={friendsTab ? friendsData : groupsData}
+                                selectedFriendItem={selectedFriendItem}
+                                selectedGroupItem={selectedGroupItem}
                                 isFriends={friendsTab}
                             />
-                            <TabHeader
-                                text="Grupos"
-                                onHeaderClick={handleGroupsTabHeaderClick}
-                                personGroupData={{
-                                    friend: friendsData,
-                                    group: groupsData
-                                }}
-                                selectedItem={{
-                                    friend: selectedFriendItem,
-                                    group: selectedGroupItem
-                                }}
-                                connection={connection.current}
+                            <MessageFooterBar
+                                ownerId={owner.current}
+                                friendGroupData={friendsTab ? friendsData : groupsData}
+                                selectedFriendItem={selectedFriendItem}
+                                selectedGroupItem={selectedGroupItem}
                                 isFriends={friendsTab}
+                                connection={connection.current}
                             />
                         </div>
-                        <div className="tabs-panels-div">
-                            <TabPanel
-                                display={friendsTab ? "block" : "none"}
-                                personGroupData={friendsData}
-                                onItemClick={handleFriendItemClick}
-                                isSelectedItem={selectedFriendItem}
+                        {friendsTab ?
+                            <FriendContextMenu
+                                owner={owner.current}
+                                id={friendsData[overFriendItem].FriendId}
                                 connection={connection.current}
-                                isFriends={true}
                             />
-                            <TabPanel
-                                display={friendsTab ? "none" : "block"}
-                                personGroupData={groupsData}
-                                onItemClick={handleGroupItemClick}
-                                isSelectedItem={selectedGroupItem}
+                            :
+                            <GroupContextMenu
+                                itemId={overGroupItem}
+                                owner={owner.current}
+                                id={groupsData[overGroupItem].IDSala}
                                 connection={connection.current}
-                                isFriends={false}
                             />
-                        </div>
-                    </div>
-                    <div className="messages-div">
-                        <MessageHeaderBar
-                            owner={owner.current}
-                            personGroupData={friendsTab ? friendsData : groupsData}
-                            selectedFriendItem={selectedFriendItem}
-                            selectedGroupItem={selectedGroupItem}
-                            isFriends={friendsTab}
-                            logoutCallback={logout}
-                        />
-                        <MessagePanel
-                            ownerId={owner.current}
-                            friendGroupData={friendsTab ? friendsData : groupsData}
-                            selectedFriendItem={selectedFriendItem}
-                            selectedGroupItem={selectedGroupItem}
-                            isFriends={friendsTab}
-                        />
-                        <MessageFooterBar
-                            ownerId={owner.current}
-                            friendGroupData={friendsTab ? friendsData : groupsData}
-                            selectedFriendItem={selectedFriendItem}
-                            selectedGroupItem={selectedGroupItem}
-                            isFriends={friendsTab}
-                            connection={connection.current}
-                        />
-                    </div>
-                </>
+                        }
+                    </>
                     :
                     <></>
             }

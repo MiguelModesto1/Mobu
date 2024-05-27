@@ -9,7 +9,7 @@ import FriendContextMenu from "../optionMenus/FriendContextMenu";
  * @param  
  * @returns 
  */
-export default function TabPanel({ display, personGroupData, onItemClick, isSelectedItem, connection, isFriends }) { 
+export default function TabPanel({ display, personGroupData, onItemClick, isSelectedItem, connection, isFriends, owner, expiry, onOverItem }) { 
 
     var personGroupItems = personGroupData.length !== 0 ?
         personGroupData.map(item => {
@@ -20,6 +20,7 @@ export default function TabPanel({ display, personGroupData, onItemClick, isSele
                 onItemClick={onItemClick}
                 connection={connection}
                 isFriends={isFriends}
+                onOverItem={onOverItem}
             />
         })
         :

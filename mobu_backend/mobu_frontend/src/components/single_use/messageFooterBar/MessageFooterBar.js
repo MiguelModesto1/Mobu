@@ -1,5 +1,4 @@
 import React,{ useMemo, useRef, useState } from "react";
-import Input from "../../modular/Input";
 import ClickableIcon from "../../modular/ClickableIcon";
 import "./MessageFooterBar.css";
 

@@ -1,8 +1,4 @@
 import React,{ useState, useEffect } from "react";
-import Button from "../modular/Button";
-import Link from "../modular/Link";
-import Input from "../modular/Input";
-
 /**
  * Formulario de login
  * @returns 
@@ -55,7 +51,11 @@ export default function LoginForm(){
                 }
 
             })
-            .then(data => window.location.assign("/messages?id=" + data.userId))
+            .then(data => {
+                sessionStorage.setItem("expiry", data.expiryDate);
+                sessionStorage.setItem("startDate", data.startDate);
+                window.location.assign("/messages?id=" + data.userId);
+            })
             .then(data => console.log(data))
             .catch(err => {console.error("error", err)});
     }

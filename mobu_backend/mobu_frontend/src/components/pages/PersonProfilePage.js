@@ -1,8 +1,6 @@
-import React,{ useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import ProfileProperty from "../modular/ProfileProperty";
-import Button from "../modular/Button";
-import Link from "../modular/Link";
-import Avatar from "../modular/Avatar"
+import Avatar from "../modular/Avatar";
 
 /**
  * 
@@ -10,355 +8,198 @@ import Avatar from "../modular/Avatar"
  * 
  * @returns 
  */
-export default function PersonProfilePage(){
+export default function PersonProfilePage() {
 
-    const queryStrings = new URLSearchParams(window.location.href);
+    const queryStrings = new URLSearchParams(window.location.search);
 
     const id = queryStrings.get("id");
-    const isOwner = queryStrings.get("isOwner") === "true";
+    const requester = queryStrings.get("requester");
+    const isOwner = id === requester;
 
+    const timeout = useRef(0);
+    const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
+    const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
+
+    const [hasFetchedData, setHasFetchedData] = useState(false);
     const [username, setUsername] = useState("");
-    const [birthDate, setBirthDate] = useState("");
+    const [birthDate, setBirthDate] = useState(new Date());
     const [email, setEmail] = useState("");
-    const [avatar , setAvatar] = useState("");
-    const [currPassword, setCurrPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [passwordVerf, setPasswordVerf] = useState("");
-    const [warningText, setWarningText] = useState("");
+    const [avatar, setAvatar] = useState("");
 
-    const renderResult = useRef(
-        <>
-            {warningText !== "" ?
-            <div className="warning-span-div">
-                <span className="warning-span" color="#ff5f4a">{warningText}</span>
-            </div>
-            :
-            <></>}
-            <Avatar avatarProps={{
-            src:avatar,
-            alt:"avatar de " + id,
-            size:"300px"
-            }} />
-            <div className="span-div">
-                <span className="group-name-bold">{username}</span>
-            </div>
-            <ProfileProperty 
-            keyProp="ID" 
-            text={id} 
-            isEditing={false}
-            isChangingPassword={false}  />
-            <ProfileProperty 
-            keyProp="Data de nascimento" 
-            text={birthDate} 
-            isEditing={false}
-            isChangingPassword={false} />
-            <ProfileProperty 
-            keyProp="E-mail"
-            text={email} 
-            isEditing={false}
-            isChangingPassword={false} />
-            {isOwner ? <Button 
-                text="Editar perfil"
-                fromParent="profile-button"
-                onClick={handleEditingClick}/> : <></>}
-        </>
-    );
 
-    useEffect(() =>{
-        var options={
-            method:'GET',
-            redirect:'follow'
+
+    useEffect(() => {
+
+        var options = {
+            method: 'GET',
+            redirect: 'follow',
+            credentials: "include"
         }
-
-        const queryParams = `?id=${id}&isGroup=false`
+        const queryParams = `?id=${id}&requester=${requester}&isGroup=false`
 
         fetch(process.env.REACT_APP_API_URL + "/profile/get-profile" + queryParams, options)
-        .then((response) => {
-            if(response.status === 204){
+            .then((response) => {
+                if (response.status === 404) {
+                    window.location.assign("/error-404");
+                }
+                else if (response.status === 500) {
+                    window.location.assign("/error-500");
+                }
+                else if (response.status === 403) {
+                    window.location.assign("/error-403");
+                }
+                else if (response.status === 401) {
+                    window.history.back();
+                }
                 return response.json();
-            }else{
-                setWarningText("Perfil inválido ou inexistente!")
-            }
-        })
-        .then((data) => {
-            setAvatar(data.avatar);
-            setUsername(data.username);
-            setEmail(data.email);
-            setBirthDate(data.birthDate);
-        })
-        .catch((err) => {console.error("error", err)});
-    }, [id]);
+            })
+            .then(data => {
 
-    /**
-     * mostrar imagem introduzida
-     */
-    function displayImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
+                setAvatar(data.avatar);
+                setUsername(data.username);
+                setEmail(data.email);
+                setBirthDate(new Date(data.birthDate));
+                setHasFetchedData(true);
+            })
+            .catch((err) => { console.error("error: ", err) });
 
-            reader.onload = function (e) {
-                document.getElementsByClassName('avatar')[0].setAttribute('src', e.target.result);
-            };
+        //verificar novo cookie
+        document.addEventListener("mousemove", () => getNewCookie());
+        document.addEventListener("keydown", () => getNewCookie());
 
-            reader.readAsDataURL(input.files[0]);
+        var expiryIntervalInit = expiry.current - startDate.current;
+
+        if (expiryIntervalInit !== 15 * 1000 * 60) {
+            window.location.assign("/");
         }
-    }
 
-    /**
-     * enviar edicoes do perfil
-     */
-    const postProfile = async () =>{
+        var expiryInterval = expiry.current - Date.now();
 
-        const fileInput = document.getElementsByClassName("avatar")[0];
-        const reader = new FileReader();
+        timeout.current = setTimeout(() => {
+            logout();
+            window.location.assign("/");
 
-        if (fileInput.files.length > 0) {
-            const selectedFile = fileInput.files[0];
+        }, expiryInterval);
+    }, []);
 
-            reader.onload = async function(event) {
+    const getNewCookie = async () => {
 
-                const base64String = event.target.result;
+        console.log("getNewCookie!!");
 
-                var options={
-                    method:'POST',
-                    redirect:'follow',
-                    body: JSON.stringify({
-                        id:id,
-                        avatar:base64String,
-                        username:username,
-                        newPassword:newPassword,
-                        currPassword:currPassword,
-                        birthDate:birthDate
-                    }),
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8'
+        var expiryInterval = expiry.current - Date.now();
+
+        if (expiryInterval < (15 * 1000 * 60) / 2) {
+
+            var options = {
+                method: "GET",
+                redirect: "follow",
+                credentials: "include"
+            }
+
+            var queryParams = `?id=${requester}`;
+            await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
+                .then(response => {
+                    if (response.status === 401) {
+                        window.history.back();
                     }
-                }
-                if(newPassword === passwordVerf){
-                    fetch(process.env.REACT_APP_API_URL + "/profile/edit-person-profile", options)
-                    .then((response) => {
-                        setWarningText(response.status === 404 ? "Tentativa de edição de perfil inválida" : "");
-                    })
-                    .catch(err => {console.error("error", err)});
-                }else{
-                    setWarningText("Passwords têm que conicidir!");
-                }
-                
-                reader.readAsDataURL(selectedFile);
-            }
+                    return response.json();
+                })
+                .then(data => {
+                    sessionStorage.setItem("expiry", data.expiryDate);
+                    sessionStorage.setItem("startDate", data.startDate);
+                    expiry.current = Date.parse(data.expiryDate);
+                    startDate.current = Date.parse(data.sartDate);
+
+                    expiryInterval = expiry.current - Date.now();
+
+                    clearTimeout(timeout.current);
+                    timeout.current = setTimeout(
+                        () => {
+                            logout();
+                            window.location.assign("/");
+
+                        }, expiryInterval);
+                })
+                .catch(err => console.error("error: ", err));
         }
     }
 
-    /* IMPLEMENTAR BUSCA DE ID, USERNAME, AVATAR, DATA NASCIMENTO E EMAIL */
+    /**
+     * funcao de logout
+     */
+    const logout = async () => {
 
-    function handleEditingSaveClick(){
-        postProfile();
-        renderResult.current = 
-            <>
-                {warningText !== "" ?
-                <div className="warning-span-div">
-                    <span className="warning-span" color="#ff5f4a">{warningText}</span>
-                </div>
-                :
-                <></>}
-                <Avatar avatarProps={{
-                src:avatar,
-                alt:"avatar de " + username,
-                size:"300px"
-                }} />
-                <div className="span-div">
-                    <span className="group-name-bold">{username}</span>
-                </div>
-                <ProfileProperty 
-                keyProp="ID"
-                text={id} 
-                isEditing={false}
-                isChangingPassword={false}  />
-                <ProfileProperty 
-                keyProp="Data de Nascimento" 
-                text={birthDate} 
-                isEditing={false}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="E-mail"
-                text={email} 
-                isEditing={false}
-                isChangingPassword={false} />
-                <Button 
-                text="Editar perfil"
-                fromParent="profile-button"
-                onClick={handleEditingClick}/>
-            </>
-        ;
+        sessionStorage.removeItem("expiry");
+        sessionStorage.removeItem("startDate");
+
+        var options = {
+            method: "POST",
+            redirect: "follow",
+            body: JSON.stringify({ Id: requester }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            },
+            credentials: "include"
+        }
+
+        await fetch(process.env.REACT_APP_API_URL + "/logout", options)
+            .then(response => {
+                if (response.status === 404) {
+                    window.location.assign("/error-404");
+                }
+                else if (response.status === 500) {
+                    window.location.assign("/error-500");
+                }
+            })
+            .catch(err => console.error("error: ", err));
     }
 
-    function handlePasswordSaveClick() {
-        renderResult.current = 
-            <>
-                {warningText !== "" ?
-                <div className="warning-span-div">
-                    <span className="warning-span" color="#ff5f4a">{warningText}</span>
-                </div>
-                :
-                <></>}
-                <Avatar avatarProps={{
-                src:avatar,
-                alt:"avatar de " + username,
-                size:"280px"
-                }} />
-                <div className="span-div">
-                    <span className="group-name-bold">{username}</span>
-                </div>
-                <ProfileProperty 
-                keyProp="Avatar" 
-                text={avatar} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="Nome de utilizador"
-                text={username} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="Data de nascimento"
-                text={birthDate} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="E-mail" 
-                text={email} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <div className="profile-link-div">
-                    <Link 
-                    linkProps={{
-                        href:"",
-                        text:"Mudar palavra-passe"
-                    }}
-                    onClick={handlePasswordChangeClick} />
-                </div>
-                <Button 
-                text="Guardar"
-                fromParent="profile-button"
-                onClick={handleEditingSaveClick}/>
-            </>
-        ;
-        
-    }
+    return (hasFetchedData ?
+        <>
+            {
+                < div className="profile" >
+                    <Avatar avatarProps={{
+                        src: avatar,
+                        alt: "avatar de " + username,
+                        size: "300px"
+                    }} />
+                    <div className="span-div">
+                        <span className="group-name-bold">{username}</span>
+                    </div>
+                    <ProfileProperty
+                        keyProp="ID"
+                        text={id}
+                        isEditing={false}
 
-    function handleEditingClick(){
-        renderResult.current = 
-            <>
-                {warningText !== "" ?
-                <div className="warning-span-div">
-                    <span className="warning-span" color="#ff5f4a">{warningText}</span>
-                </div>
-                :
-                <></>}
-                <Avatar avatarProps={{
-                src:avatar,
-                alt:"avatar de " + username,
-                size:"280px"
-                }} />
-                <div className="span-div">
-                    <span className="group-name-bold">{username}</span>
-                </div>
-                <ProfileProperty 
-                keyProp="Avatar" 
-                text={avatar} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="Nome de utilizador" 
-                text={username} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="Data de nascimento" 
-                text={birthDate} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <ProfileProperty 
-                keyProp="E-mail" 
-                text={email} 
-                isEditing={true}
-                isChangingPassword={false} />
-                <div className="profile-link-div">
-                    <Link 
-                    linkProps={{
-                        href:"",
-                        text:"Mudar palavra-passe"
-                    }}
-                    onClick={handlePasswordChangeClick} />
-                </div>
-                <Button 
-                text="Guardar"
-                fromParent="profile-button"
-                onClick={handleEditingSaveClick}/>
-            </>
-        ;
-    }
+                    />
+                    <ProfileProperty //yyyy-MM-ddThh:mm
+                        keyProp="Data de nascimento"
+                        text={birthDate.toLocaleDateString()}
+                        isEditing={false}
+                    />
+                    <ProfileProperty
+                        keyProp="E-mail"
+                        text={email}
+                        isEditing={false}
+                    />
 
-    function handlePasswordChange(value){
-        setNewPassword(value);
-    }
-
-    function handleCurrPasswordChange(value){
-        setCurrPassword(value);
-    }
-
-    function handlePasswordVerfChange(value){
-        setPasswordVerf(value);
-    }
-
-    function handlePasswordChangeClick(){
-        renderResult.current = 
-            <>
-                {warningText !== "" ?
-                <div className="warning-span-div">
-                    <span className="warning-span" color="#ff5f4a">{warningText}</span>
+                    {isOwner ?
+                        <button
+                            className="profile-button"
+                            onClick={() => window.location.assign(`/edit-person-profile?id=${id}`)}>
+                            Editar perfil
+                        </button>
+                        :
+                        <></>
+                    }
+                    <button onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
                 </div>
-                :
-                <></>}
-                <Avatar avatarProps={{
-                src:avatar,
-                alt:"avatar de " + username,
-                size:"300px"
-                }} />
-                <div className="span-div">
-                    <span className="group-name-bold">{username}</span>
-                </div>
-                <ProfileProperty 
-                keyProp="Introduzir palavra-passe atual"
-                text="" 
-                isEditing={false}
-                isChangingPassword={true}
-                onChangeText={handleCurrPasswordChange} />
-                <ProfileProperty 
-                keyProp="Introduzir nova palavra-passe"
-                text=""
-                isEditing={false}
-                isChangingPassword={true}
-                onChangeText={handlePasswordChange} />
-                <ProfileProperty 
-                keyProp="Repetir nova palavra-passe" 
-                text="" 
-                isEditing={false}
-                isChangingPassword={true}
-                onChangeText={handlePasswordVerfChange} />
-                <Button 
-                text="Guardar"
-                fromParent="profile-button"
-                onClick={handlePasswordSaveClick}/>
-            </>
-        ;
-    }
+            }
 
-    return(
-        <div className="profile">
-            {renderResult.current}
-        </div>
-        
+        </>
+        :
+        <></>
+
     );
 
 }

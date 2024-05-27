@@ -15,6 +15,8 @@ import SearchPage from '../pages/SearchPage';
 import {HubConnectionBuilder} from "@microsoft/signalr";
 import Error500Page from '../pages/Error500Page';
 import Error403Page from '../pages/Error403Page';
+import EditPersonProfilePage from '../pages/EditPersonProfilePage';
+import EditGroupProfilePage from '../pages/EditGroupProfilePage';
 
 var messagingContextInterface = {
     context: {
@@ -50,7 +52,9 @@ export default function App() {
                     <Route path="/messages" Component={MessagesPage} />
                     <Route path="/requests" Component={FriendshipReqTile} />
                     <Route path="/group-profile" Component={GroupProfilePage} />
+                    <Route path="/edit-group-profile" Component={EditGroupProfilePage} />
                     <Route path="/person-profile" Component={PersonProfilePage} />
+                    <Route path="/edit-person-profile" Component={EditPersonProfilePage} />
 
                     <Route path="/search" Component={SearchPage} />
                 </Routes>

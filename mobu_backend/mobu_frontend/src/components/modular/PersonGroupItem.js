@@ -1,8 +1,6 @@
 import React,{ useEffect, useMemo, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
-import GroupContextMenu from "../optionMenus/GroupContextMenu"
-import FriendContextMenu from "../optionMenus/FriendContextMenu"
 
 /**
  * 
@@ -10,7 +8,7 @@ import FriendContextMenu from "../optionMenus/FriendContextMenu"
  * 
  * @returns 
  */
-export default function PersonGroupItem({ friendGroupData, onItemClick, connection, isSelectedItem, isFriends }) {
+export default function PersonGroupItem({ friendGroupData, onItemClick, connection, isSelectedItem, isFriends, onOverItem }) {
 
     const itemId = useRef();
 
@@ -39,7 +37,10 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
     }, [friendGroupData.CommonRoomId, friendGroupData.IDSala, isFriends]);
 
     return (
-        <div className="person-group-item" onClick={async () => {
+        <div
+            className="person-group-item"
+            onMouseOver={() => onOverItem(itemId.current)}
+            onClick={async () => {
 
             await connection.invoke("RemoveConnection", roomId.current + "");
             onItemClick(itemId.current);

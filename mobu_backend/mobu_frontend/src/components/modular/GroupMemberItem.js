@@ -6,48 +6,18 @@ import Button from "./Button";
 /**
  * 
  * Item do membro do grupo
- * 
- * @param {*} avatar origem do avatar
- * @param {*} personId id do utilizador
- * @param personName nome do utilizador
- * @param isAdmin booleano de administrador
- * @param isEditing booleano de edicao
+ *
  * @returns 
  */
-export default function GroupMemberItem({id, connection, avatar, personId, personName, isAdmin, isEditing, onMemberExpeling}){
-
-    const adminLabel = useRef(<></>);
-    const button = useRef(<></>);
-
-    useEffect(() => {
-        if(isAdmin){
-
-            adminLabel.current = 
-                <div
-                marginRight={isEditing === false ? "80px" : "50px"} 
-                className="group-member-admin-span-div">
-                    <span className="group-member-admin-span">Admin</span>
-                </div>
-            ;
-
-            button.current = isEditing ?
-                <Button
-                text="Expulsar"
-                color="#ff5f4a"
-                onClick={() =>{
-                    connection.invoke("LeaveGroup", personId + "", id + "");
-
-                    onMemberExpeling([
-                        personId,
-                        personName,
-                        avatar,
-                        isAdmin
-                    ]);
-                    
-                }} /> : <></>;
-    
-        }
-    }, [avatar, connection, id, isAdmin, isEditing, onMemberExpeling, personId, personName])
+export default function GroupMemberItem({ requester, itemId, avatar, personId, personName, isAdmin, isRequesterAdmin, connection, roomId }) {
+    //debugger
+    /**
+     * expulsao de membros do grupo
+     * @param {any} member
+     */
+    const handleMemberExpelling = async (itemId, toUser, roomId) => {
+        await connection.invoke("ExpelFromGroup", itemId, toUser, roomId);
+    }
 
     return(
         <div className="person-group-found-item-div">
@@ -59,11 +29,11 @@ export default function GroupMemberItem({id, connection, avatar, personId, perso
             <TopTextBottomText 
             marginRight={isAdmin === false ? "375px" : "290px"}
             TTBTProps={{
-                top:personId,
+                top:"#" + personId,
                 bottom:personName
-            }}/>
-            {adminLabel}
-            {button}
+                }} />
+            {isAdmin ? <span>Admin</span> : <></>}
+            {isRequesterAdmin && requester !== personId ? <button onClick={() => handleMemberExpelling(itemId+"", personId+"", roomId+"")}>Expulsar</button> : <></>}
         </div>
     );
 
