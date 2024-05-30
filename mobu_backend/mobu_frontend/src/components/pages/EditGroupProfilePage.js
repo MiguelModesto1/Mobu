@@ -119,7 +119,7 @@ export default function EditGroupProfilePage() {
         var options = {
             method: "POST",
             redirect: "follow",
-            body: JSON.stringify({ Id: id }),
+            body: JSON.stringify({ Id: admin }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
             },
@@ -166,7 +166,7 @@ export default function EditGroupProfilePage() {
                         strokeLinejoin: "round"
                     }
                 }}
-                onClick={handleIconClick}
+                onIconClick={handleIconClick}
             />*/}</>;
     }, [localAvatar]);
 

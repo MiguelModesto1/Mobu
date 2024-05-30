@@ -20,12 +20,18 @@ namespace mobu_backend.Hubs.Chat
         private readonly ApplicationDbContext _context;
 
         /// <summary>
+        /// Interface para a funcao de logging no controller
+        /// </summary>
+        private readonly ILogger<RealTimeHub> _logger;
+
+        /// <summary>
         /// Construtor da classe RealTimeHub.
         /// </summary>
         /// <param name="context">O contexto do banco de dados a ser usado pela classe.</param>
-        public RealTimeHub(ApplicationDbContext context)
+        public RealTimeHub(ApplicationDbContext context, ILogger<RealTimeHub> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -272,7 +278,7 @@ namespace mobu_backend.Hubs.Chat
                 UtilizadorFK = fromUserId
             };
 
-            _context.Attach(registados);
+            _context.Add(registados);
             await _context.SaveChangesAsync();
 
             // Notifica o grupo sobre a entrada do utilizador
@@ -331,7 +337,9 @@ namespace mobu_backend.Hubs.Chat
                 .Where(u => u.IDUtilizador == toUserId)
                 .ToArray()[0];
 
-            // Cria um novo pedido de amizade
+            try
+            {
+                // Cria um novo pedido de amizade
             var req = new Amizade()
             {
                 DataPedido = DateTime.Now,
@@ -342,8 +350,14 @@ namespace mobu_backend.Hubs.Chat
                 DestinatarioFK = toUserId
             };
 
-            _context.Attach(req);
+            _context.Add(req);
             await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+               _logger.LogError(ex.Message);
+            }
+            
 
             // Notifica o destinatário sobre o pedido de amizade
             await Clients.User(toUser).ReceiveRequest(fromUser, dest.NomeUtilizador);

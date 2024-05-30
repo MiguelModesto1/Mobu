@@ -24,7 +24,8 @@ export default function MessagesPage() {
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const timeout = useRef(0);
 
-    const [hasFetchedData, setHasFetchedData] = useState(false);
+    const [hasFetchedFriendsData, setHasFetchedFriendsData] = useState(false);
+    const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
     const [overFriendItem, setOverFriendItem] = useState(0);
     const [overGroupItem, setOverGroupItem] = useState(0);
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
@@ -81,7 +82,7 @@ export default function MessagesPage() {
     useEffect(() => {
 
         //debugger;
-        if (hasFetchedData) {
+        if (hasFetchedFriendsData || hasFetchedGroupsData) {
             // atualizar dados das mensagens de amigos do utilizador
             var aux = {};
             var trailing = [];
@@ -185,13 +186,22 @@ export default function MessagesPage() {
 
                     // dados
                     //debugger;
+                    if (data.friends.length !== 0) {
+                        setFriendsData([...data.friends]);
+                        setHasFetchedFriendsData(true);
+                        connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
+                    }
+                    else {
+                        setFriendsTab(false);
+                    }
 
-                    setFriendsData([...data.friends]);
-                    setGroupsData([...data.groups]);
+                    if (data.groups.length !== 0) {
+                        setGroupsData([...data.groups]);
+                        setHasFetchedGroupsData(true);
+                        connection.current.invoke("AddConnection", [...data.groups][0].IDSala + "");
+                    }
 
-                    setHasFetchedData(true);
-
-                    connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
+                    
                 })
                 .catch(err => console.error("error: ", err));
 
@@ -441,60 +451,68 @@ export default function MessagesPage() {
     return (
         <>
             {
-                hasFetchedData ?
+                hasFetchedFriendsData || hasFetchedGroupsData ?
                     <>
                         <div className="tabs-div">
                             <div className="tabs-headers-div">
 
-                                <TabHeader
-                                    text="Amigos"
-                                    onHeaderClick={handleFriendsTabHeaderClick}
-                                    personGroupData={{
-                                        friend: friendsData,
-                                        group: groupsData
-                                    }}
-                                    selectedItem={{
-                                        friend: selectedFriendItem,
-                                        group: selectedGroupItem
-                                    }}
-                                    connection={connection.current}
-                                    isFriends={friendsTab}
-                                />
+                                {hasFetchedFriendsData &&
+                                   <TabHeader
+                                        text="Amigos"
+                                        onHeaderClick={handleFriendsTabHeaderClick}
+                                        personGroupData={{
+                                            friend: friendsData,
+                                            group: groupsData
+                                        }}
+                                        selectedItem={{
+                                            friend: selectedFriendItem,
+                                            group: selectedGroupItem
+                                        }}
+                                        connection={connection.current}
+                                        isFriends={friendsTab}
+                                    />
+                                }
+                                {hasFetchedGroupsData &&
+                                   <TabHeader
+                                        text="Grupos"
+                                        onHeaderClick={handleGroupsTabHeaderClick}
+                                        personGroupData={{
+                                            friend: friendsData,
+                                            group: groupsData
+                                        }}
+                                        selectedItem={{
+                                            friend: selectedFriendItem,
+                                            group: selectedGroupItem
+                                        }}
+                                        connection={connection.current}
+                                        isFriends={friendsTab}
+                                    />
+                                }
                                 
-                                <TabHeader
-                                    text="Grupos"
-                                    onHeaderClick={handleGroupsTabHeaderClick}
-                                    personGroupData={{
-                                        friend: friendsData,
-                                        group: groupsData
-                                    }}
-                                    selectedItem={{
-                                        friend: selectedFriendItem,
-                                        group: selectedGroupItem
-                                    }}
-                                    connection={connection.current}
-                                    isFriends={friendsTab}
-                                />
                             </div>
                             <div className="tabs-panels-div">
-                                <TabPanel
-                                    display={friendsTab ? "block" : "none"}
-                                    personGroupData={friendsData}
-                                    onItemClick={handleFriendItemClick}
-                                    isSelectedItem={selectedFriendItem}
-                                    connection={connection.current}
-                                    isFriends={true}
-                                    onOverItem={handleOverFriendItem}
-                                />
-                                <TabPanel
-                                    display={friendsTab ? "none" : "block"}
-                                    personGroupData={groupsData}
-                                    onItemClick={handleGroupItemClick}
-                                    isSelectedItem={selectedGroupItem}
-                                    connection={connection.current}
-                                    isFriends={false}
-                                    onOverItem={handleOverGroupItem}
-                                />
+                                {hasFetchedFriendsData &&
+                                    <TabPanel
+                                        display={friendsTab ? "block" : "none"}
+                                        personGroupData={friendsData}
+                                        onItemClick={handleFriendItemClick}
+                                        isSelectedItem={selectedFriendItem}
+                                        connection={connection.current}
+                                        isFriends={true}
+                                        onOverItem={handleOverFriendItem}
+                                    />
+                                }
+                                {hasFetchedGroupsData &&
+                                    <TabPanel
+                                        display={friendsTab ? "none" : "block"}
+                                        personGroupData={groupsData}
+                                        onItemClick={handleGroupItemClick}
+                                        isSelectedItem={selectedGroupItem}
+                                        connection={connection.current}
+                                        isFriends={false}
+                                        onOverItem={handleOverGroupItem}
+                                    />
+                                }
                             </div>
                         </div>
                         <div className="messages-div">

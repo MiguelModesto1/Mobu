@@ -43,7 +43,7 @@ export default function GroupFoundationForm({adminId}){
                         strokeLinejoin:"round"
                     }
                 }}
-                onClick={handleIconClick}
+                onIconClick={handleIconClick}
             /></>;
     }, [avatar])
 

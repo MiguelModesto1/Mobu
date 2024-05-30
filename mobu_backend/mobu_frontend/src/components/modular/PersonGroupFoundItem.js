@@ -1,50 +1,71 @@
 import React,{ useEffect, useState, useRef } from "react";
 import Avatar from "./Avatar";
-import TopTextBottomText from "./TopTextBottomText";
-import Button from "./Button";
 
 /**
  * 
  * Item do resultado da pesquisa
  * 
- * @param personId id do utilizador
- * @param personName nome do utilizador
- * @param isGroup booleano de grupo
- * @param isRequestSent booleano de pedido enviado
  * @returns 
  */
-export default function PersonGroupFoundItem({connection, owner, personId, name, isGroup}){
-
+export default function PersonGroupFoundItem({connection, ownerId, personRoomId, name, email=null, isGroup}){
+    
     const [changeButtonText, setChangeButtonText] = useState("");
-    const [changeButtonColor, setChangeButtonColor] = useState("#3b9ae1");
+    const [isClicked, setIsClicked] = useState(false);
 
     useEffect(() => {
-        setChangeButtonText(isGroup === false ? "Pedir amizade" : "Entrar");
-        setChangeButtonColor("#3b9ae1");
+        setChangeButtonText(isGroup === false ? "Pedir em amizade" : "Entrar");
     }, [isGroup]);
 
-    function handleRequestButtonClick(){
+    /**
+     * parametro que avalia se o botao ja foi clicado
+     */
+    function handleIsClicked() {
+        setIsClicked(true);
+    }
 
+    /**
+     * clique no botao de pedidos
+     * @returns
+     */
+    async function handleRequestButtonClick(){
+
+        if (isClicked) {
+            return;
+        }
         if(!isGroup){
-            connection.invoke("SendRequestToUser", owner + "", personId + "");
-            setChangeButtonText("Pedido Enviado")
+            await connection.invoke("SendRequestToUser", ownerId + "", personRoomId + "");
+            setChangeButtonText("Pedido Enviado");
         }else{
-            connection.invoke("EnterGroup", owner + "", personId + "");
-            setChangeButtonText("Entrou")
+            await connection.invoke("EnterGroup", ownerId + "", personRoomId + "");
+            setChangeButtonText("Entrou");
         }
         
     }
 
     return(
         <div className="person-group-found-item-div">
-            <TopTextBottomText TTBTProps={{
-                top:personId,
-                bottom:name
-            }}/>
-            <Button
-            text={changeButtonText}
-            color={changeButtonColor}
-            onClick={handleRequestButtonClick} />
+            <span>{personRoomId}</span>
+            <br />
+            <span>{name}</span>
+            {!isGroup && email !== null ?
+                <>
+                    <br />
+                    <span>{email}</span>
+                </>
+                :
+                <></>
+            }
+            <button
+                className="request-button"
+                style={{ backgroundColor: "#3b9ae1" }}
+                onClick={() => {
+                    handleRequestButtonClick();
+                    if (!isClicked)
+                        handleIsClicked();
+                }}
+            >
+                {changeButtonText}
+            </button>
         </div>
     );
 

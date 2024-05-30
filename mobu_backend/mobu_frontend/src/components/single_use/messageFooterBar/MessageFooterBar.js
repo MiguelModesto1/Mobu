@@ -33,7 +33,7 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
                 } else {
                     await connection.invoke("SendMessageToRoom", selectedGroupItem + "", ownerId + "", roomId.current + "", message);
                 }
-                
+                setMessage(""); 
             }
         } catch (err) {
             console.log(err);
@@ -67,7 +67,7 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
                     strokeLinejoin:"round"
                 }
             }}
-            onClick={handleClickSend}
+            onIconClick={handleClickSend}
             fromParent="footer-bar" />
         </div>
     );

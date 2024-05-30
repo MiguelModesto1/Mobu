@@ -2,7 +2,6 @@ import React,{ useState, useEffect, useRef, useMemo } from "react";
 import TopTextBottomText from "../../modular/TopTextBottomText";
 import ClickableIcon from "../../modular/ClickableIcon";
 import OwnerOptionMenu from "../../optionMenus/OwnerOptionMenu";
-import Button from "../../modular/Button";
 import Avatar from "../../modular/Avatar";
 
 /**
@@ -86,7 +85,7 @@ export default function MessageHeaderBar({owner, personGroupData, selectedFriend
                     strokeLinejoin:"round"
                 }
             }}
-                onClick={handleMenuIconClick} />
+                onIconClick={handleMenuIconClick} />
             <OwnerOptionMenu owner={owner} showMenu={showMenu ? "block" : "none"} connection={connection} logoutCallback={logoutCallback} />
         </div>
     );

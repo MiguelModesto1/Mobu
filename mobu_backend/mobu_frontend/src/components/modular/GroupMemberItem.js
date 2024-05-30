@@ -1,7 +1,6 @@
 import React,{ useEffect, useState, useRef } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
-import Button from "./Button";
 
 /**
  * 
@@ -27,7 +26,6 @@ export default function GroupMemberItem({ requester, itemId, avatar, personId, p
                 size:"40px"
             }}/>
             <TopTextBottomText 
-            marginRight={isAdmin === false ? "375px" : "290px"}
             TTBTProps={{
                 top:"#" + personId,
                 bottom:personName

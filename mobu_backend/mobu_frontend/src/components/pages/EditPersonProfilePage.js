@@ -87,7 +87,7 @@ export default function EditPersonProfilePage() {
                         strokeLinejoin: "round"
                     }
                 }}
-                onClick={handleIconClick}
+                onIconClick={handleIconClick}
             />*/}</>;
     }, [localAvatar]);
 

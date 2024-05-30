@@ -89,7 +89,7 @@ public class MessagesApiController : ControllerBase
         {
 
             IActionResult resp;
-            JObject info = new();
+            JObject info = [];
             var valid = false;
 
             _logger.LogWarning("Entrou no método Get");

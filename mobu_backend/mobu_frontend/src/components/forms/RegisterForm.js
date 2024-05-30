@@ -41,7 +41,7 @@ export default function RegisterForm(){
                         strokeLinejoin: "round"
                     }
                 }}
-                onClick={handleIconClick}
+                onIconClick={handleIconClick}
             />*/}</>;
     }, [avatar])
 
