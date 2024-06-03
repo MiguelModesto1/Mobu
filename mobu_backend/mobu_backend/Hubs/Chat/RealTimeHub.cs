@@ -32,7 +32,7 @@ namespace mobu_backend.Hubs.Chat
         /// Construtor da classe RealTimeHub.
         /// </summary>
         /// <param name="context">O contexto do banco de dados a ser usado pela classe.</param>
-        public RealTimeHub(ApplicationDbContext context, 
+        public RealTimeHub(ApplicationDbContext context,
             ILogger<RealTimeHub> logger)
         {
             _context = context;
@@ -347,10 +347,10 @@ namespace mobu_backend.Hubs.Chat
 
             //Notifica o cliente sobre a sua saída
             await Clients.Client(Context.ConnectionId).ReceiveLeaving(itemId, "Abandonou o grupo " + group);
-        
+
             _context.Remove(registados);
             await _context.SaveChangesAsync();
-            
+
         }
 
         /// <summary>
@@ -426,9 +426,9 @@ namespace mobu_backend.Hubs.Chat
                     .ToArray()[0];
 
             // Encontra o pedido de amizade
-                var req = _context.Amizade
-                    .Where(p => p.DestinatarioFK == replierId && p.RemetenteFK == toUserId)
-                    .ToArray()[0];
+            var req = _context.Amizade
+                .Where(p => p.DestinatarioFK == replierId && p.RemetenteFK == toUserId)
+                .ToArray()[0];
 
             if (reply)
             {
@@ -484,30 +484,30 @@ namespace mobu_backend.Hubs.Chat
                 _context.Add(toUserRs);
                 _context.Add(replierRs);
                 await _context.SaveChangesAsync();
+
+                // criar objeto de resposta
+                var salaRegistadaId = _context.SalasChat
+                    .Where(s => s.NomeSala == to.NomeUtilizador + "_" + replierUser.NomeUtilizador)
+                    .Select(s => s.IDSala)
+                    .ToArray()[0];
+
+                var replierObject = new FriendObjectFromHub
+                {
+                    FriendId = toUserId,
+                    CommonRoomId = salaRegistadaId,
+                    FriendEmail = to.Email,
+                    FriendName = to.NomeUtilizador,
+                    ImageURL = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + to.NomeFotografia
+                };
+
+                // Notifica o utilizador sobre a resposta
+                await Clients.User(to.AuthenticationID).ReceiveRequestReply(replierObject, reply);
             }
             else
             {
                 _context.Remove(req);
                 await _context.SaveChangesAsync();
             }
-
-            // criar objeto de resposta
-            var salaRegistadaId = _context.SalasChat
-                .Where(s => s.NomeSala == to.NomeUtilizador + "_" + replierUser.NomeUtilizador)
-                .Select(s => s.IDSala)
-                .ToArray()[0];
-
-            var replierObject = new FriendObjectFromHub
-            {
-                FriendId = toUserId,
-                CommonRoomId = salaRegistadaId,
-                FriendEmail = to.Email,
-                FriendName = to.NomeUtilizador,
-                ImageURL = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + to.NomeFotografia
-            };
-
-            // Notifica o utilizador sobre a resposta
-            await Clients.User(to.AuthenticationID).ReceiveRequestReply(replierObject, reply);
         }
 
         /// <summary>
@@ -528,11 +528,11 @@ namespace mobu_backend.Hubs.Chat
             var expelledUser = _context.RegistadosSalasChat
                 .Where(rs => rs.UtilizadorFK == toUserId && rs.SalaFK == roomIdInt)
                 .ToArray()[0];
-           
+
 
             // informar utilizador da sua expulsao
             await Clients.User(expelledUser.Utilizador.AuthenticationID).ReceiveExpelling(roomId, $"Foi expulso da sala {roomId}!");
-            
+
             // informar grupo da expulsao
             await Clients.Group(roomId).ReceiveExpelling(itemId, $"{toUser} foi expulso da sala!");
 
