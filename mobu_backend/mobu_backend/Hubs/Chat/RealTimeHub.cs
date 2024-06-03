@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using mobu_backend.ApiModels;
 using mobu_backend.Data;
+using mobu_backend.Hubs.Objects;
 using mobu_backend.Models;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -28,7 +32,8 @@ namespace mobu_backend.Hubs.Chat
         /// Construtor da classe RealTimeHub.
         /// </summary>
         /// <param name="context">O contexto do banco de dados a ser usado pela classe.</param>
-        public RealTimeHub(ApplicationDbContext context, ILogger<RealTimeHub> logger)
+        public RealTimeHub(ApplicationDbContext context, 
+            ILogger<RealTimeHub> logger)
         {
             _context = context;
             _logger = logger;
@@ -40,6 +45,7 @@ namespace mobu_backend.Hubs.Chat
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         public override async Task OnConnectedAsync()
         {
+
             // Obtém o valor do cabeçalho de autorização
             var httpCtx = Context.GetHttpContext();
             string header = httpCtx.Request.Headers.Authorization;
@@ -49,7 +55,33 @@ namespace mobu_backend.Hubs.Chat
             {
                 token = this.GenerateTokenFromHeader(header);
             }
-            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+
+            // cookie com ID de sessao
+            Context.GetHttpContext().Request.Cookies.TryGetValue("Session-Id", out var sesisonId);
+
+            // encontrar utilizador com o ID de sessao
+            var sessionClaim = await _context.UserClaims
+                .FirstOrDefaultAsync(u => u.ClaimValue == sesisonId);
+
+            if (sessionClaim == null)
+            {
+                Context.Abort();
+                return;
+            }
+
+            var identityUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == sessionClaim.UserId);
+            var user = await _context.UtilizadorRegistado
+                .FirstOrDefaultAsync(u => u.AuthenticationID == identityUser.Id);
+
+            if (identityUser == null || user == null)
+            {
+                Context.Abort();
+                return;
+            }
+
+            await Clients.User(identityUser.Id).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+            //await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
         }
 
         /// <summary>
@@ -168,7 +200,7 @@ namespace mobu_backend.Hubs.Chat
             }
 
             // Cria um objeto de mensagem para envio ao cliente
-            var messageObject = new ApiModels.Messages()
+            var messageObject = new Messages()
             {
                 IDMensagem = msg.IDMensagem,
                 IDRemetente = msg.RemetenteFK,
@@ -216,7 +248,10 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             // Notifica o utilizador bloqueado
-            await Clients.User(toUser).ReceiveBlock(fromUser);
+            await Clients.User(friend.AuthenticationID).ReceiveBlock(fromUser);
+
+            // Notifica o utilizador bloqueador
+            await Clients.User(Context.UserIdentifier).ReceiveBlock(fromUser);
         }
 
         /// <summary>
@@ -254,7 +289,10 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             // Notifica o utilizador desbloqueado
-            await Clients.User(toUser).ReceiveUnblock(fromUser);
+            await Clients.User(friend.AuthenticationID).ReceiveUnblock(fromUser);
+
+            // Notifica o utilizador desbloqueador
+            await Clients.User(Context.UserIdentifier).ReceiveUnblock(fromUser);
         }
 
         /// <summary>
@@ -302,9 +340,6 @@ namespace mobu_backend.Hubs.Chat
             RegistadosSalasChat registados = await _context.RegistadosSalasChat
                 .FirstOrDefaultAsync(rs => rs.SalaFK == groupId && rs.UtilizadorFK == userRemovedId);
 
-            _context.Remove(registados);
-            await _context.SaveChangesAsync();
-
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
 
             // Notifica o grupo sobre a saída do utilizador
@@ -312,6 +347,10 @@ namespace mobu_backend.Hubs.Chat
 
             //Notifica o cliente sobre a sua saída
             await Clients.Client(Context.ConnectionId).ReceiveLeaving(itemId, "Abandonou o grupo " + group);
+        
+            _context.Remove(registados);
+            await _context.SaveChangesAsync();
+            
         }
 
         /// <summary>
@@ -340,27 +379,27 @@ namespace mobu_backend.Hubs.Chat
             try
             {
                 // Cria um novo pedido de amizade
-            var req = new Amizade()
-            {
-                DataPedido = DateTime.Now,
-                Desbloqueado = true,
-                Remetente = from,
-                RemetenteFK = fromUserId,
-                Destinatario = dest,
-                DestinatarioFK = toUserId
-            };
+                var req = new Amizade()
+                {
+                    DataPedido = DateTime.Now,
+                    Desbloqueado = true,
+                    Remetente = from,
+                    RemetenteFK = fromUserId,
+                    Destinatario = dest,
+                    DestinatarioFK = toUserId
+                };
 
-            _context.Add(req);
-            await _context.SaveChangesAsync();
+                _context.Add(req);
+                await _context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-               _logger.LogError(ex.Message);
+                _logger.LogError(ex.Message);
             }
-            
+
 
             // Notifica o destinatário sobre o pedido de amizade
-            await Clients.User(toUser).ReceiveRequest(fromUser, dest.NomeUtilizador);
+            await Clients.User(dest.AuthenticationID).ReceiveRequest(fromUser, dest.NomeUtilizador);
         }
 
         /// <summary>
@@ -377,21 +416,22 @@ namespace mobu_backend.Hubs.Chat
                 return;
             }
 
-            if (reply)
-            {
-                // Recupera os utilizadores que estão a responder e receber a resposta
-                var replierUser = _context.UtilizadorRegistado
-                    .Where(u => u.IDUtilizador == replierId)
-                    .ToArray()[0];
-
-                var to = _context.UtilizadorRegistado
+            // encotra os utilizadores da resposta e recetor da resposta
+            var to = _context.UtilizadorRegistado
                     .Where(u => u.IDUtilizador == toUserId)
                     .ToArray()[0];
 
-                // Encontra o pedido de amizade
+            var replierUser = _context.UtilizadorRegistado
+                    .Where(u => u.IDUtilizador == replierId)
+                    .ToArray()[0];
+
+            // Encontra o pedido de amizade
                 var req = _context.Amizade
                     .Where(p => p.DestinatarioFK == replierId && p.RemetenteFK == toUserId)
                     .ToArray()[0];
+
+            if (reply)
+            {
 
                 req.DataResposta = DateTime.Now;
 
@@ -417,7 +457,7 @@ namespace mobu_backend.Hubs.Chat
                 };
 
                 // Adiciona a sala, as amizades e os utilizadores
-                _context.Attach(sala);
+                _context.Add(sala);
                 await _context.SaveChangesAsync();
 
                 RegistadosSalasChat toUserRs = new()
@@ -440,14 +480,34 @@ namespace mobu_backend.Hubs.Chat
 
                 // Salva as alterações
                 _context.Update(req);
-                _context.Attach(friend);
-                _context.Attach(toUserRs);
-                _context.Attach(replierRs);
+                _context.Add(friend);
+                _context.Add(toUserRs);
+                _context.Add(replierRs);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                _context.Remove(req);
                 await _context.SaveChangesAsync();
             }
 
+            // criar objeto de resposta
+            var salaRegistadaId = _context.SalasChat
+                .Where(s => s.NomeSala == to.NomeUtilizador + "_" + replierUser.NomeUtilizador)
+                .Select(s => s.IDSala)
+                .ToArray()[0];
+
+            var replierObject = new FriendObjectFromHub
+            {
+                FriendId = toUserId,
+                CommonRoomId = salaRegistadaId,
+                FriendEmail = to.Email,
+                FriendName = to.NomeUtilizador,
+                ImageURL = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + to.NomeFotografia
+            };
+
             // Notifica o utilizador sobre a resposta
-            await Clients.User(toUser).ReceiveRequestReply(replier, reply);
+            await Clients.User(to.AuthenticationID).ReceiveRequestReply(replierObject, reply);
         }
 
         /// <summary>
@@ -460,7 +520,7 @@ namespace mobu_backend.Hubs.Chat
         public async Task ExpelFromGroup(string itemId, string toUser, string roomId)
         {
 
-            if(!int.TryParse(itemId, out var itemIdInt) || !int.TryParse(toUser, out var toUserId) || !int.TryParse(roomId, out var roomIdInt))
+            if (!int.TryParse(itemId, out var itemIdInt) || !int.TryParse(toUser, out var toUserId) || !int.TryParse(roomId, out var roomIdInt))
             {
                 return;
             }
@@ -468,11 +528,19 @@ namespace mobu_backend.Hubs.Chat
             var expelledUser = _context.RegistadosSalasChat
                 .Where(rs => rs.UtilizadorFK == toUserId && rs.SalaFK == roomIdInt)
                 .ToArray()[0];
+           
+
+            // informar utilizador da sua expulsao
+            await Clients.User(expelledUser.Utilizador.AuthenticationID).ReceiveExpelling(roomId, $"Foi expulso da sala {roomId}!");
+            
+            // informar grupo da expulsao
+            await Clients.Group(roomId).ReceiveExpelling(itemId, $"{toUser} foi expulso da sala!");
+
+            // informar o caller do metodo da expulsao
+            await Clients.User(Context.UserIdentifier).ReceiveExpelling(itemId, $"{toUser} foi expulso da sala {roomId}!");
 
             _context.Remove(expelledUser);
             await _context.SaveChangesAsync();
-
-            await Clients.Client(Context.ConnectionId).ReceiveExpelling(itemId);
         }
     }
 }

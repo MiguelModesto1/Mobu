@@ -26,6 +26,8 @@ export default function MessagesPage() {
 
     const [hasFetchedFriendsData, setHasFetchedFriendsData] = useState(false);
     const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
+    const [isFriendOverBlocked, setIsFriendOverBlocked] = useState(false);
+    const [hasFriendOverBlockedMe, setHasFriendOverBlockedMe] = useState(false);
     const [overFriendItem, setOverFriendItem] = useState(0);
     const [overGroupItem, setOverGroupItem] = useState(0);
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
@@ -58,7 +60,9 @@ export default function MessagesPage() {
                     NomeRemetente: "",
                     ConteudoMsg: ""
                 }
-            )
+            ),
+            BlockedThem: false,
+            BlockedYou: false
         }
     ]);
     const [groupsData, setGroupsData] = useState([
@@ -212,12 +216,18 @@ export default function MessagesPage() {
                 })
                     .configureLogging(LogLevel.Debug)
                     .build();
-            //debugger;
+
+            //tratar da conexao do signalR
             connection.current.start();
             logSignalRAccess(connection.current);
             listenToSignalRMessages(connection.current);
             listenToSignalRGroupChange(connection.current);
+            listenToGroupEntry(connection.current);
             listenToGroupLeaving(connection.current);
+            listenToBlock(connection.current);
+            listenToUnblock(connection.current);
+            listenToMemberExpelling(connection.current);
+            listenToRequestReply(connection.current);
 
             //verificar novo cookie
             document.addEventListener("mousemove", () => getNewCookie());
@@ -246,6 +256,9 @@ export default function MessagesPage() {
         }
     }, [friendsData.length, groupsData.length, queryParamId])
 
+    /**
+     * Obter novo cookie de sessao depois deste chegar a meia-vida
+     */
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
@@ -384,6 +397,16 @@ export default function MessagesPage() {
         connection.on("RemovedFromGroup", (connectionId, roomId) => {
             console.log("conexão " + connectionId + " removida da sala " + roomId);
         });
+    };
+
+    /**
+     * Ouvir a entrada num grupo
+     * @param {any} connection
+     */
+    const listenToGroupEntry = (connection) => {
+        connection.on("ReceiveEntry", message => {
+            console.log(message);
+        });
     }
 
     /**
@@ -400,7 +423,152 @@ export default function MessagesPage() {
 
             console.log(message);
         });
-    }
+    };
+
+    /**
+     * ouvir o bloqueio de um amigo
+     * @param {any} connection
+     */
+    const listenToBlock = (connection) => {
+        connection.on("ReceiveBlock", (fromUser) => {
+
+            var aux = {};
+            var trailing = [];
+            var leading = [];
+
+            for (var i = 0; i < friendsData.length; i++) {
+                if (friendsData[i].FriendId + "" === fromUser) {
+                    aux = { ...friendsData[i] }
+                    aux.BlockedYou = true;
+                    if (i === 0) {
+
+                        trailing = friendsData.slice(1, friendsData.length);
+
+                        setFriendsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === friendsData.length - 1) {
+
+                        leading = friendsData.slice(0, friendsData.length - 1);
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = friendsData.slice(0, i);
+                        trailing = friendsData.slice(i + 1, friendsData.length)
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                    break;
+                }
+            }
+        });
+    };
+
+    /**
+     * ouvir o desbloqueio de um amigo
+     * @param {any} connection
+     */
+    const listenToUnblock = (connection) => {
+        connection.on("ReceiveUnblock", (fromUser) => {
+
+            var aux = {};
+            var trailing = [];
+            var leading = [];
+
+            for (var i = 0; i < friendsData.length; i++) {
+                if (friendsData[i].FriendId + "" === fromUser) {
+                    aux = { ...friendsData[i] }
+                    aux.BlockedYou = false;
+                    if (i === 0) {
+
+                        trailing = friendsData.slice(1, friendsData.length);
+
+                        setFriendsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === friendsData.length - 1) {
+
+                        leading = friendsData.slice(0, friendsData.length - 1);
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = friendsData.slice(0, i);
+                        trailing = friendsData.slice(i + 1, friendsData.length)
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                    break;
+                }
+            }
+        });
+    };
+
+    /**
+     * Ouvir rececao de expulsao
+     * @param {any} connection
+     */
+    const listenToMemberExpelling = (connection) => {
+        connection.on("ReceiveExpelling", (itemId, message) => {
+            var aux = [...groupsData];
+
+            for (var i = 0; i < aux.length; i++) {
+                if (aux[i].IDSala + "" === itemId) {
+                    delete aux[itemId];
+                    aux.length = aux.length - 1;
+                    break;
+                }
+            };
+
+            setGroupsData([...aux]);
+
+            console.log(message);
+        })
+    };
+
+    /**
+     * Ouvir resposta a pedidos
+     * @param {any} connection
+     */
+    const listenToRequestReply = (connection) => {
+        connection.on("ReceiveRequestReply", (replierObject, reply) => {
+
+            if (reply) {
+
+                var newFriend = {
+                    ItemId: friendsData.length,
+                    FriendId: replierObject.friendId,
+                    FriendName: replierObject.friendName,
+                    CommonRoomId: replierObject.commonRoomId,
+                    ImageURL: replierObject.imageURL,
+                    Messages: []
+                }
+
+                var aux = [...friendsData];
+                aux.push([...newFriend]);
+
+                setFriendsData([...aux]);
+            }
+            
+        });
+    };
 
     /**
      * clique no separador dos amigos
@@ -436,7 +604,50 @@ export default function MessagesPage() {
      */
     function handleOverFriendItem(itemKey) {
         //debugger;
-        setOverFriendItem(itemKey)
+        setOverFriendItem(itemKey);
+        setIsFriendOverBlocked(friendsData[itemKey].BlockedThem);
+        setHasFriendOverBlockedMe(friendsData[itemKey].BlockedYou);
+    }
+
+    /**
+     * bloquear/desbloquear amigo
+     * @param {any} itemId
+     * @param {any} boolValue
+     */
+    function handleBlock(itemId, boolValue) {
+        var aux = {};
+        var trailing = [];
+        var leading = [];
+
+        aux = { ...friendsData[itemId] }
+        aux.BlockedThem = boolValue;
+        if (itemId === 0) {
+
+            trailing = friendsData.slice(1, friendsData.length);
+
+            setFriendsData([
+                { ...aux },
+                ...trailing
+            ]);
+        } else if (itemId === friendsData.length - 1) {
+
+            leading = friendsData.slice(0, friendsData.length - 1);
+
+            setFriendsData([
+                ...leading,
+                { ...aux }
+            ]);
+        } else {
+
+            leading = friendsData.slice(0, itemId);
+            trailing = friendsData.slice(itemId + 1, friendsData.length)
+
+            setFriendsData([
+                ...leading,
+                { ...aux },
+                ...trailing
+            ]);
+        }
     }
 
     /**
@@ -445,8 +656,10 @@ export default function MessagesPage() {
      */
     function handleOverGroupItem(itemKey) {
         //debugger
-        setOverGroupItem(itemKey)
+        setOverGroupItem(itemKey);
     }
+
+
 
     return (
         <>
@@ -543,7 +756,11 @@ export default function MessagesPage() {
                         </div>
                         {friendsTab ?
                             <FriendContextMenu
+                                itemId={overFriendItem}
+                                isFriendOverBlocked={isFriendOverBlocked}
+                                hasFriendOverBlockedMe={hasFriendOverBlockedMe}
                                 owner={owner.current}
+                                onBlock={handleBlock}
                                 id={friendsData[overFriendItem].FriendId}
                                 connection={connection.current}
                             />

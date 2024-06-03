@@ -10,13 +10,13 @@ import ThanksPage from '../pages/ThanksPage';
 import GroupProfilePage from '../pages/GroupProfilePage';
 import PersonProfilePage from '../pages/PersonProfilePage';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import FriendshipReqTile from '../single_use/friendships/FriendshipReqTile';
 import SearchPage from '../pages/SearchPage';
 import {HubConnectionBuilder} from "@microsoft/signalr";
 import Error500Page from '../pages/Error500Page';
 import Error403Page from '../pages/Error403Page';
 import EditPersonProfilePage from '../pages/EditPersonProfilePage';
 import EditGroupProfilePage from '../pages/EditGroupProfilePage';
+import PendingRequestsPage from '../pages/PendingRequestsPage';
 
 var messagingContextInterface = {
     context: {
@@ -50,7 +50,7 @@ export default function App() {
                     <Route path="/thanks" Component={ThanksPage} />
 
                     <Route path="/messages" Component={MessagesPage} />
-                    <Route path="/requests" Component={FriendshipReqTile} />
+                    <Route path="/pending-requests" Component={PendingRequestsPage} />
                     <Route path="/group-profile" Component={GroupProfilePage} />
                     <Route path="/edit-group-profile" Component={EditGroupProfilePage} />
                     <Route path="/person-profile" Component={PersonProfilePage} />

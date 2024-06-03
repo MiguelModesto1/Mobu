@@ -1,4 +1,4 @@
-import React,{ useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React,{ useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
 
@@ -18,6 +18,7 @@ export default function RegisterForm(){
 
     const avatarImg = useMemo(() => {
         return <><Avatar avatarProps={{
+            src:"./assets/images/default_avatar.png",
             size: "240px",
             alt: "Meu avatar"
         }}

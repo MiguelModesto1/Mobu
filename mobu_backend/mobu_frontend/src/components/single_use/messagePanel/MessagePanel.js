@@ -35,7 +35,6 @@ export default function MessagePanel({ownerId, friendGroupData, selectedFriendIt
     const containers =
         messages.current.map(
             message => {
-
                 if (message.IDRemetente === ownerId) {
 
                     return (

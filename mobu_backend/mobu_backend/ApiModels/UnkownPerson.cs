@@ -1,5 +1,8 @@
 ﻿namespace mobu_backend.ApiModels
 {
+    /// <summary>
+    /// Modelo da API para as pessoas desconhecidas
+    /// </summary>
     public class UnkownPerson
     {
         /// <summary>
@@ -16,5 +19,10 @@
         /// E-mail da pessoa desconhecida
         /// </summary>
         public string Email { get; set; }
+
+        /// <summary>
+        /// URL da imagem do avatar da pessoa desconhecida
+        /// </summary>
+        public string ImageURL { get; set; }
     }
 }

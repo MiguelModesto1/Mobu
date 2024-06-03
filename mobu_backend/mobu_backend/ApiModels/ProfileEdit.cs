@@ -1,7 +1,7 @@
 ﻿namespace mobu_backend.ApiModels
 {
     /// <summary>
-    /// Modelo da API para a edicao de perfil
+    /// Modelo da API para a edicao de perfil de um utilizador
     /// </summary>
     public class ProfileEdit
     {

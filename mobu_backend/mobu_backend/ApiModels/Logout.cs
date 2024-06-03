@@ -5,6 +5,9 @@
     /// </summary>
     public class Logout
     {
+        /// <summary>
+        /// ID do utilizador para terminar sessão
+        /// </summary>
         public int Id { get; set; }
     }
 }

@@ -23,11 +23,13 @@ export default function SearchPage() {
     const [userItems, setUserItems] = useState([{
         Id: -1,
         Nome: "",
-        Email: ""
+        Email: "",
+        ImageURL: ""
     }]);
     const [groupItems, setGroupItems] = useState([{
         Id: -1,
-        Nome: ""
+        Nome: "",
+        ImageURL: ""
     }]);
     const [searchText, setSearchText] = useState("");
     const [show404Text, setShow404Text] = useState(false);
@@ -248,6 +250,7 @@ export default function SearchPage() {
                 ownerId={owner.current}
                 personRoomId={item.Id}
                 name={item.Nome}
+                avatar={item.ImageURL}
                 email={item.Email}
                 isGroup={false}
             />
@@ -265,6 +268,7 @@ export default function SearchPage() {
                 ownerId={owner.current}
                 personRoomId={item.Id}
                 name={item.Nome}
+                avatar={item.ImageURL}
                 isGroup={true}
             />
         );

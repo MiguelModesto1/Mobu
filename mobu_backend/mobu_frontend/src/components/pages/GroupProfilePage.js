@@ -193,12 +193,18 @@ export default function GroupProfilePage() {
         });
     }
 
+    /**
+     * Ouvir rececao de expulsao
+     * @param {any} connection
+     */
     const listenToMemberExpelling = (connection) => {
-        connection.on("ReceiveExpelling", itemId => {
+        connection.on("ReceiveExpelling", (itemId, message) => {
             var aux = [...members];
             delete aux[itemId];
             aux.length = aux.length - 1;
             setMembers([...aux]);
+
+            console.log(message);
         })
     };
 

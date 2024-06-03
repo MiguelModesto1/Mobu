@@ -1,4 +1,5 @@
 ﻿using mobu_backend.ApiModels;
+using mobu_backend.Hubs.Objects;
 
 namespace mobu_backend.Hubs.Chat
 {
@@ -88,13 +89,14 @@ namespace mobu_backend.Hubs.Chat
         /// <param name="user">O utilizador que recebeu um pedido.</param>
         /// <param name="reply">A resposta à solicitação (verdadeiro para aceitar, falso para recusar).</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveRequestReply(string user, bool reply);
+        Task ReceiveRequestReply(FriendObjectFromHub user, bool reply);
 
         /// <summary>
         /// Recebe uma expulsao de um grupo
         /// </summary>
-        /// <param name="user">Indice do item do utilizador expulso</param>
+        /// <param name="itemId">Indice do item do utilizador expulso.</param>
+        /// <param name="message">Mensagem que informa que o utilizador foi expulso.</param>
         /// <returns></returns>
-        Task ReceiveExpelling(string itemId);
+        Task ReceiveExpelling(string itemId, string message);
     }
 }

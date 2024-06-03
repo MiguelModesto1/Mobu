@@ -8,16 +8,24 @@ import MenuItem from "../modular/MenuItem";
  * 
  * @returns
  */
-export default function FriendContextMenu({ owner, id, connection }) { 
+export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) { 
 
     const handleClick = async (option) => {
-        switch(option){
+        switch (option) {
             case "perfil":
                 await connection.stop();
                 window.location.assign("/person-profile?id=" + id + "&requester=" + owner);
                 break;
             default:
-                await connection.invoke("Block", owner + "", id + "");
+                if (isFriendOverBlocked) {
+                    await connection.invoke("Unblock", owner + "", id + "");
+                    onBlock(itemId, false);
+                }
+                else {
+                    await connection.invoke("Block", owner + "", id + "");
+                    onBlock(itemId, true);
+                }
+                
                 break;
             ;
         }
@@ -36,7 +44,11 @@ export default function FriendContextMenu({ owner, id, connection }) {
             }}
             >
                     <MenuItem text="Perfil" onClick={handleClick} onClickPrm="perfil" />
-                    <MenuItem text="Bloquear" onClick={handleClick} onClickPrm="bloquear" />
+                    {
+                        !hasFriendOverBlockedMe &&
+                            <MenuItem text={isFriendOverBlocked ? "Desbloquear" : "Bloquear"} onClick={handleClick} onClickPrm="block_mngmt" />    
+                    }
+                    
                     {/*<MenuItem text="Reportar" onClick={handleClick} onClickPrm="reportar" />*/}
             </div>
         ) : (

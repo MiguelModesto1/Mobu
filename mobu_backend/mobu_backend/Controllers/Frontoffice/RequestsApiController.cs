@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using mobu_backend.ApiModels;
 using mobu_backend.Data;
+using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
@@ -10,7 +13,6 @@ using NuGet.Protocol;
 namespace mobu.Controllers.Frontend;
 
 [ApiController]
-[Route("api/requests")]
 public class RequestsApiController : ControllerBase
 {
 
@@ -70,37 +72,53 @@ public class RequestsApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
-   /* [HttpGet]
-    public IActionResult GetRequests(int id)
+    [HttpGet]
+    [Authorize]
+    [Route("api/pending-requests")]
+    public async Task<IActionResult> GetPendingRequests([FromQuery(Name = "id")] int id)
     {
+        JObject resp = [];
 
-        try
+        // user da BD
+        UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+        var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.AuthenticationID);
+
+        if (user == null || identityUser == null)
         {
-            JObject json = new();
-
-            var requests =
-           _context.DestinatarioPedidosAmizade
-           .Where(dp => dp.IDDestinatarioPedido == id)
-           .Select(dp => new
-           {
-               dp.DestinatarioFK,
-               dp.RemetentePedido.NomeUtilizador
-           })
-           .ToArray();
-
-            json.Add("requests", requests.ToJToken());
-
-            return Ok(json.ToJson());
-
+            return Unauthorized();
         }
-        catch (Exception ex)
+
+        //validar cookie de sessao
+        if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
         {
-            _logger.LogError("Error: ", ex.Message);
-            return StatusCode(500);
+            return Unauthorized();
         }
-        finally
-        {
 
+        var sessionClaim = await _context.UserClaims
+            .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && user.AuthenticationID == u.UserId);
+
+        if (sessionClaim == null)
+        {
+            return Unauthorized();
         }
-    }*/
+
+        // variavel com o array dos pedidos pendentes
+        var pendingRequests = _context.Amizade
+            .Where(a => a.DestinatarioFK == id && a.DataResposta == null)
+            .Select(a => new PendingRequests()
+            {
+                DestID = a.DestinatarioFK,
+                RemID = a.RemetenteFK,
+                ImageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + a.Remetente.NomeFotografia,
+                RemName = a.Remetente.NomeUtilizador
+            })
+            .ToArray();
+
+        resp.Add("pendingRequests", pendingRequests.ToJToken());
+
+        var notFound = pendingRequests.Length == 0;
+
+        return !notFound ? Ok(resp.ToJson()) : NotFound();
+
+    }
 }

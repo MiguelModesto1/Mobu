@@ -7,7 +7,7 @@ import Avatar from "./Avatar";
  * 
  * @returns 
  */
-export default function PersonGroupFoundItem({connection, ownerId, personRoomId, name, email=null, isGroup}){
+export default function PersonGroupFoundItem({connection, ownerId, personRoomId, name, avatar, email=null, isGroup}){
     
     const [changeButtonText, setChangeButtonText] = useState("");
     const [isClicked, setIsClicked] = useState(false);
@@ -29,9 +29,6 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
      */
     async function handleRequestButtonClick(){
 
-        if (isClicked) {
-            return;
-        }
         if(!isGroup){
             await connection.invoke("SendRequestToUser", ownerId + "", personRoomId + "");
             setChangeButtonText("Pedido Enviado");
@@ -44,6 +41,11 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
 
     return(
         <div className="person-group-found-item-div">
+            <Avatar avatarProps={{
+                size: "40px",
+                src: avatar,
+                alt: "avatar de " + personRoomId
+            }} />
             <span>{personRoomId}</span>
             <br />
             <span>{name}</span>
@@ -57,6 +59,7 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
             }
             <button
                 className="request-button"
+                disabled={isClicked}
                 style={{ backgroundColor: "#3b9ae1" }}
                 onClick={() => {
                     handleRequestButtonClick();

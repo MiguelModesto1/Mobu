@@ -165,6 +165,12 @@ public class SearchApiController : ControllerBase
                 .Where(a => a.UtilizadorFK == id && a.Sala.SeGrupo)
                 .Select(a => a.Sala);
 
+            // lista de pedidos de amizade pendentes
+
+            var pendingRequests = _context.Amizade
+                .Where(a => a.DestinatarioFK == id)
+                .Select(a => a.Remetente);
+
             // variaveis para guardar consultas
             IQueryable<UtilizadorRegistado> peopleQuery;
             IQueryable<SalasChat> groupsQuery;
@@ -178,12 +184,13 @@ public class SearchApiController : ControllerBase
                 peopleQuery = _context.UtilizadorRegistado
                 .Where(u => u.IDUtilizador == searchId && u.IDUtilizador != id);
 
-                unknownPeople = peopleQuery.Except(friendsList)
+                unknownPeople = peopleQuery.Except(friendsList).Except(pendingRequests)
                     .Select(u => new UnkownPerson()
                     {
                         Id = u.IDUtilizador,
                         Nome = u.NomeUtilizador,
-                        Email = u.Email
+                        Email = u.Email,
+                        ImageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + u.NomeFotografia
                     })
                     .ToList<object>();
 
@@ -199,7 +206,8 @@ public class SearchApiController : ControllerBase
                    .Select(u => new UnkownGroup()
                    {
                        Id = u.IDSala,
-                       Nome = u.NomeSala
+                       Nome = u.NomeSala,
+                       ImageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + u.NomeFotografia
                    })
                     .ToList<object>();
             }
@@ -211,12 +219,13 @@ public class SearchApiController : ControllerBase
                 u.Email.Contains(searchString)) &&
                 u.IDUtilizador != id);
 
-                unknownPeople = peopleQuery.Except(friendsList)
+                unknownPeople = peopleQuery.Except(friendsList).Except(pendingRequests)
                 .Select(u => new UnkownPerson()
                 {
                     Id = u.IDUtilizador,
                     Nome = u.NomeUtilizador,
-                    Email = u.Email
+                    Email = u.Email,
+                    ImageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + u.NomeFotografia
                 })
                 .ToList<object>();
 
@@ -232,7 +241,8 @@ public class SearchApiController : ControllerBase
                 .Select(u => new UnkownGroup()
                 {
                     Id = u.IDSala,
-                    Nome = u.NomeSala
+                    Nome = u.NomeSala,
+                    ImageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + u.NomeFotografia
                 })
                 .ToList<object>();
             }

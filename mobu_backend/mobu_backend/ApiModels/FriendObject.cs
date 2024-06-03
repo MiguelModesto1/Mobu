@@ -39,5 +39,15 @@
         /// Array de mensagens trocadas com o amigo
         /// </summary>
         public Messages[] Messages { get; set; }
+
+        /// <summary>
+        /// Binario que guarda se o utilizador bloqueou o amigo
+        /// </summary>
+        public bool? BlockedThem { get; set; }
+
+        /// <summary>
+        /// Binario que guarda se o amigo bloqueou o utilizador
+        /// </summary>
+        public bool? BlockedYou { get; set; }
     }
 }

@@ -138,64 +138,89 @@ public class MessagesApiController : ControllerBase
                     int friendId = friend.IDUtilizador;
                     string friendName = friend.NomeUtilizador;
                     string friendEmail = friend.Email;
+                    bool? blockedThem = _context.Amizade
+                        .Where(f => f.DestinatarioFK == friendId && f.RemetenteFK == id)
+                        .Select(f => !f.Desbloqueado).ToArray()[0];
 
-                    // avatar do amigo
-                    string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + friend.NomeFotografia;
-
-                    // salas
-                    var userRoomsId = _context.RegistadosSalasChat
-                    .Where(rs => rs.UtilizadorFK == user.IDUtilizador && !rs.Sala.SeGrupo)
-                    .Select(rs => rs.SalaFK);
-
-                    var friendRoomsId = _context.RegistadosSalasChat
-                    .Where(rs => rs.UtilizadorFK == friend.IDUtilizador && !rs.Sala.SeGrupo)
-                    .Select(rs => rs.SalaFK);
-
-                    int commonRoomId = userRoomsId.Intersect(friendRoomsId).ToArray()[0];
-
-                    // mensagens
-
-                    var msgs = _context.Mensagem
-                        .Where(m => m.SalaFK == commonRoomId)
-                        .Select(m => new Messages()
-                        {
-                            IDMensagem = m.IDMensagem,
-                            IDRemetente = m.RemetenteFK,
-                            URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,
-                            NomeRemetente = m.Remetente.NomeUtilizador,
-                            ConteudoMsg = m.ConteudoMsg
-                        })
-                        .ToArray();
-
-                    // truncar mensagens
-                    /*object[] msgTrunk = new object[25];
-
-                    if (msgs.Length >= 25)
+                    try
                     {
-                        int decrement = 1;
-                        for (int j = msgTrunk.Length - 1; j >= 0; j--)
+                        // Tentar aceder ao primeiro elemento do array
+                        // para o guardar em 'blockedYou'
+                        // Se nao conseguir, lanca excecao
+                        // ArrayOutOfBoundsException, pois o array estara vazio.
+                        bool? blockedYou = _context.Amizade
+                            .Where(f => f.RemetenteFK == friendId && f.DestinatarioFK == id)
+                            .Select(f => !f.Desbloqueado).ToArray()[0];
+
+                        // avatar do amigo
+                        string imageURL = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + friend.NomeFotografia;
+
+                        // salas
+                        var userRoomsId = _context.RegistadosSalasChat
+                        .Where(rs => rs.UtilizadorFK == user.IDUtilizador && !rs.Sala.SeGrupo)
+                        .Select(rs => rs.SalaFK);
+
+                        var friendRoomsId = _context.RegistadosSalasChat
+                        .Where(rs => rs.UtilizadorFK == friend.IDUtilizador && !rs.Sala.SeGrupo)
+                        .Select(rs => rs.SalaFK);
+
+                        // tentar encotrar ID da sala em comum. Se nao conseguir, lanca excecao
+                        // ArrayOutOfBoundsException, pois o array estara vazio.
+                    
+                        int commonRoomId = userRoomsId.Intersect(friendRoomsId).ToArray()[0];
+                    
+
+                        // mensagens
+
+                        var msgs = _context.Mensagem
+                            .Where(m => m.SalaFK == commonRoomId)
+                            .Select(m => new Messages()
+                            {
+                                IDMensagem = m.IDMensagem,
+                                IDRemetente = m.RemetenteFK,
+                                URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,
+                                NomeRemetente = m.Remetente.NomeUtilizador,
+                                ConteudoMsg = m.ConteudoMsg
+                            })
+                            .ToArray();
+
+                        // truncar mensagens
+                        /*object[] msgTrunk = new object[25];
+
+                        if (msgs.Length >= 25)
                         {
-                            msgTrunk[j] = msgs[^decrement];
-                            decrement--;
+                            int decrement = 1;
+                            for (int j = msgTrunk.Length - 1; j >= 0; j--)
+                            {
+                                msgTrunk[j] = msgs[^decrement];
+                                decrement--;
+                            }
                         }
+                        else
+                        {
+                            msgTrunk = msgs;
+                        }*/
+
+                        FriendObject friendObject = new()
+                        { 
+                            ItemId = i,
+                            FriendId = friendId, 
+                            FriendName = friendName, 
+                            FriendEmail = friendEmail, 
+                            CommonRoomId = commonRoomId, 
+                            ImageURL = imageURL, 
+                            Messages = msgs,
+                            BlockedThem = blockedThem,
+                            BlockedYou = blockedYou
+                        };
+
+                        friendsList.Add(friendObject);
+
                     }
-                    else
+                    catch(Exception ex)
                     {
-                        msgTrunk = msgs;
-                    }*/
-
-                    FriendObject friendObject = new()
-                    { 
-                        ItemId = i,
-                        FriendId = friendId, 
-                        FriendName = friendName, 
-                        FriendEmail = friendEmail, 
-                        CommonRoomId = commonRoomId, 
-                        ImageURL = imageURL, 
-                        Messages = msgs 
-                    };
-
-                    friendsList.Add(friendObject);
+                        continue;
+                    }
 
                 }
             }

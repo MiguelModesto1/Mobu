@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using mobu_backend;
 using mobu_backend.Data;
@@ -26,6 +27,9 @@ builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 // Adicionar SignalR
 builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true);
+
+// Provedor de IDs para o SignalR
+//builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
 
 // Adicionar servicos do Identity
 builder.Services.Configure<IdentityOptions>(options =>
