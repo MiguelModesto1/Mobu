@@ -146,86 +146,84 @@ public class RegisterApiController : ControllerBase
             }
         }
 
-        if (ModelState.IsValid)
+        try
         {
-            try
+
+            // colocar conteudos nas tabelas
+            // do identity
+
+            await _userManager.SetUserNameAsync(user, utilizadorRegistado.NomeUtilizador);
+            await _userManager.SetEmailAsync(user, utilizadorRegistado.Email);
+
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
             {
 
-                // colocar conteudos nas tabelas
-                // do identity
+                _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
 
-                await _userManager.SetUserNameAsync(user, utilizadorRegistado.NomeUtilizador);
-                await _userManager.SetEmailAsync(user, utilizadorRegistado.Email);
+                var userId = await _userManager.GetUserIdAsync(user);
 
-                var result = await _userManager.CreateAsync(user, password);
+                // enviar email de confirmacao de email
 
-                if (result.Succeeded)
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var request = _http.HttpContext.Request;
+
+                var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
+
+                var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
+
+                EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
+
+                await emailSender.SendEmailAsync(utilizadorRegistado.Email, "Confirme o seu email", htmlElement);
+            }
+            else
+            {
+                // se o resultado da adicao nao tiver exito
+                // lanca excecao para a execucao saltar para
+                // o bloco 'catch'
+                throw new Exception();
+            }
+
+            utilizadorRegistado.AuthenticationID = user.Id;
+
+            // adicionar dados do utilizador registado
+            // a BD
+            _context.Attach(utilizadorRegistado);
+
+            // realizar commit
+            await _context.SaveChangesAsync();
+
+            // guardar foto
+
+            if (haFoto)
+            {
+                // local p/guardar foto
+                // perguntar ao servidor pela pasta
+                // wwwroot/imagens
+                string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                // nome ficheiro no disco
+                nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                // garantir existencia da pasta
+                if (!Directory.Exists(nomeLocalImagem))
                 {
-
-                    _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
-
-                    var userId = await _userManager.GetUserIdAsync(user);
-
-                    // enviar email de confirmacao de email
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var request = _http.HttpContext.Request;
-
-                    var href = "https://" + request.Host.ToString() + "/Identity/Account/ConfirmEmail?userId=" + userId + "&code=" + code + "&returnUrl=%2F";
-
-                    var htmlElement = "Para confirmar o seu email <a href='" + href + "' target='_blank'>clique aqui</a>.";
-
-                    EmailSender emailSender = new(_optionsAccessor, _loggerEmail);
-
-                    await emailSender.SendEmailAsync(utilizadorRegistado.Email, "Confirme o seu email", htmlElement);
+                    Directory.CreateDirectory(nomeLocalImagem);
                 }
-                else
-                {
-                    // se o resultado da adicao nao tiver exito
-                    // lanca excecao para a execucao saltar para
-                    // o bloco 'catch'
-                    throw new Exception();
-                }
 
-                utilizadorRegistado.AuthenticationID = user.Id;
+                // e possivel efetivamente guardar imagem
 
-                // adicionar dados do utilizador registado
-                // a BD
-                _context.Attach(utilizadorRegistado);
+                // definir nome da imagem
+                string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
 
-                // realizar commit
-                await _context.SaveChangesAsync();
+                // criar objeto para manipular imagem
+                using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
 
-                // guardar foto
-
-                if (haFoto)
-                {
-                    // local p/guardar foto
-                    // perguntar ao servidor pela pasta
-                    // wwwroot/imagens
-                    string nomeLocalImagem = _webHostEnvironment.WebRootPath;
-
-                    // nome ficheiro no disco
-                    nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
-
-                    // garantir existencia da pasta
-                    if (!Directory.Exists(nomeLocalImagem))
-                    {
-                        Directory.CreateDirectory(nomeLocalImagem);
-                    }
-
-                    // e possivel efetivamente guardar imagem
-
-                    // definir nome da imagem
-                    string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
-
-                    // criar objeto para manipular imagem
-                    using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
-
-                    // efetivamente guardar ficheiro no disco
-                    await fotografia.CopyToAsync(stream);                
-                }/*else
+                // efetivamente guardar ficheiro no disco
+                await fotografia.CopyToAsync(stream);
+            }/*else
                 {
 
                     // caminho completo da foto
@@ -241,13 +239,23 @@ public class RegisterApiController : ControllerBase
                         fif.Delete();
                     }
                 }*/
-                return Ok();
+            return Ok();
 
-            }catch (Exception ex)
+        }
+        catch (Exception ex)
             {
                 //informar de erro de adicao
                 _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + utilizadorRegistado.NomeUtilizador + "\nA apagar utilizador...");
 
+                // se exisitr utilizador no identity 
+                if (await _context.Users.FirstOrDefaultAsync(ur => ur.Id == utilizadorRegistado.AuthenticationID) != null)
+                {
+                    await _userManager.DeleteAsync(user);
+
+                    _logger.LogInformation("Utilizador apagado do Identity!");
+                }
+
+                // se existir utilizador na BD de negocio
                 if (UtilizadorRegistadoExists(utilizadorRegistado.IDUtilizador))
                 {
                     _context.Remove(utilizadorRegistado);
@@ -257,16 +265,8 @@ public class RegisterApiController : ControllerBase
 
                     _logger.LogInformation("Utilizador apagado!");
                 }
-
-                // se exisitr user na base de dados do negocio 
-                if (await _context.UtilizadorRegistado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizadorRegistado.IDUtilizador) != null)
-                {
-                    await _userManager.DeleteAsync(user);
-
-                    _logger.LogInformation("Utilizador apagado do Identity!");
-                }
             }
-        }
+        
         _logger.LogWarning("Saiu do método Post");
         return BadRequest();
     }

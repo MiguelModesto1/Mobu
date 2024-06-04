@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using mobu_backend.Api_models;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
 using Newtonsoft.Json.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace mobu.Controllers.Frontend;
 
@@ -67,95 +73,240 @@ public class GroupFoundationApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
-    [HttpPost]
-    [Route("api/group-foundation")]
-    public async Task<IActionResult> RegisterUser([FromBody] string registerDataJson)
+    /// <summary>
+    /// Autorizacao para aceder ao formulario de fundacao de grupos
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Authorize]
+    [Route("api/get-group-foundation")]
+    public async Task<IActionResult> GetGroupFoundation([FromQuery(Name = "id")] int id)
     {
         try
         {
-            IActionResult status;
-            var valid = false;
-            var nomeFoto = "";
+            _logger.LogWarning("Entrou no método Get");
+
+            // encontrar utilizador com a claim de valor igual ao cookie
+            // (se este existir)
+
+            // user da BD
+            UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
+            var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.AuthenticationID);
+
+            if (user == null || identityUser == null)
+            {
+                return Unauthorized();
+            }
+
+            //validar cookie de sessao
+            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            {
+                return Unauthorized();
+            }
+
+            var sessionClaim = await _context.UserClaims
+                .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && user.AuthenticationID == u.UserId);
+
+            if (sessionClaim == null)
+            {
+                return Unauthorized();
+            }
+            return Ok();
+
+        }catch (Exception ex)
+        {
+            _logger.LogError($"Error na aqusição de um perfil: {ex.Message}");
+            return StatusCode(500);
+        }
+    }
+
+    /// <summary>
+    /// Registo de grupos
+    /// </summary>
+    /// <param name="registerData"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Authorize]
+    [Route("api/group-foundation")]
+    public async Task<IActionResult> RegisterGroup([FromForm] RegisterGroup registerData)
+    {
+        try
+        {
+            
             _logger.LogWarning("Entrou no método Post");
 
-            //organizar os dados
-            JObject registerData = JObject.Parse(registerDataJson);
+            var haFoto = false;
+            var nomeFoto = "";
+            var groupName = registerData.NomeSala;
+            var avatar = registerData.Avatar;
+            var adminId = registerData.AdminId;
 
-            var groupName = registerData.Value<string>("groupName");
-            var avatar = registerData.Value<string>("avatar");
-            var adminId = registerData.Value<int>("adminId");
+            var adminProfile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == adminId);
 
-            // Criacao de grupo com nome e avatar
-
-            if (avatar != "")
+            if (groupName == null)
             {
-                // Conversao de imagem
-                byte[] imageBytes = Convert.FromBase64String(avatar[(avatar.IndexOf(",") + 1)..]);
+                return BadRequest();
+            }
 
-                //extensao da foto
-                var extensaoFoto = "." + avatar.Split(",").GetValue(0).ToString().Split(";").GetValue(0).ToString().Split("/").GetValue(1).ToString();
+            if (adminProfile == null)
+            {
+                return Unauthorized();
+            }
 
-                // nome da imagem
-                Guid g = Guid.NewGuid();
-                nomeFoto = g.ToString();
-                nomeFoto += extensaoFoto;
+            //validar cookie de sessao
+            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            {
+                return Unauthorized();
+            }
 
-                // guardar foto
+            var sessionClaim = await _context.UserClaims
+                .FirstOrDefaultAsync(u => u.ClaimValue == sessionId && adminProfile.AuthenticationID == u.UserId);
 
-                // local p/guardar foto
-                // perguntar ao servidor pela pasta
-                // wwwroot/imagens
-                string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+            if (sessionClaim == null)
+            {
+                return Unauthorized();
+            }
 
-                // nome ficheiro no disco
-                nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+            // sala de grupo
+            var salaChat = new SalasChat()
+            {
+                NomeSala = groupName,
+                SeGrupo = true,
+            };
 
-                // garantir existencia da pasta
-                if (!Directory.Exists(nomeLocalImagem))
-                {
-                    Directory.CreateDirectory(nomeLocalImagem);
-                }
+            // avatar
 
-                // e possivel efetivamente guardar imagem
-
-                // definir nome da imagem
-                string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
-
-                System.IO.File.WriteAllBytes(nomeFotoImagem, imageBytes);
-
+            if (avatar == null)
+            {
+                // sem foto
+                // foto por predefenicao
+                salaChat.DataFotografia = DateTime.Now;
+                salaChat.NomeFotografia = "default_avatar.png";
             }
             else
             {
-                nomeFoto = "default_avatar.png";
+                if (avatar.ContentType == "image/jpeg" ||
+                    avatar.ContentType == "image/png")
+                {
+
+                    // nome da imagem
+                    Guid g = Guid.NewGuid();
+                    nomeFoto = g.ToString();
+                    string extensaoFoto =
+                        Path.GetExtension(avatar.FileName).ToLower();
+                    nomeFoto += extensaoFoto;
+
+                    // tornar foto do modelo na foto processada acima
+                    salaChat.DataFotografia = DateTime.Now;
+                    salaChat.NomeFotografia = nomeFoto;
+
+                    // preparar foto p/ser guardada no disco
+                    // do servidor
+                    haFoto = true;
+
+                }
+                else
+                {
+                    // ha ficheiro, mas e invalido
+                    // foto predefinida adicionada
+                    salaChat.DataFotografia = DateTime.Now;
+                    salaChat.NomeFotografia = "default_avatar.png";
+                }
             }
 
-
-            SalasChat salas_Chat = new()
+            try
             {
-                NomeFotografia = nomeFoto,
-                DataFotografia = DateTime.Now,
-                NomeSala = groupName,
-                SeGrupo = true
-            };
+                // adicionar dados do utilizador registado
+                // a BD
+                _context.Add(salaChat);
 
-            _context.Attach(salas_Chat);
-            await _context.SaveChangesAsync();
+                // realizar commit
+                await _context.SaveChangesAsync();
 
-            // associacao com o fundador do grupo
-            RegistadosSalasChat registados_Salas_Chat = new()
+                // adicionar administrador
+                var admin = new RegistadosSalasChat()
+                {
+                    IsAdmin = true,
+                    Sala = salaChat,
+                    SalaFK = salaChat.IDSala,
+                    Utilizador = adminProfile,
+                    UtilizadorFK = adminProfile.IDUtilizador
+                };
+
+                // adicionar relacionamento sala <-> administrador
+                // a BD
+                _context.Add(admin);
+
+                // realizar commit
+                await _context.SaveChangesAsync();
+
+
+                // guardar foto
+
+                if (haFoto)
+                {
+                    // local p/guardar foto
+                    // perguntar ao servidor pela pasta
+                    // wwwroot/imagens
+                    string nomeLocalImagem = _webHostEnvironment.WebRootPath;
+
+                    // nome ficheiro no disco
+                    nomeLocalImagem = Path.Combine(nomeLocalImagem, "imagens");
+
+                    // garantir existencia da pasta
+                    if (!Directory.Exists(nomeLocalImagem))
+                    {
+                        Directory.CreateDirectory(nomeLocalImagem);
+                    }
+
+                    // e possivel efetivamente guardar imagem
+
+                    // definir nome da imagem
+                    string nomeFotoImagem = Path.Combine(nomeLocalImagem, nomeFoto);
+
+                    // criar objeto para manipular imagem
+                    using var stream = new FileStream(nomeFotoImagem, FileMode.Create);
+
+                    // efetivamente guardar ficheiro no disco
+                    await avatar.CopyToAsync(stream);
+                }/*else
+                {
+
+                    // caminho completo da foto
+                    nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
+
+                    //fileInfo da foto
+                    FileInfo fif = new(nomeFoto);
+
+                    // garantir que foto existe
+                    if (fif.Exists && fif.Name != "default_avatar.png")
+                    {
+                        //apagar foto
+                        fif.Delete();
+                    }
+                }*/
+                return Ok();
+
+            }
+            catch (Exception ex)
             {
-                IsAdmin = true,
-                UtilizadorFK = adminId,
-                SalaFK = salas_Chat.IDSala
-            };
+                //informar de erro de adicao
+                _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + salaChat.NomeSala + "\nA apagar utilizador...");
 
+                if (SalaChatExists(salaChat.IDSala))
+                {
+                    _context.Remove(salaChat);
 
-            _context.Attach(registados_Salas_Chat);
-            await _context.SaveChangesAsync();
+                    // realizar commit
+                    await _context.SaveChangesAsync();
 
-            status = valid ? CreatedAtAction(nameof(groupName), new { id = salas_Chat.IDSala }, salas_Chat) : NotFound();
+                    _logger.LogInformation("Utilizador apagado!");
+                }
+            }
 
-            return status;
+            _logger.LogWarning("Saiu do método Post");
+            return BadRequest();
 
         }
         catch (Exception ex)
@@ -167,6 +318,10 @@ public class GroupFoundationApiController : ControllerBase
         {
             _logger.LogWarning("Saiu do método Post");
         }
+    }
 
+    private bool SalaChatExists(int id)
+    {
+        return _context.UtilizadorRegistado.Any(e => e.IDUtilizador == id);
     }
 }

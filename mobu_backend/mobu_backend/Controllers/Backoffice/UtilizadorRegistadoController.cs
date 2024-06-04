@@ -255,6 +255,15 @@ namespace mobu.Controllers.Backend
                     //informar de erro de adicao
                     _logger.LogInformation("$Ocorreu um erro com a adição do utilizador" + utilizadorRegistado.NomeUtilizador + "\nA apagar utilizador...");
 
+                    // se exisitr user no Identity 
+                    if (await _context.Users.FirstOrDefaultAsync(ur => ur.Id == utilizadorRegistado.AuthenticationID) != null)
+                    {
+                        await _userManager.DeleteAsync(user);
+
+                        _logger.LogInformation("Utilizador apagado do Identity!");
+                    }
+
+                    // se existir user na BD de negocio
                     if (UtilizadorRegistadoExists(utilizadorRegistado.IDUtilizador))
                     {
                         _context.Remove(utilizadorRegistado);
@@ -264,15 +273,6 @@ namespace mobu.Controllers.Backend
 
                         _logger.LogInformation("Utilizador apagado!");
                     }
-
-                    // se exisitr user na base de dados do negocio 
-                    if (await _context.UtilizadorRegistado.FirstOrDefaultAsync(ur => ur.IDUtilizador == utilizadorRegistado.IDUtilizador) != null)
-                    {
-                        await _userManager.DeleteAsync(user);
-
-                        _logger.LogInformation("Utilizador apagado do Identity!");
-                    }
-
 
                     ModelState.AddModelError("", "Ocorreu um erro com a adição dos dados do utilizador " + utilizadorRegistado.NomeUtilizador);
                 }

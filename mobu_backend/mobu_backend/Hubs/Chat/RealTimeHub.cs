@@ -326,6 +326,7 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Notifica um grupo sobre a saída de um utilizador.
         /// </summary>
+        /// /// <param name="itemId">O ID do item do utilizador que saiu.</param>
         /// <param name="userRemoved">O ID do utilizador que saiu.</param>
         /// <param name="group">O ID do grupo de que o utilizador saiu.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>

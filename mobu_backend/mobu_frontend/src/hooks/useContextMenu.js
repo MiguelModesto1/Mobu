@@ -26,12 +26,16 @@ export function useContextMenu() {
         //document.getElementsByClassName("tabs-div")[0].addEventListener("click", handleClick);
         document.addEventListener("click", handleClick);
 
+        // IMPLEMENTAR REMOCAO DE LISTENER NOS ITEMS DOS PAINEIS DO SEPARADORES
+
         if (document.getElementsByClassName("tabs-div").length > 0) {
             document.getElementsByClassName("tabs-div")[0].addEventListener("contextmenu", handleContextMenu);
         }
         return () => {
             //document.getElementsByClassName("tabs-div")[0].removeEventListener("click", handleClick);
             document.removeEventListener("click", handleClick);
+
+            // IMPLEMENTAR ADICAO DE LISTENER NOS ITEMS DOS PAINEIS DO SEPARADORES
 
             if (document.getElementsByClassName("tabs-div").length > 0) {
                 document.getElementsByClassName("tabs-div")[0].removeEventListener("contextmenu", handleContextMenu);

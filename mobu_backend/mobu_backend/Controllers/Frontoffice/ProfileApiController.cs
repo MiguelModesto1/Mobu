@@ -207,7 +207,7 @@ public class ProfileApiController : ControllerBase
     }
 
     /// <summary>
-    /// Autorizacao para aceder a edica de perfis de amigos
+    /// Autorizacao para aceder a edicao de perfis de amigos
     /// </summary>
     /// <param name="id">Id do editor</param>
     /// <returns></returns>
@@ -563,7 +563,7 @@ public class ProfileApiController : ControllerBase
                 .Select(rs => rs.IsAdmin)
                 .ToArray()[0];
 
-            if (avatar == null || groupName == null)
+            if (groupName == null)
             {
                 return BadRequest();
             }

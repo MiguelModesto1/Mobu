@@ -1,7 +1,7 @@
 ﻿namespace mobu_backend.Api_models
 {
     /// <summary>
-    /// Modelo da API para o registo
+    /// Modelo da API para o registo de utilizadores
     /// </summary>
     public class Register
     {

@@ -83,7 +83,7 @@ public class MessagesApiController : ControllerBase
     [HttpGet]
     [Authorize]
     [Route("api/messages")]
-    public async Task<IActionResult> GetFriendsInformation([FromQuery(Name = "id")]int id)
+    public async Task<IActionResult> GetFriendsInformation([FromQuery(Name = "id")] int id)
     {
         try
         {
