@@ -13,6 +13,27 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
     const [isClicked, setIsClicked] = useState(false);
 
     useEffect(() => {
+
+        if (!isGroup) {
+            connection.on("ReceiveRequest", (user, fromUsername) => {
+                if (personRoomId + "" === user) {
+                    setChangeButtonText("Pedido Enviado");
+                }
+            });
+        }
+        else {
+            connection.on("ReceiveEntry", (group, message) => {
+                if (personRoomId + "" === group) {
+                    setChangeButtonText("Entrou");
+                }
+            });
+        }
+        
+
+        
+    },[])
+
+    useEffect(() => {
         setChangeButtonText(isGroup === false ? "Pedir em amizade" : "Entrar");
     }, [isGroup]);
 
@@ -31,10 +52,8 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
 
         if(!isGroup){
             await connection.invoke("SendRequestToUser", ownerId + "", personRoomId + "");
-            setChangeButtonText("Pedido Enviado");
         }else{
             await connection.invoke("EnterGroup", ownerId + "", personRoomId + "");
-            setChangeButtonText("Entrou");
         }
         
     }

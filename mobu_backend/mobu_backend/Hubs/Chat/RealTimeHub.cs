@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using mobu_backend.ApiModels;
 using mobu_backend.Data;
+using mobu_backend.Hubs.Connections;
 using mobu_backend.Hubs.Objects;
 using mobu_backend.Models;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -27,6 +28,11 @@ namespace mobu_backend.Hubs.Chat
         /// Interface para a funcao de logging no controller
         /// </summary>
         private readonly ILogger<RealTimeHub> _logger;
+
+        /// <summary>
+        /// mapeamento de utilizadores
+        /// </summary>
+        private readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
 
         /// <summary>
         /// Construtor da classe RealTimeHub.
@@ -80,8 +86,10 @@ namespace mobu_backend.Hubs.Chat
                 return;
             }
 
-            await Clients.User(identityUser.Id).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
-            //await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+            _connections.Add(Context.UserIdentifier, Context.ConnectionId);
+
+            //await Clients.User(Context.UserIdentifier).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
         }
 
         /// <summary>
@@ -90,8 +98,12 @@ namespace mobu_backend.Hubs.Chat
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         public override async Task OnDisconnectedAsync(Exception ex)
         {
+
+            await Clients.Client(Context.ConnectionId).OnDisconnectedAsyncPrivate("Saíste!");
+            
+            _connections.Remove(Context.UserIdentifier, Context.ConnectionId);
+
             Context.Abort();
-            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Saíste!");
         }
 
         /// <summary>
@@ -320,17 +332,19 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             // Notifica o grupo sobre a entrada do utilizador
-            await Clients.Group(group).ReceiveEntry(fromUser + " juntou-se!");
+            await Clients.Group(group).ReceiveEntry(group, fromUser + " juntou-se!");
+
+            // Notifica o grupo sobre a entrada do utilizador
+            await Clients.User(Context.UserIdentifier).ReceiveEntry(group, fromUser + " juntou-se!");
         }
 
         /// <summary>
         /// Notifica um grupo sobre a saída de um utilizador.
         /// </summary>
-        /// /// <param name="itemId">O ID do item do utilizador que saiu.</param>
         /// <param name="userRemoved">O ID do utilizador que saiu.</param>
         /// <param name="group">O ID do grupo de que o utilizador saiu.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        public async Task LeaveGroup(string itemId, string userRemoved, string group)
+        public async Task LeaveGroup(string userRemoved, string group)
         {
             if (!int.TryParse(userRemoved, out var userRemovedId) || !int.TryParse(group, out var groupId))
             {
@@ -341,13 +355,16 @@ namespace mobu_backend.Hubs.Chat
             RegistadosSalasChat registados = await _context.RegistadosSalasChat
                 .FirstOrDefaultAsync(rs => rs.SalaFK == groupId && rs.UtilizadorFK == userRemovedId);
 
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, group);
+            foreach (var connectionId in _connections.GetConnections(Context.UserIdentifier))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, group);
+            }
 
             // Notifica o grupo sobre a saída do utilizador
-            await Clients.Group(group).ReceiveLeaving(itemId, userRemoved + " abandonou o grupo!");
+            await Clients.Group(group).ReceiveLeaving(group, userRemoved + " abandonou o grupo!");
 
             //Notifica o cliente sobre a sua saída
-            await Clients.Client(Context.ConnectionId).ReceiveLeaving(itemId, "Abandonou o grupo " + group);
+            await Clients.User(Context.UserIdentifier).ReceiveLeaving(group, "Abandonou o grupo " + group);
 
             _context.Remove(registados);
             await _context.SaveChangesAsync();
@@ -399,6 +416,9 @@ namespace mobu_backend.Hubs.Chat
             }
 
 
+            // Notifica o remetente sobre o pedido de amizade
+            await Clients.User(Context.UserIdentifier).ReceiveRequest(toUser, dest.NomeUtilizador);
+
             // Notifica o destinatário sobre o pedido de amizade
             await Clients.User(dest.AuthenticationID).ReceiveRequest(fromUser, dest.NomeUtilizador);
         }
@@ -416,6 +436,11 @@ namespace mobu_backend.Hubs.Chat
             {
                 return;
             }
+
+            FriendObjectFromHub replierObject = new()
+            {
+                FriendId = toUserId
+            };
 
             // encotra os utilizadores da resposta e recetor da resposta
             var to = _context.UtilizadorRegistado
@@ -492,7 +517,7 @@ namespace mobu_backend.Hubs.Chat
                     .Select(s => s.IDSala)
                     .ToArray()[0];
 
-                var replierObject = new FriendObjectFromHub
+                replierObject = new FriendObjectFromHub
                 {
                     FriendId = toUserId,
                     CommonRoomId = salaRegistadaId,
@@ -501,11 +526,21 @@ namespace mobu_backend.Hubs.Chat
                     ImageURL = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + to.NomeFotografia
                 };
 
-                // Notifica o utilizador sobre a resposta
+                // Notifica o utilizador recetor sobre a resposta
                 await Clients.User(to.AuthenticationID).ReceiveRequestReply(replierObject, reply);
+
+                // Notifica o utilizador remetente sobre a resposta
+                await Clients.User(Context.UserIdentifier).ReceiveRequestReply(replierObject, reply);
             }
             else
             {
+
+                // Notifica o utilizador recetor sobre a resposta
+                await Clients.User(to.AuthenticationID).ReceiveRequestReply(replierObject, reply);
+
+                // Notifica o utilizador remetente sobre a resposta
+                await Clients.User(Context.UserIdentifier).ReceiveRequestReply(replierObject, reply);
+
                 _context.Remove(req);
                 await _context.SaveChangesAsync();
             }
@@ -514,33 +549,40 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Expulsa a um utilizador de um grupo
         /// </summary>
-        /// <param name="itemId">indice item do utilizador expulso</param>
         /// <param name="toUser">Utilizador expulso</param>
         /// <param name="roomId">Sala de que <see cref="toUser"/> foi expulso></param>
         /// <returns></returns>
-        public async Task ExpelFromGroup(string itemId, string toUser, string roomId)
+        public async Task ExpelFromGroup(string toUser, string roomId)
         {
 
-            if (!int.TryParse(itemId, out var itemIdInt) || !int.TryParse(toUser, out var toUserId) || !int.TryParse(roomId, out var roomIdInt))
+            if (!int.TryParse(toUser, out var toUserId) || !int.TryParse(roomId, out var roomIdInt))
             {
                 return;
             }
 
-            var expelledUser = _context.RegistadosSalasChat
-                .Where(rs => rs.UtilizadorFK == toUserId && rs.SalaFK == roomIdInt)
+            var expelledUserQuery = _context.RegistadosSalasChat
+                .Where(rs => rs.UtilizadorFK == toUserId && rs.SalaFK == roomIdInt);
+
+            var expelledUser = expelledUserQuery
+                .Select(rs => rs.Utilizador)
                 .ToArray()[0];
+
+            foreach (var connectionId in _connections.GetConnections(expelledUser.AuthenticationID))
+            {
+                await Groups.RemoveFromGroupAsync(connectionId, roomId);
+            }
 
 
             // informar utilizador da sua expulsao
-            await Clients.User(expelledUser.Utilizador.AuthenticationID).ReceiveExpelling(roomId, $"Foi expulso da sala {roomId}!");
+            await Clients.User(expelledUser.AuthenticationID).ReceiveExpelling(roomId, $"Foi expulso da sala {roomId}!");
 
             // informar grupo da expulsao
-            await Clients.Group(roomId).ReceiveExpelling(itemId, $"{toUser} foi expulso da sala!");
+            await Clients.Group(roomId).ReceiveExpelling(roomId, $"{toUser} foi expulso da sala!");
 
             // informar o caller do metodo da expulsao
-            await Clients.User(Context.UserIdentifier).ReceiveExpelling(itemId, $"{toUser} foi expulso da sala {roomId}!");
+            await Clients.User(Context.UserIdentifier).ReceiveExpelling(toUser, $"{toUser} foi expulso da sala {roomId}!");
 
-            _context.Remove(expelledUser);
+            _context.Remove(expelledUserQuery.ToArray()[0]);
             await _context.SaveChangesAsync();
         }
     }

@@ -256,6 +256,7 @@ export default function EditGroupProfilePage() {
                     <button onClick={() => {
                         postProfile();
                     }}>Guardar</button>
+                    <button onClick={() => window.location.assign(`/messages?id=${admin}`)}>Voltar à lista de mensagens</button>
                 </div>
                 :
                 <></>

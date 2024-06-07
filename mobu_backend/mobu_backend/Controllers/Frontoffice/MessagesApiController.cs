@@ -125,6 +125,7 @@ public class MessagesApiController : ControllerBase
 
             List<object> friendsList = [];
             List<object> groupsList = [];
+            var arrayIncrement = 0;
 
             if (friends.Length > 0)
             {
@@ -203,7 +204,7 @@ public class MessagesApiController : ControllerBase
 
                         FriendObject friendObject = new()
                         { 
-                            ItemId = i,
+                            ItemId = arrayIncrement,
                             FriendId = friendId, 
                             FriendName = friendName, 
                             FriendEmail = friendEmail, 
@@ -216,6 +217,7 @@ public class MessagesApiController : ControllerBase
 
                         friendsList.Add(friendObject);
 
+                        arrayIncrement++;
                     }
                     catch(Exception ex)
                     {
@@ -229,6 +231,13 @@ public class MessagesApiController : ControllerBase
             SalasChat[] userGroups = _context.RegistadosSalasChat
             .Where(rs => rs.UtilizadorFK == user.IDUtilizador && rs.Sala.SeGrupo)
             .Select(rs => rs.Sala).ToArray();
+
+            // administradores
+            bool[] isOwnerAdmin = _context.RegistadosSalasChat
+            .Where(rs => rs.UtilizadorFK == user.IDUtilizador && rs.Sala.SeGrupo)
+            .Select (rs => rs.IsAdmin).ToArray();
+
+            arrayIncrement = 0;
 
             for (int i = 0; i < userGroups.Length; i++)
             {
@@ -268,14 +277,19 @@ public class MessagesApiController : ControllerBase
 
                 GroupObject groupObject = new()
                 { 
-                    ItemId = i,
+                    ItemId = arrayIncrement,
                     IDSala = userGroups[i].IDSala,
                     NomeSala = userGroups[i].NomeSala,
                     ImageURL = imageURL,
-                    Mensagens = msgs 
+                    Mensagens = msgs,
+                    IsOwnerAdmin = isOwnerAdmin[i],
+                    HasLeft = false,
+                    WasExpelled = false
                 };
 
                 groupsList.Add(groupObject);
+
+                arrayIncrement++;
             }
             info.Add("friends", friendsList.ToJToken());
             info.Add("groups", groupsList.ToJToken());

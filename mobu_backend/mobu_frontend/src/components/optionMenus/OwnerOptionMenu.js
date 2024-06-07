@@ -31,7 +31,7 @@ export default function OwnerOptionMenu({owner, showMenu, connection, logoutCall
     return (
         <div className="menu-container" style={{display:showMenu}}>
             <MenuItem text="Meu perfil" onClick={handleClick} onClickPrm="perfil" />
-            <MenuItem text="Procurar pessoas" onClick={handleClick} onClickPrm="procurar" />
+            <MenuItem text="Pesquisar" onClick={handleClick} onClickPrm="procurar" />
             <MenuItem text="Pedidos de amizade" onClick={handleClick} onClickPrm="pedidos" />
             <MenuItem text="Fundar grupo" onClick={handleClick} onClickPrm="fundar" />
             <MenuItem text="Terminar sessão" onClick={handleClick} onClickPrm="terminar" />

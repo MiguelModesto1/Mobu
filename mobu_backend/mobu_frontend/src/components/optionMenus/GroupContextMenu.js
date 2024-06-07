@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
 
@@ -8,7 +8,9 @@ import MenuItem from "../modular/MenuItem";
  * 
  * @returns
  */
-export default function GroupContextMenu({ itemId, owner, id, connection }) {
+export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerAdmin, id, connection }) {
+
+    const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
     const handleClick = async (option) => {
         switch (option) {
@@ -17,12 +19,12 @@ export default function GroupContextMenu({ itemId, owner, id, connection }) {
                 window.location.assign("/group-profile?id=" + id + "&requester=" + owner);
                 break;
             default:
-                await connection.invoke("LeaveGroup", itemId + "", owner + "", id + "");
+                await connection.invoke("LeaveGroup", owner + "", id + "");
+                setShowMenu(false);
                 break;
         }
     }
 
-    const { xPos, yPos, showMenu } = useContextMenu();
     return (
         <>
             {showMenu ? (
@@ -35,7 +37,10 @@ export default function GroupContextMenu({ itemId, owner, id, connection }) {
                     }}
                 >
                     <MenuItem text="Perfil de grupo" onClick={handleClick} onClickPrm="perfil" />
-                    <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
+                    {!isOwnerAdmin && !hasLeft && !wasExpelled &&
+                        <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
+                    }
+                    
                 </div>
             ) :
                 <></>

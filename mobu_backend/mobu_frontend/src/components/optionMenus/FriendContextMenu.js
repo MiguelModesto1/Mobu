@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
 
@@ -9,6 +9,8 @@ import MenuItem from "../modular/MenuItem";
  * @returns
  */
 export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) { 
+
+    const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
     const handleClick = async (option) => {
         switch (option) {
@@ -25,13 +27,12 @@ export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFrie
                     await connection.invoke("Block", owner + "", id + "");
                     onBlock(itemId, true);
                 }
-                
+                setShowMenu(false);
                 break;
             ;
         }
     }
 
-    const { xPos, yPos, showMenu } = useContextMenu();
     return (
         <>
             {showMenu ? (
@@ -56,6 +57,4 @@ export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFrie
         )}
         </>
     );
-
-    
 }

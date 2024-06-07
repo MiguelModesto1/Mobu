@@ -144,8 +144,9 @@ public class ForgotPasswordApiController : ControllerBase
 
             // mudanca de password
             var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = _context.UtilizadorRegistado.FirstOrDefault(u => u.Email == email);
 
-            if (identityUser != null && 
+            if (identityUser != null && user != null &&
                 newPassword != "" && newPassword != null && 
                 currPassword != "" && currPassword != null)
             {

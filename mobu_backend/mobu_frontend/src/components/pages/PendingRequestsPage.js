@@ -66,6 +66,7 @@ export default function PendingRequestsPage() {
         //debugger;
         connection.current.start();
         logSignalRAccess(connection.current);
+        listenToSignalRLeaving(connection.current);
 
         //verificar novo cookie
         document.addEventListener("mousemove", () => getNewCookie());
@@ -173,6 +174,17 @@ export default function PendingRequestsPage() {
     }
 
     /**
+     * mensagem do signalR ao desconectar
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRLeaving = (connection) => {
+        connection.on("OnDisconnectedAsyncPrivate", message => {
+            console.log(message);
+        });
+    }
+
+    /**
      * mapear pedidos a items JSX
      */
     const mapRequestItems = requestItems.map((item) => {
@@ -207,6 +219,7 @@ export default function PendingRequestsPage() {
                     </>
                 }
             </div>
+            <button onClick={() => window.location.assign(`/messages?id=${owner.current}`)}>Voltar à lista de mensagens</button>
         </div>
 
     );

@@ -275,6 +275,7 @@ export default function GroupFoundationForm(){
                 />
             </div>
             <button className="form-button" onClick={() => handleButtonClick()}>Fundar grupo</button>
+            <button onClick={() => window.location.assign(`/messages?id=${adminId}`)}>Voltar à lista de mensagens</button>
         </div>
     );
 }

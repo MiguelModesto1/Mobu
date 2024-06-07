@@ -339,6 +339,7 @@ export default function EditPersonProfilePage() {
                     <button onClick={() => {
                         postProfile();
                     }}>Guardar</button>
+                    <button onClick={() => window.location.assign(`/messages?id=${id}`)}>Voltar à lista de mensagens</button>
                 </div>
                 :
                 <></>

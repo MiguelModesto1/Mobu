@@ -29,5 +29,20 @@
         /// Array de mensagens trocadas com o amigo
         /// </summary>
         public Messages[] Mensagens { get; set; }
+
+        /// <summary>
+        /// Binario que verifica se o utilizador ligado e administrador
+        /// </summary>
+        public bool IsOwnerAdmin { get; set; }
+
+        /// <summary>
+        /// Binario que verifica se o utilizador deixou o grupo
+        /// </summary>
+        public bool HasLeft { get; set; }
+
+        /// <summary>
+        /// Binario que verifica se o utilizador foi expulso do grupo
+        /// </summary>
+        public bool WasExpelled { get; set; }
     }
 }

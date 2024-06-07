@@ -71,6 +71,7 @@ export default function SearchPage() {
         //debugger;
         connection.current.start();
         logSignalRAccess(connection.current);
+        listenToSignalRLeaving(connection.current);
 
         //verificar novo cookie
         document.addEventListener("mousemove", () => getNewCookie());
@@ -173,6 +174,17 @@ export default function SearchPage() {
      */
     const logSignalRAccess = (connection) => {
         connection.on("OnConnectedAsyncPrivate", message => {
+            console.log(message);
+        });
+    }
+
+    /**
+     * mensagem do signalR ao desconectar
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRLeaving = (connection) => {
+        connection.on("OnDisconnectedAsyncPrivate", message => {
             console.log(message);
         });
     }
@@ -332,6 +344,7 @@ export default function SearchPage() {
                     </>
                 }
             </div>
+            <button onClick={() => window.location.assign(`/messages?id=${owner.current}`)}>Voltar à lista de mensagens</button>
         </div>
 
     );

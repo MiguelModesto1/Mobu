@@ -16,6 +16,18 @@ export default function PendingRequestItem({ connection, ownerId, personId, name
     useEffect(() => {
         setAcceptButtonText("Aceitar");
         setRefuseButtonText("Recusar");
+
+        connection.on("ReceiveRequestReply", (replierObject, reply) => {
+            if (reply) {
+                replierObject.friendId === personId &&
+                setAcceptButtonText("Aceite");
+            }
+            else {
+                replierObject.friendId === personId &&
+                setRefuseButtonText("Recusado");
+            }
+        });
+
     }, []);
 
     /**
@@ -39,7 +51,6 @@ export default function PendingRequestItem({ connection, ownerId, personId, name
     async function handleAcceptRequestButtonClick() {
 
         await connection.invoke("SendRequestReply", ownerId + "", personId + "", true);
-        setAcceptButtonText("Aceite");
     }
 
     /**
@@ -49,7 +60,6 @@ export default function PendingRequestItem({ connection, ownerId, personId, name
     async function handleRefuseRequestButtonClick() {
 
         await connection.invoke("SendRequestReply", ownerId + "", personId + "", false);
-        setRefuseButtonText("Recusado");
     }
 
     return (

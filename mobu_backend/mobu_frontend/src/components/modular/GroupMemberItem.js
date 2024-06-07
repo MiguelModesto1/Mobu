@@ -8,14 +8,14 @@ import TopTextBottomText from "./TopTextBottomText";
  *
  * @returns 
  */
-export default function GroupMemberItem({ requester, itemId, avatar, personId, personName, isAdmin, isRequesterAdmin, connection, roomId }) {
+export default function GroupMemberItem({ requester, avatar, personId, personName, isAdmin, isRequesterAdmin, connection, roomId }) {
     //debugger
     /**
      * expulsao de membros do grupo
      * @param {any} member
      */
-    const handleMemberExpelling = async (itemId, toUser, roomId) => {
-        await connection.invoke("ExpelFromGroup", itemId, toUser, roomId);
+    const handleMemberExpelling = async (toUser, roomId) => {
+        await connection.invoke("ExpelFromGroup", toUser, roomId);
     }
 
     return(
@@ -31,7 +31,7 @@ export default function GroupMemberItem({ requester, itemId, avatar, personId, p
                 bottom:personName
                 }} />
             {isAdmin ? <span>Admin</span> : <></>}
-            {isRequesterAdmin && requester !== personId ? <button onClick={() => handleMemberExpelling(itemId+"", personId+"", roomId+"")}>Expulsar</button> : <></>}
+            {isRequesterAdmin && requester !== personId ? <button onClick={() => handleMemberExpelling(personId+"", roomId+"")}>Expulsar</button> : <></>}
         </div>
     );
 

@@ -30,12 +30,31 @@ export default function GroupProfilePage() {
     const [groupName, setGroupName] = useState("");
     const [avatar, setAvatar] = useState("");
     const [members, setMembers] = useState([{
-        ItemId: -1,
         Id: -1,
         Username: "",
         ImageURL: "",
         IsAdmin: false
     }]);
+
+    /**
+     * Ouvir rececao de expulsao
+     * @param {any} connection
+     */
+    const listenToMemberExpelling = useCallback((connection) => {
+        connection.on("ReceiveExpelling", (memberId, message) => {
+            var aux = [];
+            //debugger;
+            for (var i = 0; i < members.length; i++) {
+                if (members[i].Id + "" !== memberId) {
+                    aux.push({ ...members[i] });
+                }
+            };
+
+            setMembers([...aux]);
+
+            console.log(message);
+        })
+    }, [members]);
 
     useEffect(() => {
         if (hasFetchedData) {
@@ -85,6 +104,7 @@ export default function GroupProfilePage() {
             //debugger;
             connection.current.start();
             logSignalRAccess(connection.current);
+            listenToSignalRLeaving(connection.current);
 
             //verificar novo cookie
             document.addEventListener("mousemove", () => getNewCookie());
@@ -104,7 +124,7 @@ export default function GroupProfilePage() {
 
             }, expiryInterval);
         }
-    }, [hasFetchedData]);
+    }, [hasFetchedData, listenToMemberExpelling]);
 
     /**
      * obter novo cookie a partir da meia-vida
@@ -194,26 +214,21 @@ export default function GroupProfilePage() {
     }
 
     /**
-     * Ouvir rececao de expulsao
+     * mensagem do signalR ao desconectar
+     * 
      * @param {any} connection
      */
-    const listenToMemberExpelling = (connection) => {
-        connection.on("ReceiveExpelling", (itemId, message) => {
-            var aux = [...members];
-            delete aux[itemId];
-            aux.length = aux.length - 1;
-            setMembers([...aux]);
-
+    const listenToSignalRLeaving = (connection) => {
+        connection.on("OnDisconnectedAsyncPrivate", message => {
             console.log(message);
-        })
-    };
+        });
+    }
 
     const mapMembers = members.map((member) => {
         return (
             <GroupMemberItem
                 requester={requester}
-                key={member.ItemId}
-                itemId={member.ItemId}
+                key={member.Id}
                 avatar={member.ImageURL}
                 personId={member.Id}
                 personName={member.Username}

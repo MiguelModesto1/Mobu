@@ -23,6 +23,35 @@ export default function LoginForm(){
         setPassword(value);
     }
 
+    //useEffect(() => {
+
+    //    var options = {
+    //        method: 'GET',
+    //        redirect: 'follow',
+    //        headers: {
+    //            'Content-type': 'charset=UTF-8'
+    //        },
+    //        credentials: "include"
+    //    }
+
+    //    fetch(process.env.REACT_APP_API_URL + "/get-login", options)
+    //        .then((response) => {
+    //            //debugger;
+    //            if (response.status === 200) {
+    //                return response.json();
+    //            }
+    //            //return;
+    //        })
+    //        .then(data => {
+    //            window.location.assign("/messages?id=" + data.userId);
+    //        })
+    //        .then(data => console.log(data))
+    //        .catch(err => { console.error("error", err) });
+
+
+
+    //}, [])
+
     /**
      * clique no botao de submissao
      */

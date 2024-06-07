@@ -79,9 +79,141 @@ export default function MessagesPage() {
                     NomeRemetente: "",
                     ConteudoMsg: ""
                 }
-            )
+            ),
+            IsOwnerAdmin: false,
+            HasLeft: false,
+            WasExpelled: false
         }
     ]);
+
+    /**
+     * ouvir a saida de um grupo
+     * @param {any} connection
+     */
+    const listenToGroupLeaving = useCallback((connection) => {
+        connection.on("ReceiveLeaving", (group, message) => {
+            //debugger;
+            var leading = [];
+            var trailing = [];
+            var aux = {};
+
+            for (var i = 0; i < groupsData.length; i++) {
+                if (groupsData[i].IDSala + "" === group) {
+                    aux = { ...groupsData[i] };
+                    aux.HasLeft = true;
+                    if (i === 0) {
+
+                        trailing = groupsData.slice(1, groupsData.length);
+
+                        setGroupsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === groupsData.length - 1) {
+
+                        leading = groupsData.slice(0, groupsData.length - 1);
+
+                        setGroupsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = groupsData.slice(0, i);
+                        trailing = groupsData.slice(i + 1, groupsData.length)
+
+                        setGroupsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                }
+            }
+
+            //setGroupsData([...aux]);
+
+            console.log(message);
+        });
+    }, [groupsData]);
+
+    /**
+     * Ouvir resposta a pedidos
+     * @param {any} connection
+     */
+    const listenToRequestReply = useCallback((connection) => {
+        connection.on("ReceiveRequestReply", (replierObject, reply) => {
+
+            if (reply) {
+
+                var newFriend = {
+                    ItemId: friendsData.length,
+                    FriendId: replierObject.friendId,
+                    FriendName: replierObject.friendName,
+                    CommonRoomId: replierObject.commonRoomId,
+                    ImageURL: replierObject.imageURL,
+                    Messages: []
+                }
+
+                var aux = [...friendsData];
+                aux.push([...newFriend]);
+
+                setFriendsData([...aux]);
+            }
+
+        });
+    },[friendsData]);
+
+    /**
+     * Ouvir rececao de expulsao
+     * @param {any} connection
+     */
+    const listenToMemberExpelling = useCallback((connection) => {
+        connection.on("ReceiveExpelling", (roomId, message) => {
+            //debugger;
+            var leading = [];
+            var trailing = [];
+            var aux = {};
+
+            for (var i = 0; i < groupsData.length; i++) {
+                if (groupsData[i].IDSala + "" === roomId) {
+                    aux = { ...groupsData[i] };
+                    aux.WasExpelled = true;
+                    if (i === 0) {
+
+                        trailing = groupsData.slice(1, groupsData.length);
+
+                        setGroupsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === groupsData.length - 1) {
+
+                        leading = groupsData.slice(0, groupsData.length - 1);
+
+                        setGroupsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = groupsData.slice(0, i);
+                        trailing = groupsData.slice(i + 1, groupsData.length)
+
+                        setGroupsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                }
+            }
+
+            //setGroupsData([...aux]);
+
+            console.log(message);
+        })
+    }, [groupsData]);
 
     useEffect(() => {
 
@@ -130,15 +262,15 @@ export default function MessagesPage() {
                 aux.Mensagens.push({ ...messageObject });
                 if (itemId === 0) {
 
-                    trailing = groupsData.slice(1, friendsData.length);
+                    trailing = groupsData.slice(1, groupsData.length);
 
                     setGroupsData([
                         { ...aux },
                         ...trailing
                     ]);
-                } else if (itemId === friendsData.length - 1) {
+                } else if (itemId === groupsData.length - 1) {
 
-                    leading = groupsData.slice(0, friendsData.length - 1);
+                    leading = groupsData.slice(0, groupsData.length - 1);
 
                     setGroupsData([
                         ...leading,
@@ -147,7 +279,7 @@ export default function MessagesPage() {
                 } else {
 
                     leading = groupsData.slice(0, itemId);
-                    trailing = groupsData.slice(itemId + 1, friendsData.length)
+                    trailing = groupsData.slice(itemId + 1, groupsData.length)
 
                     setGroupsData([
                         ...leading,
@@ -220,14 +352,12 @@ export default function MessagesPage() {
             //tratar da conexao do signalR
             connection.current.start();
             logSignalRAccess(connection.current);
+            listenToSignalRLeaving(connection.current);
             listenToSignalRMessages(connection.current);
             listenToSignalRGroupChange(connection.current);
             listenToGroupEntry(connection.current);
-            listenToGroupLeaving(connection.current);
             listenToBlock(connection.current);
             listenToUnblock(connection.current);
-            listenToMemberExpelling(connection.current);
-            listenToRequestReply(connection.current);
 
             //verificar novo cookie
             document.addEventListener("mousemove", () => getNewCookie());
@@ -251,10 +381,33 @@ export default function MessagesPage() {
     }, [lastMessageReceived]);
 
     useEffect(() => {
+        //debugger;
+        if (hasFetchedGroupsData) {
+            listenToGroupLeaving(connection.current);
+            listenToMemberExpelling(connection.current);
+        }
+        
+    }, [hasFetchedGroupsData, listenToGroupLeaving, listenToMemberExpelling]);
+
+    useEffect(() => {
+        if (hasFetchedFriendsData)
+            listenToRequestReply(connection.current);
+    }, [hasFetchedFriendsData, listenToRequestReply]);
+
+    useEffect(() => {
+
+        if (friendsData.length === 0 && groupsData.length !== 0) {
+            setFriendsTab(false);
+        }
+
+        if (groupsData.length === 0 && friendsData.length !== 0) {
+            setFriendsTab(true);
+        }
+
         if (friendsData.length === 0 && groupsData.length === 0) {
             window.location.assign(`/search?id=${queryParamId}`);
         }
-    }, [friendsData.length, groupsData.length, queryParamId])
+    }, [friendsData.length, groupsData.length, queryParamId]);
 
     /**
      * Obter novo cookie de sessao depois deste chegar a meia-vida
@@ -359,6 +512,17 @@ export default function MessagesPage() {
     }
 
     /**
+     * mensagem do signalR ao desconectar
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRLeaving = (connection) => {
+        connection.on("OnDisconnectedAsyncPrivate", message => {
+            console.log(message);
+        });
+    }
+
+    /**
      * Colocar o listener para o metodo 'ReceiveMessage' vindo do hub signalR
      * e armazenar mensagens recebidas
      * 
@@ -404,26 +568,10 @@ export default function MessagesPage() {
      * @param {any} connection
      */
     const listenToGroupEntry = (connection) => {
-        connection.on("ReceiveEntry", message => {
+        connection.on("ReceiveEntry", (group, message) => {
             console.log(message);
         });
     }
-
-    /**
-     * ouvir a saida de um grupo
-     * @param {any} connection
-     */
-    const listenToGroupLeaving = (connection) => {
-        connection.on("ReceiveLeaving", (itemId, message) => {
-
-            var aux = [...groupsData];
-            delete aux[itemId];
-            aux.length = aux.length - 1;
-            setGroupsData([...aux]);
-
-            console.log(message);
-        });
-    };
 
     /**
      * ouvir o bloqueio de um amigo
@@ -521,54 +669,9 @@ export default function MessagesPage() {
         });
     };
 
-    /**
-     * Ouvir rececao de expulsao
-     * @param {any} connection
-     */
-    const listenToMemberExpelling = (connection) => {
-        connection.on("ReceiveExpelling", (itemId, message) => {
-            var aux = [...groupsData];
+    
 
-            for (var i = 0; i < aux.length; i++) {
-                if (aux[i].IDSala + "" === itemId) {
-                    delete aux[itemId];
-                    aux.length = aux.length - 1;
-                    break;
-                }
-            };
-
-            setGroupsData([...aux]);
-
-            console.log(message);
-        })
-    };
-
-    /**
-     * Ouvir resposta a pedidos
-     * @param {any} connection
-     */
-    const listenToRequestReply = (connection) => {
-        connection.on("ReceiveRequestReply", (replierObject, reply) => {
-
-            if (reply) {
-
-                var newFriend = {
-                    ItemId: friendsData.length,
-                    FriendId: replierObject.friendId,
-                    FriendName: replierObject.friendName,
-                    CommonRoomId: replierObject.commonRoomId,
-                    ImageURL: replierObject.imageURL,
-                    Messages: []
-                }
-
-                var aux = [...friendsData];
-                aux.push([...newFriend]);
-
-                setFriendsData([...aux]);
-            }
-            
-        });
-    };
+    
 
     /**
      * clique no separador dos amigos
@@ -669,7 +772,7 @@ export default function MessagesPage() {
                         <div className="tabs-div">
                             <div className="tabs-headers-div">
 
-                                {hasFetchedFriendsData &&
+                                {hasFetchedFriendsData && friendsData.length !== 0 &&
                                    <TabHeader
                                         text="Amigos"
                                         onHeaderClick={handleFriendsTabHeaderClick}
@@ -685,7 +788,7 @@ export default function MessagesPage() {
                                         isFriends={friendsTab}
                                     />
                                 }
-                                {hasFetchedGroupsData &&
+                                {hasFetchedGroupsData && groupsData.length !== 0 &&
                                    <TabHeader
                                         text="Grupos"
                                         onHeaderClick={handleGroupsTabHeaderClick}
@@ -704,7 +807,7 @@ export default function MessagesPage() {
                                 
                             </div>
                             <div className="tabs-panels-div">
-                                {hasFetchedFriendsData &&
+                                {hasFetchedFriendsData && friendsData.length !== 0 &&
                                     <TabPanel
                                         display={friendsTab ? "block" : "none"}
                                         personGroupData={friendsData}
@@ -715,7 +818,7 @@ export default function MessagesPage() {
                                         onOverItem={handleOverFriendItem}
                                     />
                                 }
-                                {hasFetchedGroupsData &&
+                                {hasFetchedGroupsData && groupsData.length !== 0 &&
                                     <TabPanel
                                         display={friendsTab ? "none" : "block"}
                                         personGroupData={groupsData}
@@ -755,6 +858,7 @@ export default function MessagesPage() {
                             />
                         </div>
                         {friendsTab ?
+                            friendsData.length !== 0 &&
                             <FriendContextMenu
                                 itemId={overFriendItem}
                                 isFriendOverBlocked={isFriendOverBlocked}
@@ -765,9 +869,14 @@ export default function MessagesPage() {
                                 connection={connection.current}
                             />
                             :
+                            groupsData.length !== 0 &&
+                            groupsData[overGroupItem] !== null &&
+                            groupsData[overGroupItem] !== undefined &&
                             <GroupContextMenu
-                                itemId={overGroupItem}
+                                hasLeft={groupsData[overGroupItem].HasLeft}
+                                wasExpelled={groupsData[overGroupItem].WasExpelled}
                                 owner={owner.current}
+                                isOwnerAdmin={groupsData[overGroupItem].IsOwnerAdmin}
                                 id={groupsData[overGroupItem].IDSala}
                                 connection={connection.current}
                             />

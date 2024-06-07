@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using mobu_backend.ApiModels;
 using mobu_backend.Data;
 using mobu_backend.Models;
 using mobu_backend.Services;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Protocol;
 
@@ -84,6 +86,12 @@ public class LoginApiController : ControllerBase
         _config = config;
     }
 
+    /// <summary>
+    /// Metodo da API para obter um novo cookie de sessao
+    /// depois da meia-vida do atual
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet]
     [Authorize]
     [Route("api/get-new-cookie")]
@@ -129,6 +137,38 @@ public class LoginApiController : ControllerBase
         return Ok(info.ToJson());
     }
 
+    //[HttpGet]
+    //[Route("api/get-login")]
+    //public async Task<IActionResult> GetLogin()
+    //{
+    //    JObject info = new();
+
+    //    //validar cookie de sessao
+    //    Request.Cookies.TryGetValue("Session-Id", out var sessionId);
+
+    //    var sessionClaim = await _context.UserClaims
+    //        .FirstOrDefaultAsync(u => u.ClaimValue == sessionId);
+
+    //    var user = await _context.UtilizadorRegistado
+    //        .FirstOrDefaultAsync(u => u.AuthenticationID == sessionClaim.UserId);
+
+    //    if (sessionClaim != null)
+    //    {
+    //        //HttpContext.Session.TryGetValue("expiry", out byte[] expiryDateBytes);
+
+    //        //var expiryDateObj = JsonConvert.DeserializeObject(System.Text.Encoding.UTF8.GetString(expiryDateBytes)).ToString();
+    //        //var expiryDate = new DateTimeOffset();
+            
+    //        info.Add("userId", user.IDUtilizador);
+    //        //info.Add("expiryDate", expiryDate.ToUniversalTime().ToJToken());
+    //        //info.Add("startDate", expiryDate.AddMinutes(-15).ToUniversalTime().ToJToken());
+
+    //        return Ok(info.ToJson());
+    //    }
+
+    //    return NotFound();
+    //}
+
     /// <summary>
     /// Metodo de login
     /// </summary>
@@ -140,10 +180,10 @@ public class LoginApiController : ControllerBase
     {
         try
         {
+            DateTimeOffset expiry = new DateTimeOffset();
             IActionResult resp;
             JObject info = new();
             var valid = false;
-            var expiry = new DateTimeOffset();
             _logger.LogWarning("Entrou no método Post");
 
             //organizar os dados
@@ -187,12 +227,13 @@ public class LoginApiController : ControllerBase
                     expiry = DateTimeOffset.Now.AddMinutes(15);
                     Response.Cookies.Append("Session-Id", claimValue, new CookieOptions { HttpOnly = true, Secure = true, Expires = expiry });
 
+                    info.Add("userId", userId);
+                    info.Add("expiryDate", expiry.ToUniversalTime().ToJToken());
+                    info.Add("startDate", expiry.AddMinutes(-15).ToUniversalTime().ToJToken());
                 }
+
             }
 
-            info.Add("userId", userId);
-            info.Add("expiryDate", expiry.ToUniversalTime().ToJToken());
-            info.Add("startDate", expiry.AddMinutes(-15).ToUniversalTime().ToJToken());
             resp = valid ? Ok(info.ToJson()) : NotFound();
 
             _logger.LogWarning("Saiu do método Post");
@@ -216,6 +257,7 @@ public class LoginApiController : ControllerBase
     /// <param name="logoutDataJson"></param>
     /// <returns></returns>
     [HttpPost]
+    [Authorize]
     [Route("api/logout")]
     public async Task<IActionResult> Logout([FromBody] Logout logoutDataJson)
     {

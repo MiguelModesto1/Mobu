@@ -40,11 +40,18 @@ namespace mobu_backend.Hubs.Chat
         Task ReceiveMessage(int itemId, bool isGroup, Messages message);
 
         /// <summary>
-        /// Notifica a conexão privada do cliente sobre uma mensagem.
+        /// Notifica a conexão do cliente atraves uma mensagem.
         /// </summary>
-        /// <param name="message">A mensagem privada a ser enviada.</param>
+        /// <param name="message">A mensagem a ser enviada.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         Task OnConnectedAsyncPrivate(string message);
+
+        /// <summary>
+        /// Notifica a desconexão do cliente atraves uma mensagem.
+        /// </summary>
+        /// <param name="message">A mensagem a ser enviada.</param>
+        /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
+        Task OnDisconnectedAsyncPrivate(string message);
 
         /// <summary>
         /// Notifica a receção de um bloqueio de um utilizador.
@@ -65,15 +72,15 @@ namespace mobu_backend.Hubs.Chat
         /// </summary>
         /// <param name="fromUser">O utilizador que entrou.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveEntry(string fromUser);
+        Task ReceiveEntry(string group, string fromUser);
 
         /// <summary>
         /// Notifica a receção da saída de um utilizador.
         /// </summary>
-        /// <param name="itemId">O ID do item utilizador que saiu.</param>
+        /// <param name="groupId">O ID do grupo.</param>
         /// <param name="fromUser">O utilizador que saiu.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveLeaving(string itemId, string fromUser);
+        Task ReceiveLeaving(string groupId, string fromUser);
 
         /// <summary>
         /// Recebe um pedido de um utilizador.
@@ -94,9 +101,9 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Recebe uma expulsao de um grupo
         /// </summary>
-        /// <param name="itemId">Indice do item do utilizador expulso.</param>
+        /// <param name="Id"></param>
         /// <param name="message">Mensagem que informa que o utilizador foi expulso.</param>
         /// <returns></returns>
-        Task ReceiveExpelling(string itemId, string message);
+        Task ReceiveExpelling(string Id, string message);
     }
 }
