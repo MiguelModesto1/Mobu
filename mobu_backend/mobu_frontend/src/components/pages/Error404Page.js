@@ -1,17 +1,17 @@
 import React,{ useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router,Routes, Route, Link } from 'react-router-dom';
-import Error404Component from "../single_use/Error404Component/Error404Component"
+import ErrorComponent from "../modular/ErrorComponent"
 
 /**
  * 
- * Pagina de mosaico de jogo
+ * Pagina de erro 404
  * 
  * @returns 
  */
 export default function Error404Page(){
     return(
-        <div className="error-404-page-div">
-            <Error404Component />
+        <div className="error-page-div">
+            <ErrorComponent error="404" text="Não encontrado :(" />
         </div>
     );
 }

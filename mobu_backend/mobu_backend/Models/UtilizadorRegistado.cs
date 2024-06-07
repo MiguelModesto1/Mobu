@@ -12,8 +12,8 @@ namespace mobu_backend.Models
         {
             ListaSalasDeChat = new HashSet<RegistadosSalasChat>();
             ListaMensagens = new HashSet<Mensagem>();
-            ListaPedidos = new HashSet<UtilizadorRegistado>();
-            ListaAmigos = new HashSet<UtilizadorRegistado>();
+            PedidosAmizadeEfetuados = new HashSet<Amizade>();
+            PedidosAmizadeRecebidos = new HashSet<Amizade>();
         }
         /// <summary>
         /// ID para a tabela do utilizador registado (PK)
@@ -85,21 +85,18 @@ namespace mobu_backend.Models
         [Display(Name = "Data da fotografia")]
         public DateTime DataFotografia { get; set; }
 
-        /// <summary>
-        /// Referência ao dono do grupo de amigos, proveniente do autorrelacionamento
-        /// </summary>
-        public int? DonoListaAmigosId { get; set; }
-        public UtilizadorRegistado? DonoListaAmigos { get; set; }
-
-        /// <summary>
-        /// Referência ao dono do grupo de destinatários de pedidos, proveniente do autorrelacionamento
-        /// </summary>
-        public int? DonoListaDestinatáriosId { get; set; }
-        public UtilizadorRegistado? DonoListaDestinatários { get; set; }
-
         public ICollection<RegistadosSalasChat> ListaSalasDeChat { get; set; }
         public ICollection<Mensagem> ListaMensagens { get; set; }
-        public ICollection<UtilizadorRegistado>? ListaPedidos { get; set; }
-        public ICollection<UtilizadorRegistado>? ListaAmigos { get; set; }
+
+        /// <summary>
+        /// Lista de pedidos de amizade recebidos por um utilizador
+        /// </summary>
+        public ICollection<Amizade> PedidosAmizadeRecebidos { get; set; }
+
+        /// <summary>
+        /// Pedidos de amizade feitos pelo Utilizador a outros utilizadores
+        /// </summary>
+        public ICollection<Amizade> PedidosAmizadeEfetuados { get; set; }
+
     }
 }

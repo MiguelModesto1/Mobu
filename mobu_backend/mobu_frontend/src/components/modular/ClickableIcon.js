@@ -9,13 +9,13 @@ import React,{ useState } from "react";
  * @param {*} onClick 
  * @returns 
  */
-export default function ClickableIcon({CIProps, fromParent=null, onClick}){ 
+export default function ClickableIcon({CIProps, fromParent=null, onIconClick}){ 
     
     return(
         <div 
         onClick={e => {
             e.stopPropagation();
-            onClick();
+            onIconClick();
         }} 
         className={fromParent === null ? undefined : fromParent + "-clickable-icon"}
         width={CIProps.size} 

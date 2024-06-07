@@ -17,7 +17,7 @@ namespace mobu_backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -224,6 +224,30 @@ namespace mobu_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
+                {
+                    b.Property<int>("DestinatarioFK")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RemetenteFK")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataPedido")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DataResposta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("Desbloqueado")
+                        .HasColumnType("bit");
+
+                    b.HasKey("DestinatarioFK", "RemetenteFK");
+
+                    b.HasIndex("RemetenteFK");
+
+                    b.ToTable("Amizade");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.Property<int>("IDMensagem")
@@ -257,26 +281,18 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.RegistadosSalasChat", b =>
                 {
-                    b.Property<int>("IDRegisto")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UtilizadorFK")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDRegisto"));
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
 
                     b.Property<int>("SalaFK")
                         .HasColumnType("int");
 
-                    b.Property<int>("UtilizadorFK")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
 
-                    b.HasKey("IDRegisto");
+                    b.HasKey("UtilizadorFK", "SalaFK");
 
                     b.HasIndex("SalaFK");
-
-                    b.HasIndex("UtilizadorFK");
 
                     b.ToTable("RegistadosSalasChat");
                 });
@@ -328,12 +344,6 @@ namespace mobu_backend.Migrations
                     b.Property<DateTime>("DataNasc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DonoListaAmigosId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DonoListaDestinatáriosId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -348,10 +358,6 @@ namespace mobu_backend.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("IDUtilizador");
-
-                    b.HasIndex("DonoListaAmigosId");
-
-                    b.HasIndex("DonoListaDestinatáriosId");
 
                     b.ToTable("UtilizadorRegistado");
                 });
@@ -407,6 +413,25 @@ namespace mobu_backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("mobu_backend.Models.Amizade", b =>
+                {
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Destinatario")
+                        .WithMany("PedidosAmizadeRecebidos")
+                        .HasForeignKey("DestinatarioFK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
+                        .WithMany("PedidosAmizadeEfetuados")
+                        .HasForeignKey("RemetenteFK")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Destinatario");
+
+                    b.Navigation("Remetente");
+                });
+
             modelBuilder.Entity("mobu_backend.Models.Mensagem", b =>
                 {
                     b.HasOne("mobu_backend.Models.UtilizadorRegistado", "Remetente")
@@ -445,23 +470,6 @@ namespace mobu_backend.Migrations
                     b.Navigation("Utilizador");
                 });
 
-            modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
-                {
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaAmigos")
-                        .WithMany("ListaAmigos")
-                        .HasForeignKey("DonoListaAmigosId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("mobu_backend.Models.UtilizadorRegistado", "DonoListaDestinatários")
-                        .WithMany("ListaPedidos")
-                        .HasForeignKey("DonoListaDestinatáriosId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("DonoListaAmigos");
-
-                    b.Navigation("DonoListaDestinatários");
-                });
-
             modelBuilder.Entity("mobu_backend.Models.SalasChat", b =>
                 {
                     b.Navigation("ListaMensagensRecebidas");
@@ -471,13 +479,13 @@ namespace mobu_backend.Migrations
 
             modelBuilder.Entity("mobu_backend.Models.UtilizadorRegistado", b =>
                 {
-                    b.Navigation("ListaAmigos");
-
                     b.Navigation("ListaMensagens");
 
-                    b.Navigation("ListaPedidos");
-
                     b.Navigation("ListaSalasDeChat");
+
+                    b.Navigation("PedidosAmizadeEfetuados");
+
+                    b.Navigation("PedidosAmizadeRecebidos");
                 });
 #pragma warning restore 612, 618
         }

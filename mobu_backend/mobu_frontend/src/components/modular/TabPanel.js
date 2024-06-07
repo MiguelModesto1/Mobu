@@ -1,44 +1,34 @@
-import React,{ useState } from "react";
+import React,{ useContext } from "react";
 import PersonGroupItem from "./PersonGroupItem";
-import FriendContextMenu from "../single_use/optionMenus/FriendContextMenu";
+import FriendContextMenu from "../optionMenus/FriendContextMenu";
 
 /**
  * 
- * POR IMPLEMENTAR
+ * Painel de itens de amigos/grupos
  * 
  * @param  
  * @returns 
  */
-export default function TabPanel({owner, connections, selected, friendGroupInfo, display, onItemClick}){ 
-    
-    const mapItems = friendGroupInfo.map((item) =>{
-        
-        return(
-            <>
-                <PersonGroupItem
-                owner={owner}
-                connections={connections}
-                key={item[0]}
-                isSelectedProp={item === selected}
-                selected={selected}
-                PIProps={{
-                    info: item,
-                    image: item[item.length - 2],
-                    text:{
-                        top: item[1],
-                        bottom: item[item.length - 1][item[item.length - 1].length - 1]
-                    }
-                }}
-                onClick={onItemClick}/>
-                <FriendContextMenu owner={owner} id={item[0]} showMenuOnRightClick={"none"} />
-            </>
-            
-        );
-    })
+export default function TabPanel({ display, personGroupData, onItemClick, isSelectedItem, connection, isFriends, owner, expiry, onOverItem }) { 
 
-    return(
-        <div className="tab-panel" style={{display: display}}>
-            {mapItems}
+    var personGroupItems = personGroupData.length !== 0 ?
+        personGroupData.map(item => {
+            return <PersonGroupItem
+                key={item.ItemId}
+                isSelectedItem={isSelectedItem}
+                friendGroupData={item}
+                onItemClick={onItemClick}
+                connection={connection}
+                isFriends={isFriends}
+                onOverItem={onOverItem}
+            />
+        })
+        :
+        <></>;
+
+    return (
+        <div className="tab-panel" style={{ display: display }}>
+            {personGroupItems}
         </div>
     );
 

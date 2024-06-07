@@ -1,45 +1,70 @@
-import React,{ useState,useEffect } from "react";
-import MessageContainer from "../../modular/MessageContainer"
+import React, { useRef, useMemo, useEffect } from "react";
 import "./MessagePanel.css"
+import Avatar from "../../modular/Avatar";
 
 /**
  * 
  * Painel de mensagens
  * 
- * @param {*} children filhos
  * @returns 
  */
-export default function MessagePanel({owner, connections, childrenData}){ 
+export default function MessagePanel({ ownerId, friendGroupData, selectedFriendItem, selectedGroupItem, isFriends }) {
+    //debugger;
+    const messages = useRef(
+        [{
+            IDMensagem: 0,
+            IDRemetente: 0,
+            NomeRemetente: "",
+            URLImagemRemetente: "",
+            ConteudoMsg: ""
+        }]
+    );
 
-    const [messages, setMessages] = useState(childrenData[childrenData.length - 1]);
+    useMemo(() => {
+        messages.current = friendGroupData.length !== 0 ?
+            isFriends ?
+                friendGroupData[selectedFriendItem].Messages
+                :
+                friendGroupData[selectedGroupItem].Mensagens
+            :
+            [{
+                IDMensagem: 0,
+                IDRemetente: 0,
+                NomeRemetente: "",
+                URLImagemRemetente: "",
+                ConteudoMsg: ""
+            }]
+    }, [friendGroupData, isFriends, selectedFriendItem, selectedGroupItem]);
 
-    useEffect(() => {
-        const nextMessages = messages;
-        connections[0].on("ReceiveMessage", function(user, message, idMsg){
-            setMessages(nextMessages.push([message, parseInt(user), idMsg]))
-    })}, [connections, messages]);
+    const containers =
+        messages.current.map(
+            message => {
 
+                return (
+                    <div
+                        key={message.IDMensagem}
+                        className={message.IDRemetente === ownerId ?
+                            "owner-container-div" : "other-users-container-div"
+                        }
+                    >
+                        <Avatar avatarProps={{
+                            size: "40px",
+                            src: message.URLImagemRemetente,
+                            alt: message.NomeRemetente
+                        }} />
+                        <span>{message.NomeRemetente}</span>
+                        <p>{message.ConteudoMsg}</p>
+                    </div>
+                );
 
-    const containers = messages.map((message) => {
-        
-        let cssClass;
-
-        if(message[1] === owner){
-            cssClass="owner"
-        }else{
-            cssClass="other-users"
-        }
-
-        return(
-            <MessageContainer key={message[2]} children={message} fromParent={cssClass}/>
+            }
         );
-    });
 
-    return(
+    return (
         <div className="message-panel">
             {containers}
         </div>
     );
 
-    
+
 }
