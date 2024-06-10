@@ -29,7 +29,7 @@ export default function OwnerOptionMenu({owner, showMenu, connection, logoutCall
         }
     }
     return (
-        <div className="menu-container" style={{display:showMenu}}>
+        <div className="menu-container" style={{ display: showMenu }}>
             <MenuItem text="Meu perfil" onClick={handleClick} onClickPrm="perfil" />
             <MenuItem text="Pesquisar" onClick={handleClick} onClickPrm="procurar" />
             <MenuItem text="Pedidos de amizade" onClick={handleClick} onClickPrm="pedidos" />

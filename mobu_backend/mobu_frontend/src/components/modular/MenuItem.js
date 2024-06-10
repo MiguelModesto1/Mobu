@@ -16,7 +16,7 @@ export default function MenuItem({text, onClick, onClickPrm}){
             e.stopPropagation();
             onClick(onClickPrm);
         }} 
-        className="menu-item">
+            className="bg-secondary-subtle">
             {text}
         </div>
     );

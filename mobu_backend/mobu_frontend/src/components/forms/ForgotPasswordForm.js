@@ -1,13 +1,13 @@
-import React,{ useState } from "react";
+import React, { useState } from "react";
 
 /**
  * Formulario de password esquecida
  * @returns 
  */
-export default function ForgotPasswordForm(){ 
+export default function ForgotPasswordForm() {
 
-    const[email, setEmail] = useState("");
-    const[warningText, setWarningText] = useState("");
+    const [email, setEmail] = useState("");
+    const [warningText, setWarningText] = useState("");
 
     /**
      * mudanca no estado do email
@@ -18,9 +18,9 @@ export default function ForgotPasswordForm(){
     /**
      * clique no botao de submissao
      */
-    async function handleButtonClick(){
+    async function handleButtonClick() {
 
-        var options={
+        var options = {
             method: 'POST',
             redirect: 'follow',
             body: JSON.stringify({
@@ -32,35 +32,46 @@ export default function ForgotPasswordForm(){
         }
 
         await fetch(process.env.REACT_APP_API_URL + "/forgot-password/send-email", options)
-        .then((response) => {
-            if(response.status !== 200){
-                setWarningText("Tentativa de envio de email inválida");
-            }
-        })
-        .catch(err => {console.error("error", err)});
+            .then((response) => {
+                if (response.status !== 200) {
+                    setWarningText("Tentativa de envio de email inválida");
+                }
+            })
+            .catch(err => { console.error("error", err) });
     }
 
-    return(
-        <div className="form">
-            {warningText !== "" ?
-                <div className="warning-span-div">
-                    <span className="warning-span" style={{ color: "#ff5f4a" }}>{warningText}</span>
-                </div> : <></>
-            }
-            <div className="form-input-div">
-                <span>Insira o seu e-mail</span>
-                <br />
-                <input 
-                type="email"
-                value={email}
-                className="form-input"
-                onChange={e => handleEmailChange(e.target.value)} />
+    return (
+        <div className="d-flex justify-content-center" style={{ marginTop: "15rem"}}>
+            <div className="row" style={{ width: "75%" }}>
+                <div className="d-flex justify-content-center col-lg">
+                    <div className="container rounded-4 border border-3 border-secondary-subtle mx-auto" style={{ backgroundColor: "lightblue" }}>
+                        {warningText !== "" ?
+                            <div>
+                                <span style={{ color: "#ff5f4a" }}>{warningText}</span>
+                            </div> : <></>
+                        }
+                        <div className="my-2">
+                            <label className="form-label">&nbsp;&nbsp;&nbsp;<strong>Insira o seu E-mail</strong></label>
+                            <input
+                                type="email"
+                                value={email}
+                                className="rounded-4 border border-3 border-secondary-subtle form-control"
+                                onChange={e => handleEmailChange(e.target.value)}
+                            />
+                        </div>
+                        <div className="d-flex justify-content-center mb-2">
+                            <button className="btn" style={{ backgroundColor: "#3b9ae1", color: "white" }} onClick={() => handleButtonClick()} >Enviar E-mail</button>
+                        </div>
+                        <div className="my-2 d-flex justify-content-evenly">
+                            <a href={window.location.origin} style={{ color: "#3b9ae1" }}>Voltar ao login</a>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <button className="form-button" onClick={() => handleButtonClick()} >Enviar email</button>
-            <br />
-            <a href={window.location.origin} className="form-link">Voltar ao login</a>
         </div>
+
     );
 
-    
+
 }
