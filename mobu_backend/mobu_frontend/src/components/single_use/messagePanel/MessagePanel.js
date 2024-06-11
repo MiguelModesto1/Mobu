@@ -36,6 +36,34 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
             }]
     }, [friendGroupData, isFriends, selectedFriendItem, selectedGroupItem]);
 
+    const transformTextIntoJsx = (value) => {
+        
+        var jsxParagraphs = [];
+        var paragraphText = "";
+
+        for (var i = 0; i < value.length; i++) {
+
+            if (i === value.length - 1) {
+                paragraphText += value[i];
+                jsxParagraphs.push(paragraphText)
+                break;
+            }
+
+            if (value[i] === "\n") {
+                jsxParagraphs.push(paragraphText)
+                paragraphText = "";
+                continue;
+            }
+            paragraphText += value[i];
+        }
+        //debugger;
+        return jsxParagraphs.map(paragraph => {
+            return (
+                <p className="m-0">{paragraph}</p>
+            );
+        });
+    }
+
     const containers =
         messages.current.map(
             message => {
@@ -44,7 +72,7 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
                     <div
                         key={message.IDMensagem}
                         className={message.IDRemetente === ownerId ?
-                            "owner-container-div" : "other-users-container-div"
+                            "d-flex justify-content-end py-1 my-3" : "d-flex justify-content-start py-1 my-3"
                         }
                     >
                         <Avatar avatarProps={{
@@ -52,8 +80,20 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
                             src: message.URLImagemRemetente,
                             alt: message.NomeRemetente
                         }} />
-                        <span>{message.NomeRemetente}</span>
-                        <p>{message.ConteudoMsg}</p>
+
+                        <div style={{ marginLeft: "1rem", marginTop: "2rem", maxWidth: "50%" }}>
+                            <div className="text-primary">
+                                <span><strong>{message.NomeRemetente}</strong></span>
+                            </div>
+                            <div
+                                className="container-fluid rounded-4 py-1"
+                                style={{
+                                    backgroundColor: message.IDRemetente === ownerId ? "#3b9ae1" : "#8ab9e5", color: "white"
+                                }}
+                            >
+                                {transformTextIntoJsx(message.ConteudoMsg)}
+                            </div>
+                        </div>
                     </div>
                 );
 
@@ -61,7 +101,7 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
         );
 
     return (
-        <div className="message-panel">
+        <div className="px-5 pt-3" style={{ height: "37rem", overflow: "auto" }}>
             {containers}
         </div>
     );

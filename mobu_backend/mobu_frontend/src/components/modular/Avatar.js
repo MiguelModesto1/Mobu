@@ -15,7 +15,7 @@ export default function Avatar({ avatarProps }) {
             width={avatarProps.size}
             height={avatarProps.size}>
             <img
-                className="img-fluid rounded-circle avatar"
+                className="img-fluid rounded-circle avatar border border-1 border-primary-subtle"
                 style={{
                     width: avatarProps.size,
                     height: avatarProps.size,

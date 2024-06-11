@@ -5,8 +5,10 @@ import TabPanel from "../modular/TabPanel";
 import MessageHeaderBar from "../single_use/messageHeaderBar/MessageHeaderBar";
 import MessageFooterBar from "../single_use/messageFooterBar/MessageFooterBar";
 import MessagePanel from "../single_use/messagePanel/MessagePanel";
-import GroupContextMenu from "../optionMenus/GroupContextMenu"
-import FriendContextMenu from "../optionMenus/FriendContextMenu"
+import GroupContextMenu from "../optionMenus/GroupContextMenu";
+import FriendContextMenu from "../optionMenus/FriendContextMenu";
+import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
+
 
 /**
  * 
@@ -24,6 +26,8 @@ export default function MessagesPage() {
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const timeout = useRef(0);
 
+    const [showMenu, setShowMenu] = useState(false);
+    const [tabsNumber, setTabsNumber] = useState(0);
     const [hasFetchedFriendsData, setHasFetchedFriendsData] = useState(false);
     const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
     const [isFriendOverBlocked, setIsFriendOverBlocked] = useState(false);
@@ -320,11 +324,15 @@ export default function MessagesPage() {
                     // dono
                     owner.current = data.ownerInfo;
 
+                    // numero de separadores
+                    var auxTabNum = 0;
+
                     // dados
                     //debugger;
                     if (data.friends.length !== 0) {
                         setFriendsData([...data.friends]);
                         setHasFetchedFriendsData(true);
+                        auxTabNum++;
                         connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
                     }
                     else {
@@ -334,8 +342,11 @@ export default function MessagesPage() {
                     if (data.groups.length !== 0) {
                         setGroupsData([...data.groups]);
                         setHasFetchedGroupsData(true);
+                        auxTabNum++;
                         connection.current.invoke("AddConnection", [...data.groups][0].IDSala + "");
                     }
+
+                    setTabsNumber(auxTabNum);
 
                     
                 })
@@ -762,18 +773,23 @@ export default function MessagesPage() {
         setOverGroupItem(itemKey);
     }
 
-
+    /**
+     * clique no icone de menu
+     */
+    const handleMenuIconClick = () => {
+        setShowMenu(!showMenu);
+    }
 
     return (
-        <>
+        <div style={{ maxWidth:"99.2%" }}>
             {
                 hasFetchedFriendsData || hasFetchedGroupsData ?
-                    <>
-                        <div className="tabs-div">
-                            <div className="tabs-headers-div">
-
+                    <div className="row">
+                        <div className="col-lg-2 px-0">
+                            <div className="navbar py-0 d-flex justify-content-evenly">
                                 {hasFetchedFriendsData && friendsData.length !== 0 &&
-                                   <TabHeader
+                                    <TabHeader
+                                        tabsNumber={tabsNumber}
                                         text="Amigos"
                                         onHeaderClick={handleFriendsTabHeaderClick}
                                         personGroupData={{
@@ -786,10 +802,12 @@ export default function MessagesPage() {
                                         }}
                                         connection={connection.current}
                                         isFriends={friendsTab}
+
                                     />
                                 }
                                 {hasFetchedGroupsData && groupsData.length !== 0 &&
-                                   <TabHeader
+                                    <TabHeader
+                                        tabsNumber={tabsNumber}
                                         text="Grupos"
                                         onHeaderClick={handleGroupsTabHeaderClick}
                                         personGroupData={{
@@ -806,13 +824,14 @@ export default function MessagesPage() {
                                 }
                                 
                             </div>
-                            <div className="tabs-panels-div">
+                            <div className="tabs-div">
+                                
                                 {hasFetchedFriendsData && friendsData.length !== 0 &&
                                     <TabPanel
                                         display={friendsTab ? "block" : "none"}
                                         personGroupData={friendsData}
                                         onItemClick={handleFriendItemClick}
-                                        isSelectedItem={selectedFriendItem}
+                                        selectedItem={selectedFriendItem}
                                         connection={connection.current}
                                         isFriends={true}
                                         onOverItem={handleOverFriendItem}
@@ -823,7 +842,7 @@ export default function MessagesPage() {
                                         display={friendsTab ? "none" : "block"}
                                         personGroupData={groupsData}
                                         onItemClick={handleGroupItemClick}
-                                        isSelectedItem={selectedGroupItem}
+                                        selectedItem={selectedGroupItem}
                                         connection={connection.current}
                                         isFriends={false}
                                         onOverItem={handleOverGroupItem}
@@ -831,15 +850,19 @@ export default function MessagesPage() {
                                 }
                             </div>
                         </div>
-                        <div className="messages-div">
+                        <div className="col-lg-10 px-0">
                             <MessageHeaderBar
-                                owner={owner.current}
                                 personGroupData={friendsTab ? friendsData : groupsData}
                                 selectedFriendItem={selectedFriendItem}
                                 selectedGroupItem={selectedGroupItem}
                                 isFriends={friendsTab}
+                                onMenuIconClick={handleMenuIconClick}
+                            />
+                            <OwnerOptionMenu
+                                owner={owner.current}
+                                showMenu={showMenu ? "block" : "none"}
                                 connection={connection.current}
-                                logoutCallback={logout}
+                                logoutCallback={() => logout()}
                             />
                             <MessagePanel
                                 ownerId={owner.current}
@@ -881,11 +904,11 @@ export default function MessagesPage() {
                                 connection={connection.current}
                             />
                         }
-                    </>
+                    </div>
                     :
                     <></>
             }
-        </>
+        </div>
     );
 
 }

@@ -31,16 +31,22 @@ export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerA
                 <div
                     className="menu-container"
                     style={{
+                        maxWidth: "15%",
                         top: yPos,
                         left: xPos,
                         position: "absolute"
                     }}
                 >
-                    <MenuItem text="Perfil de grupo" onClick={handleClick} onClickPrm="perfil" />
-                    {!isOwnerAdmin && !hasLeft && !wasExpelled &&
-                        <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
+
+                    {!isOwnerAdmin && !hasLeft && !wasExpelled ?
+                        <>
+                            <MenuItem text="Perfil de grupo" onClick={handleClick} onClickPrm="perfil" />
+                            <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
+                        </>
+                        :
+                        <span>Saiu do grupo!</span>
                     }
-                    
+
                 </div>
             ) :
                 <></>
