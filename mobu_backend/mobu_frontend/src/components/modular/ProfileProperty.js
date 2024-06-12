@@ -41,27 +41,31 @@ export default function ProfileProperty({ keyProp, isEditing, isAvatar = null, i
     }, [isAvatar]);
 
     /**
-     * callback para a mudanca do avatar
+     * callback para a primeira mudanca do avatar
      */
     const handleAvatarChange = () => {
         setHasChangedAvatar(true)
     }
 
+    /**
+     * callback para a mudanca do valor do input
+     * @param {any} value
+     */
     const handleInputValueChange = (value) => {
         setInputValue(value)
     }
 
     return (
-        <div className="profile-prop-div">
-            <span className="profile-key-span">{keyProp + " : "}</span>
+        <div className={`my-2 d-lg-flex justify-content-${isEditing ? "end" : "start"}`}>
+            <span className="my-1 w-50 text-end">&nbsp;&nbsp;&nbsp;<strong>{keyProp + " : "}</strong></span>
 
             {!isEditing ?
-                <span className="profile-value-span">{inputValue}</span>
+                <span className="mx-2 my-1">{inputValue}</span>
                 :
                 <input
                     type={valueType}
                     value={!isAvatar ? inputValue : undefined}
-                    className="profile-input"
+                    className={`${isAvatar ? "avatar-input" : ""} mx-2 rounded-4 border border-3 border-secondary-subtle form-control`}
                     accept={isAvatar ? ".jpg,.jpeg,.png" : undefined}
                     onChange={e => {
                         if (isAvatar && isAvatar !== null) {

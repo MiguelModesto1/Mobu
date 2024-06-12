@@ -224,7 +224,8 @@ export default function GroupProfilePage() {
         });
     }
 
-    const mapMembers = members.map((member) => {
+    const mapMembers = members.map((member) => {        
+
         return (
             <GroupMemberItem
                 requester={requester}
@@ -243,35 +244,60 @@ export default function GroupProfilePage() {
     return (
         <>
             {hasFetchedData ?
-                <div className="profile">
-                    <Avatar avatarProps={{
-                        src: avatar,
-                        alt: "avatar do grupo " + groupName,
-                        size: "300px"
-                    }} />
-                    <div className="span-div">
-                        <span className="group-name-bold">{groupName}</span>
+                <div className="d-flex justify-content-center" style={{ marginTop: "1%" }}>
+                    <div className="row" style={{ width: "100%" }}>
+                        <div className="col-lg">
+                            <div className="mb-3 d-flex justify-content-center">
+                                <Avatar avatarProps={{
+                                    src: avatar,
+                                    alt: "avatar de " + groupName,
+                                    size: "200px"
+                                }}
+                                />
+                            </div>
+
+                            <div className="mb-3 d-flex justify-content-center">
+                                <span><strong>{groupName}</strong></span>
+                            </div>
+
+                            <div className="d-flex flex-column" style={{ marginLeft: "20%", marginRight: "20%" }}>
+                                <ProfileProperty
+                                    keyProp="ID"
+                                    text={id}
+                                    isEditing={false}
+                                />
+                            </div>
+
+                            <div className="mb-3 d-flex justify-content-center">
+                                <span><strong>Integrantes:</strong></span>
+                            </div>
+
+                            <div className="d-flex justify-content-center col-lg mb-3" style={{ marginLeft: "20%", marginRight: "20%" }}>
+                                <div className="container px-0 rounded-4 border border-3 border-secondary-subtle mx-auto" style={{ overflow: "auto", maxHeight: "16.313rem" }}>
+                                    {mapMembers}
+                                </div>
+                            </div>
+
+                            {
+                                isRequesterAdmin ?
+                                    <div className="d-flex justify-content-center mt-1 mb-2">
+                                        <button
+                                            className="btn"
+                                            style={{ backgroundColor: "#3b9ae1", color: "white" }}
+                                            onClick={() => window.location.assign(`/edit-group-profile?id=${id}&admin=${requester}`)}
+                                        >
+                                            Editar grupo
+                                        </button>
+                                    </div>
+                                    :
+                                    <></>
+                            }
+
+                            <div className="my-2 d-flex justify-content-evenly">
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
+                            </div>
+                        </div>
                     </div>
-                    <ProfileProperty
-                        keyProp="ID"
-                        text={id}
-                        isEditing={false}
-                    />
-                    <div className="span-div">
-                        <span>Integrantes:</span>
-                        <br />
-                    </div>
-                    <div className="members-div">
-                        {mapMembers}
-                    </div>
-                    
-                    {
-                        isRequesterAdmin ?
-                            <button onClick={() => window.location.assign(`/edit-group-profile?id=${id}&admin=${requester}`)}>Editar grupo</button>
-                            :
-                            <></>
-                    }
-                    <button onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
                 </div>
                 :
                 <></>

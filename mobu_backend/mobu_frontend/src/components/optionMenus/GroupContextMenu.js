@@ -38,10 +38,10 @@ export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerA
                     }}
                 >
 
-                    {!isOwnerAdmin && !hasLeft && !wasExpelled ?
+                    {!hasLeft && !wasExpelled ?
                         <>
                             <MenuItem text="Perfil de grupo" onClick={handleClick} onClickPrm="perfil" />
-                            <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />
+                            {!isOwnerAdmin && <MenuItem text="Sair do grupo" onClick={handleClick} onClickPrm="sair" />}
                         </>
                         :
                         <span>Saiu do grupo!</span>

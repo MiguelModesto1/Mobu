@@ -1,9 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import Button from "../modular/Button";
-import Input from "../modular/Input";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
-import ProfileProperty from "../modular/ProfileProperty";
 
 /**
  * Formulario de fundacao de grupos

@@ -157,42 +157,60 @@ export default function PersonProfilePage() {
     return (hasFetchedData ?
         <>
             {
-                < div className="profile" >
-                    <Avatar avatarProps={{
-                        src: avatar,
-                        alt: "avatar de " + username,
-                        size: "300px"
-                    }} />
-                    <div className="span-div">
-                        <span className="group-name-bold">{username}</span>
+                <div className="d-flex justify-content-center" style={{ marginTop: "6%" }}>
+                    <div className="row" style={{ width: "100%" }}>
+                        <div className="col-lg">
+                            <div className="mb-3 d-flex justify-content-center">
+                                <Avatar avatarProps={{
+                                    src: avatar,
+                                    alt: "avatar de " + username,
+                                    size: "200px"
+                                }}
+                                />
+                            </div>
+
+                            <div className="mb-3 d-flex justify-content-center">
+                                <span><strong>{username}</strong></span>
+                            </div>
+
+
+                            <div className="d-flex flex-column" style={{ marginLeft: "20%", marginRight: "20%" }}>
+                                <ProfileProperty
+                                    keyProp="ID"
+                                    text={id}
+                                    isEditing={false}
+
+                                />
+                                <ProfileProperty //yyyy-MM-ddThh:mm
+                                    keyProp="Data de Nascimento"
+                                    text={birthDate.toLocaleDateString()}
+                                    isEditing={false}
+                                />
+                                <ProfileProperty
+                                    keyProp="E-mail"
+                                    text={email}
+                                    isEditing={false}
+                                />
+                            </div>
+
+                            {isOwner ?
+                                <div className="d-flex justify-content-center mt-1 mb-2">
+                                    <button
+                                        className="btn"
+                                        style={{ backgroundColor: "#3b9ae1", color: "white" }}
+                                        onClick={() => window.location.assign(`/edit-person-profile?id=${id}`)}
+                                    >
+                                        Editar perfil
+                                    </button>
+                                </div>
+                                :
+                                <></>
+                            }
+                            <div className="my-2 d-flex justify-content-evenly">
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
+                            </div>
+                        </div>
                     </div>
-                    <ProfileProperty
-                        keyProp="ID"
-                        text={id}
-                        isEditing={false}
-
-                    />
-                    <ProfileProperty //yyyy-MM-ddThh:mm
-                        keyProp="Data de nascimento"
-                        text={birthDate.toLocaleDateString()}
-                        isEditing={false}
-                    />
-                    <ProfileProperty
-                        keyProp="E-mail"
-                        text={email}
-                        isEditing={false}
-                    />
-
-                    {isOwner ?
-                        <button
-                            className="profile-button"
-                            onClick={() => window.location.assign(`/edit-person-profile?id=${id}`)}>
-                            Editar perfil
-                        </button>
-                        :
-                        <></>
-                    }
-                    <button onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
                 </div>
             }
 

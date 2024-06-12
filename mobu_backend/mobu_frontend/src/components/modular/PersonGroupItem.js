@@ -39,7 +39,10 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
     return (
         <div
             className="d-flex py-2 px-3"
-            style={{ backgroundColor: itemId.current === selectedItem ? "#c4dcf2" : "#8ab9e5", cursor: "pointer" }}
+            style={{
+                backgroundColor: itemId.current === selectedItem ? "#c4dcf2" : "#8ab9e5",
+                cursor: "pointer"
+            }}
             onMouseOver={() => onOverItem(itemId.current)}
             onClick={async () => {
                 await connection.invoke("RemoveConnection", roomId.current + "");
