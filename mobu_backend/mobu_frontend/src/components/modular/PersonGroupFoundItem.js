@@ -1,4 +1,4 @@
-import React,{ useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Avatar from "./Avatar";
 
 /**
@@ -7,8 +7,8 @@ import Avatar from "./Avatar";
  * 
  * @returns 
  */
-export default function PersonGroupFoundItem({connection, ownerId, personRoomId, name, avatar, email=null, isGroup}){
-    
+export default function PersonGroupFoundItem({ connection, ownerId, personRoomId, name, avatar, email = null, isGroup }) {
+
     const [changeButtonText, setChangeButtonText] = useState("");
     const [isClicked, setIsClicked] = useState(false);
 
@@ -28,10 +28,10 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
                 }
             });
         }
-        
 
-        
-    },[])
+
+
+    }, [])
 
     useEffect(() => {
         setChangeButtonText(isGroup === false ? "Pedir em amizade" : "Entrar");
@@ -48,47 +48,62 @@ export default function PersonGroupFoundItem({connection, ownerId, personRoomId,
      * clique no botao de pedidos
      * @returns
      */
-    async function handleRequestButtonClick(){
+    async function handleRequestButtonClick() {
 
-        if(!isGroup){
+        if (!isGroup) {
             await connection.invoke("SendRequestToUser", ownerId + "", personRoomId + "");
-        }else{
+        } else {
             await connection.invoke("EnterGroup", ownerId + "", personRoomId + "");
         }
-        
+
     }
 
-    return(
-        <div className="person-group-found-item-div">
-            <Avatar avatarProps={{
-                size: "40px",
-                src: avatar,
-                alt: "avatar de " + personRoomId
-            }} />
-            <span>{personRoomId}</span>
-            <br />
-            <span>{name}</span>
-            {!isGroup && email !== null ?
-                <>
-                    <br />
-                    <span>{email}</span>
-                </>
-                :
-                <></>
-            }
-            <button
-                className="request-button"
-                disabled={isClicked}
-                style={{ backgroundColor: "#3b9ae1" }}
-                onClick={() => {
-                    handleRequestButtonClick();
-                    if (!isClicked)
-                        handleIsClicked();
-                }}
+    return (
+        <div style={{ width: "100%" }}>
+            <div
+                className={`py-2 px-3 row`}
+                style={{ overflow: "auto", backgroundColor: "#8ab9e5" }}
             >
-                {changeButtonText}
-            </button>
+                <div className="col-xl-7 row">
+                    <div className="col-xl-3 my-auto mx-2">
+                        <Avatar avatarProps={{
+                            size: "40px",
+                            src: avatar,
+                            alt: "avatar de " + personRoomId
+                        }}
+                        />
+                    </div>
+                    <div className="col-xl-4" style={{ marginLeft: ".5rem" }}>
+                        <span>{"#" + personRoomId}</span>
+                        <br />
+                        <span>{name}</span>
+                        {!isGroup && email !== null ?
+                            <>
+                                <br />
+                                <span>{email}</span>
+                            </>
+                            :
+                            <></>
+                        }
+                    </div>
+                </div>
+                <div className="justify-content-end my-auto col-xl-5">
+                    <button
+                        className="btn rounded-4"
+                        disabled={isClicked}
+                        style={{ backgroundColor: "#3b9ae1", color: "white" }}
+                        onClick={() => {
+                            handleRequestButtonClick();
+                            if (!isClicked)
+                                handleIsClicked();
+                        }}
+                    >
+                        {changeButtonText}
+                    </button>
+                </div>
+            </div>
         </div>
+        
     );
 
 }

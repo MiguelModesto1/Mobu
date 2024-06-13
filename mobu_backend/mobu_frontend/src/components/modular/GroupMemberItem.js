@@ -21,7 +21,6 @@ export default function GroupMemberItem({ requester, avatar, personId, personNam
     return (
         <div
             className={`d-flex justify-content-between py-2 px-3 rounded-4`}
-            
             style={{ backgroundColor: "#8ab9e5" }}
         >
             <div className="d-lg-flex">
