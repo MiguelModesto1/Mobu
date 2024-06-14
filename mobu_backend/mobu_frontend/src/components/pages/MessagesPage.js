@@ -781,7 +781,7 @@ export default function MessagesPage() {
     }
 
     return (
-        <div style={{ maxWidth:"99.2%" }}>
+        <div style={{ maxWidth: "99.2%" }}>
             {
                 hasFetchedFriendsData || hasFetchedGroupsData ?
                     <div className="row">

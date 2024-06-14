@@ -80,14 +80,16 @@ export default function PersonGroupFoundItem({ connection, ownerId, personRoomId
                         {!isGroup && email !== null ?
                             <>
                                 <br />
-                                <span>{email}</span>
+                                <div className="text-wrap w-100">
+                                    {email}
+                                </div>
                             </>
                             :
                             <></>
                         }
                     </div>
                 </div>
-                <div className="justify-content-end my-auto col-xl-5">
+                <div className="d-xl-flex justify-content-end my-auto col-xl-5">
                     <button
                         className="btn rounded-4"
                         disabled={isClicked}

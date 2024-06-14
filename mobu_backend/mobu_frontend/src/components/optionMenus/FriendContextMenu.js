@@ -37,7 +37,7 @@ export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFrie
         <>
             {showMenu ? (
                 <div
-                    className="menu-container w-25"
+                    className="menu-container d-flex flex-column col-lg-1 col-5"
                     style={{
                         top: yPos,
                         left: xPos,

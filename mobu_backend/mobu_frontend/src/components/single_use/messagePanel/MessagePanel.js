@@ -59,7 +59,7 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
         //debugger;
         return jsxParagraphs.map(paragraph => {
             return (
-                <p className="m-0">{paragraph}</p>
+                <p className="text-break m-0">{paragraph}</p>
             );
         });
     }
@@ -88,7 +88,8 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
                             <div
                                 className="container-fluid rounded-4 py-1"
                                 style={{
-                                    backgroundColor: message.IDRemetente === ownerId ? "#3b9ae1" : "#8ab9e5", color: "white"
+                                    backgroundColor: message.IDRemetente === ownerId ? "#3b9ae1" : "#8ab9e5",
+                                    color: "white"
                                 }}
                             >
                                 {transformTextIntoJsx(message.ConteudoMsg)}

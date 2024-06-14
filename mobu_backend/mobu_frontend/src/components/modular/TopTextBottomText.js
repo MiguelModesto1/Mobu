@@ -36,7 +36,7 @@ export default function TopTextBottomText({itemId, selectedItem, TTBTProps, from
             </span>
             <br />
             <span className={fromParent + "-bottom-text"}>
-                {handleTextLength(TTBTProps.bottom, 20)}
+                {handleTextLength(TTBTProps.bottom, 13)}
             </span>
         </div>
     );

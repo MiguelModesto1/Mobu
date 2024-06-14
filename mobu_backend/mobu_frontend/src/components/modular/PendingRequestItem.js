@@ -20,11 +20,11 @@ export default function PendingRequestItem({ connection, ownerId, personId, name
         connection.on("ReceiveRequestReply", (replierObject, reply) => {
             if (reply) {
                 replierObject.friendId === personId &&
-                setAcceptButtonText("Aceite");
+                    setAcceptButtonText("Aceite");
             }
             else {
                 replierObject.friendId === personId &&
-                setRefuseButtonText("Recusado");
+                    setRefuseButtonText("Recusado");
             }
         });
 
@@ -63,39 +63,56 @@ export default function PendingRequestItem({ connection, ownerId, personId, name
     }
 
     return (
-        <div className="person-group-found-item-div">
-            <Avatar avatarProps={{
-                size: "40px",
-                src: avatar,
-                alt: "avatar de " + personId
-            }} />
-            <span>{personId}</span>
-            <br />
-            <span>{name}</span>
-            <button
-                className="accept-request-button"
-                disabled={isAcceptClicked}
-                style={{ backgroundColor: "#3b9ae1", display: isRefuseClicked ? "none" : "block" }}
-                onClick={() => {
-                    handleAcceptRequestButtonClick();
-                    if (!isAcceptClicked)
-                        handleIsAcceptClicked();
-                }}
+        <div style={{ width: "100%" }}>
+            <div
+                className={`py-2 px-3 row`}
+                style={{ overflow: "auto", backgroundColor: "#8ab9e5" }}
             >
-                {acceptButtonText}
-            </button>
-            <button
-                className="refuse-request-button"
-                disabled={isRefuseClicked}
-                style={{ backgroundColor: "#ff5f4a", display: isAcceptClicked ? "none" : "block" }}
-                onClick={() => {
-                    handleRefuseRequestButtonClick();
-                    if (!isRefuseClicked)
-                        handleIsRefuseClicked();
-                }}
-            >
-                {refuseButtonText}
-            </button>
+                <div className="col-xl-7 row">
+                    <div className="col-xl-3 my-auto mx-2">
+                        <Avatar avatarProps={{
+                            size: "40px",
+                            src: avatar,
+                            alt: "avatar de " + personId
+                        }} />
+                    </div>
+                    <div className="col-xl-4" style={{ marginLeft: ".5rem" }}>
+                        <span>{personId}</span>
+                        <br />
+                        <span>{name}</span>
+                    </div>
+                </div>
+                <div className="d-xl-flex justify-content-end my-auto col-xl-5">
+                    <div className="m-2">
+                        <button
+                            className="btn rounded-4"
+                            disabled={isAcceptClicked}
+                            style={{ backgroundColor: "#3b9ae1", color: "white", display: isRefuseClicked ? "none" : "block" }}
+                            onClick={() => {
+                                handleAcceptRequestButtonClick();
+                                if (!isAcceptClicked)
+                                    handleIsAcceptClicked();
+                            }}
+                        >
+                            {acceptButtonText}
+                        </button>
+                    </div>
+                    <div className="m-2">
+                        <button
+                            className="btn rounded-4"
+                            disabled={isRefuseClicked}
+                            style={{ backgroundColor: "#ff5f4a", color: "white", display: isAcceptClicked ? "none" : "block" }}
+                            onClick={() => {
+                                handleRefuseRequestButtonClick();
+                                if (!isRefuseClicked)
+                                    handleIsRefuseClicked();
+                            }}
+                        >
+                            {refuseButtonText}
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

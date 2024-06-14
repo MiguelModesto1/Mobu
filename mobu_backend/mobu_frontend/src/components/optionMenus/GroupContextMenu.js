@@ -29,9 +29,9 @@ export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerA
         <>
             {showMenu ? (
                 <div
-                    className="menu-container"
+                    className="menu-container d-flex flex-column col-lg-2 col-5"
                     style={{
-                        maxWidth: "15%",
+                        //maxWidth: "15%",
                         top: yPos,
                         left: xPos,
                         position: "absolute"

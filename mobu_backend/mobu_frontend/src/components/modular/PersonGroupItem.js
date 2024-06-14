@@ -64,7 +64,7 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
                         top: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala,
                         bottom: lastMessage.current !== undefined ? lastMessage.current.ConteudoMsg : "Sem mensagens"
                     }}
-                    fromParent="preson-group-item"
+                    fromParent=""
                 />
             </div>
         </div>

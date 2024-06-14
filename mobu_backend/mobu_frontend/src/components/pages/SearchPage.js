@@ -324,7 +324,7 @@ export default function SearchPage() {
 
                         {showList &&
                             <div className="d-flex justify-content-center mb-3" style={{ marginLeft: "15%", marginRight: "15%" }}>
-                                <div className="container rounded-4 border border-3 border-secondary-subtle p-1" style={{ overflow: "auto", maxHeight: "16.313rem" }}>
+                                <div className="container rounded-4 border border-3 border-secondary-subtle p-1" style={{ overflow: "overlay", maxHeight: "16.313rem" }}>
                                     {
                                         show404Text &&
                                         <div className="d-flex justify-content-center">
