@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
 
@@ -8,7 +8,7 @@ import MenuItem from "../modular/MenuItem";
  * 
  * @returns
  */
-export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) { 
+export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) {
 
     const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
@@ -29,32 +29,32 @@ export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFrie
                 }
                 setShowMenu(false);
                 break;
-            ;
+                ;
         }
     }
 
     return (
         <>
             {showMenu ? (
-            <div
-            className="menu-container"
-            style={{
-                top: yPos,
-                left: xPos,
-                position: "absolute"
-            }}
-            >
+                <div
+                    className="menu-container d-flex flex-column col-lg-1 col-5"
+                    style={{
+                        top: yPos,
+                        left: xPos,
+                        position: "absolute"
+                    }}
+                >
                     <MenuItem text="Perfil" onClick={handleClick} onClickPrm="perfil" />
                     {
                         !hasFriendOverBlockedMe &&
-                            <MenuItem text={isFriendOverBlocked ? "Desbloquear" : "Bloquear"} onClick={handleClick} onClickPrm="block_mngmt" />    
+                        <MenuItem text={isFriendOverBlocked ? "Desbloquear" : "Bloquear"} onClick={handleClick} onClickPrm="block_mngmt" />
                     }
-                    
+
                     {/*<MenuItem text="Reportar" onClick={handleClick} onClickPrm="reportar" />*/}
-            </div>
-        ) : (
-            <></>
-        )}
+                </div>
+            ) : (
+                <></>
+            )}
         </>
     );
 }

@@ -3,56 +3,59 @@
 @inject IHttpContextAccessor http;
 
 @{
-    ViewData["Title"] = "Índice";
+	ViewData["Title"] = "Índice";
 
-    var request = http.HttpContext.Request;
+	var request = http.HttpContext.Request;
 }
 
 <h1>Índice</h1>
 
 <p>
-    <a asp-action="Create">Criar membro de sala</a>
+	<a asp-action="Create">Criar membro de sala</a>
 </p>
 
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Utilizador)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sala)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsAdmin)
-            </th>
-            <th>
-                Fotografia
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Utilizador.NomeUtilizador)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sala.NomeSala)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsAdmin)
-            </td>
-            <td>
-                <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
-            </td>
-            <td>
-                    @Html.ActionLink("Detalhes", "Details", new { utilizadorId=item.UtilizadorFK, salaId=item.SalaFK }) |
-                    @Html.ActionLink("Editar", "Edit", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK }) |
-                    @Html.ActionLink("Apagar", "Delete", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK })
-            </td>
-        </tr>
-}
-    </tbody>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.Utilizador)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Sala)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.IsAdmin)
+			</th>
+			<th>
+				Fotografia
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Utilizador.NomeUtilizador)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Sala.NomeSala)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.IsAdmin)
+				</td>
+				<td>
+					<img class="rounded-circle avatar border border-1 border-primary-subtle"
+						 style="width:75px; height:75px; object-fit:cover;"
+						 src=@("https://" + request.Host.ToString() + "/imagens/" + item.Utilizador.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+				</td>
+				<td>
+					@Html.ActionLink("Detalhes", "Details", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK }) |
+					@Html.ActionLink("Editar", "Edit", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK }) |
+					@Html.ActionLink("Apagar", "Delete", new { utilizadorId = item.UtilizadorFK, salaId = item.SalaFK })
+				</td>
+			</tr>
+		}
+	</tbody>
 </table>

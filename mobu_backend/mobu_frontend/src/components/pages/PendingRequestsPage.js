@@ -201,26 +201,39 @@ export default function PendingRequestsPage() {
     });
 
     return (
-        <div className="requests-div">
-
-            {
-                show404Text &&
-                <div className="not-found-div">
-                    <span>Sem resultados</span>
+        <div className="d-flex justify-content-center" style={{ marginTop: "10rem" }}>
+            <div style={{ width: "100%" }}>
+                <div className="d-flex justify-content-center" style={{ marginLeft: "15%", marginRight: "15%" }}>
+                    <div className="container rounded-4 border border-3 border-secondary-subtle" style={{ backgroundColor: "lightblue" }}>
+                        <div className="container rounded-4 border border-3 border-secondary-subtle p-1 mt-2" style={{ overflow: "overlay", maxHeight: "16.313rem" }}>
+                            {
+                                show404Text &&
+                                <div className="d-flex justify-content-center">
+                                    <span className="text-center"><strong>Sem resultados</strong></span>
+                                </div>
+                            }
+                            <div style={{ overflowX: "hidden" }} className="d-flex flex-column">
+                                {
+                                    hasFetchedData &&
+                                    <>
+                                        <span className="text-center"><strong>Pedidos pendentes:</strong></span>
+                                        <br />
+                                        {mapRequestItems}
+                                    </>
+                                }
+                            </div>
+                        </div>
+                        <div className="my-2 d-flex justify-content-evenly">
+                            <button className="btn rounded-4"
+                                style={{ backgroundColor: "#3b9ae1", color: "white" }}
+                                onClick={() => window.location.assign(`/messages?id=${owner.current}`)}
+                            >
+                                Voltar à lista de mensagens
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            }
-            <div className="found-requests-div">
-                {
-                    hasFetchedData &&
-                    <>
-                        <span>Pedidos pendentes:</span>
-                        <br />
-                        {mapRequestItems}
-                    </>
-                }
             </div>
-            <button onClick={() => window.location.assign(`/messages?id=${owner.current}`)}>Voltar à lista de mensagens</button>
         </div>
-
     );
 }

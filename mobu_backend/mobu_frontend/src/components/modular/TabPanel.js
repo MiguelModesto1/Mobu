@@ -9,13 +9,13 @@ import FriendContextMenu from "../optionMenus/FriendContextMenu";
  * @param  
  * @returns 
  */
-export default function TabPanel({ display, personGroupData, onItemClick, isSelectedItem, connection, isFriends, owner, expiry, onOverItem }) { 
+export default function TabPanel({ display, personGroupData, onItemClick, selectedItem, connection, isFriends, owner, expiry, onOverItem }) { 
 
     var personGroupItems = personGroupData.length !== 0 ?
         personGroupData.map(item => {
             return <PersonGroupItem
                 key={item.ItemId}
-                isSelectedItem={isSelectedItem}
+                selectedItem={selectedItem}
                 friendGroupData={item}
                 onItemClick={onItemClick}
                 connection={connection}
@@ -27,9 +27,12 @@ export default function TabPanel({ display, personGroupData, onItemClick, isSele
         <></>;
 
     return (
-        <div className="tab-panel" style={{ display: display }}>
-            {personGroupItems}
+        <div style={{ display: display, height: "42.438rem", backgroundColor: "lightblue" }} >
+            <div className="tab-panel" style={{ overflow: "auto" }}>
+                {personGroupItems}
+            </div>
         </div>
+        
     );
 
     

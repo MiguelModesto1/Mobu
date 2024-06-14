@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React, { useState } from "react";
 
 /**
  * 
@@ -9,14 +9,16 @@ import React,{ useState } from "react";
  * @param onClickPrm parametro para passar ao gestor 
  * @returns 
  */
-export default function MenuItem({text, onClick, onClickPrm}){
+export default function MenuItem({ text, onClick, onClickPrm }) {
 
-    return(
-        <div onClick={ e => {
+    return (
+        <div onClick={e => {
             e.stopPropagation();
             onClick(onClickPrm);
-        }} 
-        className="menu-item">
+        }}
+            style={{ cursor: "pointer" }}
+            className="px-2 py-3 bg-secondary-subtle"
+        >
             {text}
         </div>
     );

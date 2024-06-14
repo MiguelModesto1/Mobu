@@ -3,56 +3,59 @@
 @inject IHttpContextAccessor http;
 
 @{
-    ViewData["Title"] = "Índice";
+	ViewData["Title"] = "Índice";
 
-    var request = http.HttpContext.Request;
+	var request = http.HttpContext.Request;
 }
 
 <h1>Índice</h1>
 
 <p>
-    <a asp-action="Create">Criar sala de chat</a>
+	<a asp-action="Create">Criar sala de chat</a>
 </p>
 
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IDSala)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NomeSala)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SeGrupo)
-            </th>
-            <th>
-                Fotografia
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IDSala)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NomeSala)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeGrupo)
-            </td>
-            <td>
-                <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />
-            </td>
-            <td>
-                    <a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a> | 
-                    <a asp-action="Edit" asp-route-id="@item.IDSala">Editar</a> | 
-                    <a asp-action="Delete" asp-route-id="@item.IDSala">Apagar</a>
-            </td>
-        </tr>
-}
-    </tbody>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.IDSala)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.NomeSala)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.SeGrupo)
+			</th>
+			<th>
+				Fotografia
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.IDSala)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.NomeSala)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.SeGrupo)
+				</td>
+				<td>
+					<img class="rounded-circle avatar border border-1 border-primary-subtle"
+						 style="width:75px; height:75px; object-fit:cover;"
+						 src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />
+				</td>
+				<td>
+					<a asp-action="Details" asp-route-id="@item.IDSala">Detalhes</a> |
+					<a asp-action="Edit" asp-route-id="@item.IDSala">Editar</a> |
+					<a asp-action="Delete" asp-route-id="@item.IDSala">Apagar</a>
+				</td>
+			</tr>
+		}
+	</tbody>
 </table>

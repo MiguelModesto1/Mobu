@@ -6,7 +6,6 @@ import GroupFoundationForm from '../forms/GroupFoundationForm';
 import PasswordResetForm from '../forms/PasswordResetForm';
 import Error404Page from '../pages/Error404Page';
 import MessagesPage from '../pages/MessagesPage';
-import ThanksPage from '../pages/ThanksPage';
 import GroupProfilePage from '../pages/GroupProfilePage';
 import PersonProfilePage from '../pages/PersonProfilePage';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -47,7 +46,6 @@ export default function App() {
                     <Route path="/error-404" Component={Error404Page} />
                     <Route path="/error-500" Component={Error500Page} />
                     <Route path="/error-403" Component={Error403Page} />
-                    <Route path="/thanks" Component={ThanksPage} />
 
                     <Route path="/messages" Component={MessagesPage} />
                     <Route path="/pending-requests" Component={PendingRequestsPage} />

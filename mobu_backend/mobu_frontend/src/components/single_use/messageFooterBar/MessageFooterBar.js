@@ -14,10 +14,12 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        if (friendGroupData[selectedFriendItem].BlockedThem) {
-            setMessage("");
+        if (isFriends) {
+            if (friendGroupData[selectedFriendItem].BlockedThem) {
+                setMessage("");
+            }
         }
-    }, [friendGroupData, selectedFriendItem])
+    }, [isFriends, friendGroupData, selectedFriendItem])
 
     const roomId = useRef();
 
@@ -41,6 +43,7 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
                     await connection.invoke("SendMessageToRoom", selectedGroupItem + "", ownerId + "", roomId.current + "", message);
                 }
                 setMessage("");
+                document.getElementsByClassName("message-box")[0].value = "";    
             }
         } catch (err) {
             console.log(err);
@@ -48,25 +51,52 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
 
     }
 
+    /**
+     * Mudanca do conteudo da mensagem
+     * @param {any} value
+     */
     const handleMsgChange = (value) => {
         setMessage(value);
     }
 
+    //const handleKeyPress = (value) => {
+    //    //debugger;
+    //    if (value === "Enter") {
+    //        setMessage(message + "\r")
+    //    }
+    //    else if (value === "Backspace") {
+    //        var lastChars = message.slice(message.length - 2, message.length);
+
+    //        if (lastChars === "\r") {
+    //            setMessage(message.slice(0, message.length - 1))
+    //        }
+    //    }
+    //}
+
     return (
-        <div className="message-footer-bar">
+        <div className="d-flex justify-content-evenly pt-3" style={{ backgroundColor: "#d9d9d9" }}>
             {isFriends ?
 
                 !friendGroupData[selectedFriendItem].BlockedYou ?
                     <>
-                        <div className="footer-bar-input-div">
-                            <input
-                                type="text"
-                                value={message}
+                        <div className="w-75">
+                            <textarea
+                                rows="2"
                                 placeholder={friendGroupData[selectedFriendItem].BlockedThem ? "Bloqueou este utilizador, pelo que não podem trocar mais mensagens!" : undefined}
-                                className="footer-bar-input"
+                                className="message-box rounded-4 border border-3 border-secondary-subtle form-control"
                                 disabled={friendGroupData[selectedFriendItem].BlockedThem}
-                                onChange={friendGroupData[selectedFriendItem].BlockedThem ? () => undefined : e => handleMsgChange(e.target.value)}
-                            />
+                                onChange={friendGroupData[selectedFriendItem].BlockedThem ? undefined : e => handleMsgChange(e.target.value)}
+                            >
+                                {message}
+                            </textarea>
+                            {/*<input*/}
+                            {/*    type="text"*/}
+                            {/*    value={message}*/}
+                            {/*    placeholder={friendGroupData[selectedFriendItem].BlockedThem ? "Bloqueou este utilizador, pelo que não podem trocar mais mensagens!" : undefined}*/}
+                            {/*    className="rounded-4 border border-3 border-secondary-subtle form-control"*/}
+                            {/*    disabled={friendGroupData[selectedFriendItem].BlockedThem}*/}
+                            {/*    onChange={friendGroupData[selectedFriendItem].BlockedThem ? () => undefined : e => handleMsgChange(e.target.value)}*/}
+                            {/*/>*/}
                         </div>
                         <ClickableIcon
                             CIProps={{
@@ -86,17 +116,24 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
 
                     </>
                     :
-                    <span>Foi bloqueado por este utilizador, pelo que não podem trocar mais menagens!</span>
+                    <span className="pb-3">Foi bloqueado por este utilizador, pelo que não podem trocar mais menagens!</span>
                 :
                 !friendGroupData[selectedGroupItem].HasLeft && !friendGroupData[selectedGroupItem].WasExpelled ?
                     <>
-                        <div className="footer-bar-input-div">
-                            <input
-                                type="text"
-                                value={message}
-                                className="footer-bar-input"
+                        <div className="w-75">
+                            <textarea
+                                rows="2"
+                                className="message-box rounded-4 border border-3 border-secondary-subtle form-control"
                                 onChange={e => handleMsgChange(e.target.value)}
-                            />
+                            >
+                                {message}
+                            </textarea>
+                            {/*<input*/}
+                            {/*    type="text"*/}
+                            {/*    value={message}*/}
+                            {/*    className="rounded-4 border border-3 border-secondary-subtle form-control"*/}
+                            {/*    onChange={e => handleMsgChange(e.target.value)}*/}
+                            {/*/>*/}
                         </div>
                         <ClickableIcon
                             CIProps={{
@@ -116,9 +153,9 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
                     </>
                     :
                     friendGroupData[selectedGroupItem].HasLeft ?
-                        <span>Saiu deste grupo, pelo que não pode mais enviar mensagens!</span>
+                        <span className="pb-3">Saiu deste grupo, pelo que não pode mais enviar mensagens!</span>
                         :
-                        <span>Foi expulso deste grupo, pelo que não pode mais enviar mensagens!</span>
+                        <span className="pb-3">Foi expulso deste grupo, pelo que não pode mais enviar mensagens!</span>
             }
         </div>
     );

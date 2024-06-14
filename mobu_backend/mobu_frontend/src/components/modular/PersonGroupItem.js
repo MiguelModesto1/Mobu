@@ -1,4 +1,4 @@
-import React,{ useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import TopTextBottomText from "./TopTextBottomText";
 
@@ -8,7 +8,7 @@ import TopTextBottomText from "./TopTextBottomText";
  * 
  * @returns 
  */
-export default function PersonGroupItem({ friendGroupData, onItemClick, connection, isSelectedItem, isFriends, onOverItem }) {
+export default function PersonGroupItem({ friendGroupData, onItemClick, connection, selectedItem, isFriends, onOverItem }) {
 
     const itemId = useRef();
 
@@ -38,30 +38,37 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
 
     return (
         <div
-            className="person-group-item"
+            className="d-flex py-2 px-3"
+            style={{
+                backgroundColor: itemId.current === selectedItem ? "#c4dcf2" : "#8ab9e5",
+                cursor: "pointer"
+            }}
             onMouseOver={() => onOverItem(itemId.current)}
             onClick={async () => {
-
-            await connection.invoke("RemoveConnection", roomId.current + "");
-            onItemClick(itemId.current);
-            await connection.invoke("AddConnection", roomId.current + "");
-        }}>
-            <Avatar avatarProps={{
-                size: "40px",
-                src: friendGroupData.ImageURL,
-                alt: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala
-            }} />
-            <TopTextBottomText
-                itemId={itemId.current}
-                isSelectedItem={isSelectedItem}
-                TTBTProps={{
-                    top: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala,
-                    bottom: lastMessage.current !== undefined ? lastMessage.current.ConteudoMsg : "Sem mensagens"
-                }}
-                fromParent="preson-group-item"
-            />
+                await connection.invoke("RemoveConnection", roomId.current + "");
+                onItemClick(itemId.current);
+                await connection.invoke("AddConnection", roomId.current + "");
+            }}>
+            <div style={{ marginTop: ".5rem" }}>
+                <Avatar avatarProps={{
+                    size: "2rem",
+                    src: friendGroupData.ImageURL,
+                    alt: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala
+                }} />
+            </div>
+            <div style={{ marginLeft: ".5rem" }}>
+                <TopTextBottomText
+                    itemId={itemId.current}
+                    selectedItem={selectedItem}
+                    TTBTProps={{
+                        top: isFriends ? friendGroupData.FriendName : friendGroupData.NomeSala,
+                        bottom: lastMessage.current !== undefined ? lastMessage.current.ConteudoMsg : "Sem mensagens"
+                    }}
+                    fromParent=""
+                />
+            </div>
         </div>
     );
 
-    
+
 }

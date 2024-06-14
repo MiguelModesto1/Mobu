@@ -1,53 +1,66 @@
 ﻿@model IEnumerable<mobu_backend.Models.Mensagem>
 
+@inject IHttpContextAccessor http;
+
 @{
-    ViewData["Title"] = "Índice";
+	ViewData["Title"] = "Índice";
+
+	var request = http.HttpContext.Request;
 }
 
 <h1>Índice</h1>
 
 <p>
-    <a asp-action="Create">Criar Mensagem</a>
+	<a asp-action="Create">Criar Mensagem</a>
 </p>
 <table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IDMensagem)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Remetente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sala)
-            </th>
-            @*<th>
-                @Html.DisplayNameFor(model => model.EstadoMensagem)
-            </th>*@
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IDMensagem)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Remetente.NomeUtilizador)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sala.NomeSala)
-            </td>
-            @*<td>
-                @Html.DisplayFor(modelItem => item.EstadoMensagem)
-            </td>*@
-            <td>
-                @Html.ActionLink("Editar", "Edit", new { id=item.IDMensagem }) |
-                @Html.ActionLink("Detalhes", "Details", new { id=item.IDMensagem }) |
-                @Html.ActionLink("Apagar", "Delete", new { id=item.IDMensagem })
-            </td>
-        </tr>
-}
-    </tbody>
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.IDMensagem)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Remetente)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.Sala)
+			</th>
+			<th>
+				Fotografia
+			</th>
+			@*<th>
+			@Html.DisplayNameFor(model => model.EstadoMensagem)
+			</th>*@
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.IDMensagem)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Remetente.NomeUtilizador)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Sala.NomeSala)
+				</td>
+				<td>
+					<img class="rounded-circle avatar border border-1 border-primary-subtle"
+						 style="width:75px; height:75px; object-fit:cover;"
+						 src=@("https://" + request.Host.ToString() + "/imagens/" + item.Remetente.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+				</td>
+				@*<td>
+			@Html.DisplayFor(modelItem => item.EstadoMensagem)
+			</td>*@
+				<td>
+					@Html.ActionLink("Detalhes", "Details", new { id = item.IDMensagem }) |
+					@Html.ActionLink("Editar", "Edit", new { id = item.IDMensagem }) |
+					@Html.ActionLink("Apagar", "Delete", new { id = item.IDMensagem })
+				</td>
+			</tr>
+		}
+	</tbody>
 </table>

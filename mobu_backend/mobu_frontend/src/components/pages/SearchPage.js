@@ -11,13 +11,14 @@ import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/si
 export default function SearchPage() {
 
     const queryParams = new URLSearchParams(window.location.search);
-    
+
     const owner = useRef(parseInt(queryParams.get("id")));
     const connection = useRef();
     const timeout = useRef(0);
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
 
+    const [showList, setShowList] = useState(false);
     const [hasFetchedPeopleData, setHasFetchedPeopleData] = useState(false);
     const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
     const [userItems, setUserItems] = useState([{
@@ -194,6 +195,9 @@ export default function SearchPage() {
      */
     async function handleIconClick() {
 
+        if (!showList) {
+            setShowList(true);
+        }
         setShow400Text(false);
         setShow404Text(false);
         setHasFetchedGroupsData(false);
@@ -287,66 +291,88 @@ export default function SearchPage() {
     });
 
     return (
-        <div className="search-div">
-            <div className="search-bar-div">
-                <input
-                    type="text"
-                    placeholder="Procurar pessoas ou grupos (nome, ID ou email)"
-                    className="search-bar-input"
-                    onChange={e => {
-                        handleSearchTextChange(e.target.value)
-                        }
-                    }
-                />
-                <ClickableIcon
-                    CIProps={{
-                        size: "38px",
-                        fill: "none",
-                        path: {
-                            d: "M33.25 33.25L23.7502 23.75M26.9167 15.8333C26.9167 21.9545 21.9545 26.9167 15.8333 26.9167C9.71218 26.9167 4.75 21.9545 4.75 15.8333C4.75 9.71218 9.71218 4.75 15.8333 4.75C21.9545 4.75 26.9167 9.71218 26.9167 15.8333Z",
-                            stroke: "black",
-                            strokeWidth: "2",
-                            strokeLineCap: "round",
-                            strokeLinejoin: "round"
-                        }
-                    }}
-                    onIconClick={handleIconClick}
-                />
-            </div>
+        <div className="d-flex justify-content-center" style={{ marginTop: "10rem" }}>
+            <div style={{ width: "100%" }}>
+                <div className="d-flex justify-content-center" style={{ marginLeft: "15%", marginRight: "15%" }}>
+                    <div className="container rounded-4 border border-3 border-secondary-subtle" style={{ backgroundColor: "lightblue" }}>
+                        <div className="my-3 row">
+                            <div className="col-lg-11">
+                                <input
+                                    type="text"
+                                    placeholder="Procurar pessoas ou grupos (nome, ID ou email)"
+                                    className="rounded-4 border border-3 border-secondary-subtle form-control"
+                                    onChange={e => { handleSearchTextChange(e.target.value) }}
+                                />
+                            </div>
+                            <div className="col-lg-1">
+                                <ClickableIcon
+                                    CIProps={{
+                                        size: "38px",
+                                        fill: "none",
+                                        path: {
+                                            d: "M33.25 33.25L23.7502 23.75M26.9167 15.8333C26.9167 21.9545 21.9545 26.9167 15.8333 26.9167C9.71218 26.9167 4.75 21.9545 4.75 15.8333C4.75 9.71218 9.71218 4.75 15.8333 4.75C21.9545 4.75 26.9167 9.71218 26.9167 15.8333Z",
+                                            stroke: "black",
+                                            strokeWidth: "2",
+                                            strokeLineCap: "round",
+                                            strokeLinejoin: "round"
+                                        }
+                                    }}
+                                    onIconClick={handleIconClick}
+                                />
+                            </div>
+                        </div>
 
-            {
-                show404Text &&
-                <div className="not-found-div">
-                    <span>Sem resultados</span>
+                        {showList &&
+                            <div className="d-flex justify-content-center mb-3" style={{ marginLeft: "15%", marginRight: "15%" }}>
+                                <div className="container rounded-4 border border-3 border-secondary-subtle p-1" style={{ overflow: "overlay", maxHeight: "16.313rem" }}>
+                                    {
+                                        show404Text &&
+                                        <div className="d-flex justify-content-center">
+                                            <span className="text-center"><strong>Sem resultados</strong></span>
+                                        </div>
+                                    }
+                                    {
+                                        show400Text &&
+                                        <div className="d-flex justify-content-center">
+                                            <span className="text-center"><strong>Procure nomes, IDs ou e-mails!</strong></span>
+                                        </div>
+                                    }
+                                    <div style={{ overflowX: "hidden" }} className="d-flex flex-column">
+                                        {
+                                            hasFetchedPeopleData &&
+                                            <div className="rounded-4 d-flex justify-content-center row">
+                                                <div style={{ width: "90%" }}>
+                                                    <span><strong>Pessoas:</strong></span>
+                                                </div>
+                                                {mapPeopleItems}
+                                            </div>
+                                        }
+                                        {
+                                            hasFetchedGroupsData &&
+                                            <div className="d-flex justify-content-center row">
+                                                <div style={{ width: "90%" }}>
+                                                    <span><strong>Grupos:</strong></span>
+                                                </div>
+                                                {mapGroupsItems}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div className="my-2 d-flex justify-content-evenly">
+                            <button
+                                className="btn rounded-4"
+                                style={{ backgroundColor: "#3b9ae1", color: "white" }}
+                                onClick={() => window.location.assign(`/messages?id=${owner.current}`)}
+                            >
+                                Voltar à lista de mensagens
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            }
-            {
-                show400Text &&
-                <div className="bad-request-div">
-                    <span>Procure nomes, IDs ou e-mails!</span>
-                </div>
-            }
-            <div className="found-div">
-                {
-                    hasFetchedPeopleData &&
-                    <>
-                        <span>Pessoas:</span>
-                        <br />
-                        {mapPeopleItems}
-                    </>
-                }
-                {
-                    hasFetchedGroupsData &&
-                    <>
-                        <span>Grupos:</span>
-                        <br />
-                        {mapGroupsItems}
-                    </>
-                }
             </div>
-            <button onClick={() => window.location.assign(`/messages?id=${owner.current}`)}>Voltar à lista de mensagens</button>
         </div>
-
     );
 
 }
