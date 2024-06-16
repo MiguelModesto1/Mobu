@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+//import { createContext, useState } from 'react'
 import LoginForm from '../forms/LoginForm'
 import RegisterForm from '../forms/RegisterForm';
 import ForgotPasswordForm from '../forms/ForgotPasswordForm';
@@ -10,27 +10,31 @@ import GroupProfilePage from '../pages/GroupProfilePage';
 import PersonProfilePage from '../pages/PersonProfilePage';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SearchPage from '../pages/SearchPage';
-import {HubConnectionBuilder} from "@microsoft/signalr";
+//import {HubConnectionBuilder} from "@microsoft/signalr";
 import Error500Page from '../pages/Error500Page';
 import Error403Page from '../pages/Error403Page';
 import EditPersonProfilePage from '../pages/EditPersonProfilePage';
 import EditGroupProfilePage from '../pages/EditGroupProfilePage';
 import PendingRequestsPage from '../pages/PendingRequestsPage';
 
-var messagingContextInterface = {
-    context: {
-        friendsData: [],
-        groupsData: [],
-        connection: new HubConnectionBuilder()
-    },
-    setContext: () => { }
-}
+//var messagingContextInterface = {
+//    context: {
+//        friendsData: [],
+//        groupsData: [],
+//        connection: new HubConnectionBuilder()
+//    },
+//    setContext: () => { }
+//}
 
-export const UserDataContext = createContext({ ...messagingContextInterface });
+//export const UserDataContext = createContext({ ...messagingContextInterface });
 
+/**
+ * Componente raíz da aplicação
+ * @returns
+ */
 export default function App() {
 
-    const [context, setContext] = useState({ ...messagingContextInterface.context });
+    //const [context, setContext] = useState({ ...messagingContextInterface.context });
 
     try {
 

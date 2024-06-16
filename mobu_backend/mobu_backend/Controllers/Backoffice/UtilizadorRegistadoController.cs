@@ -13,6 +13,9 @@ using mobu_backend.Services;
 
 namespace mobu.Controllers.Backend
 {
+    /// <summary>
+    /// Controlador de utilizadores
+    /// </summary>
     [Authorize]
     public class UtilizadorRegistadoController : Controller
     {
@@ -53,7 +56,16 @@ namespace mobu.Controllers.Backend
         /// </summary>
         private readonly IOptions<AuthMessageSenderOptions> _optionsAccessor;
 
-
+        /// <summary>
+        /// Construtor do controlador dos Utilizadores Registados
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="webHostEnvironment"></param>
+        /// <param name="userManager"></param>
+        /// <param name="logger"></param>
+        /// <param name="loggerEmail"></param>
+        /// <param name="http"></param>
+        /// <param name="optionsAccessor"></param>
         public UtilizadorRegistadoController(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
@@ -72,6 +84,10 @@ namespace mobu.Controllers.Backend
             _optionsAccessor = optionsAccessor;
         }
 
+        /// <summary>
+        /// Obter vista de Índice
+        /// </summary>
+        /// <returns></returns>
         // GET: UtilizadorRegistado
         public async Task<IActionResult> Index()
         {
@@ -81,6 +97,11 @@ namespace mobu.Controllers.Backend
             return View(await utilizadores.ToListAsync());
         }
 
+        /// <summary>
+        /// Obter vista de detalhes
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <returns></returns>
         // GET: UtilizadorRegistado/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -103,12 +124,22 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
+        /// <summary>
+        /// Obter vista de criação
+        /// </summary>
+        /// <returns></returns>
         // GET: UtilizadorRegistado/Create
         public IActionResult Create()
         {
             return View();
         }
 
+        /// <summary>
+        /// Publicar criação
+        /// </summary>
+        /// <param name="utilizadorRegistado">Instância de modelo</param>
+        /// <param name="fotografia">Fotografia de avatar</param>
+        /// <returns></returns>
         // POST: UtilizadorRegistado/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -283,6 +314,11 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
+        /// <summary>
+        /// Obter vista de edição
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <returns></returns>
         // GET: UtilizadorRegistado/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -300,6 +336,13 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
+        /// <summary>
+        /// Publicar edição
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <param name="utilizadorRegistado">Instância de modelo</param>
+        /// <param name="fotografia">Fotografia de avatar</param>
+        /// <returns></returns>
         // POST: UtilizadorRegistado/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -483,6 +526,11 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
+        /// <summary>
+        /// Obter vista de remoção
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <returns></returns>
         // GET: UtilizadorRegistado/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -502,6 +550,11 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
+        /// <summary>
+        /// Publicar remoção
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <returns></returns>
         // POST: UtilizadorRegistado/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -562,7 +615,11 @@ namespace mobu.Controllers.Backend
             return View(utilizadorRegistado);
         }
 
-        //verificar se existe user com ID = id (parametro)
+        /// <summary>
+        /// Verificar se existe um utilizador na base de dados
+        /// </summary>
+        /// <param name="id">ID do utilizador</param>
+        /// <returns></returns>
         private bool UtilizadorRegistadoExists(int id)
         {
             return _context.UtilizadorRegistado.Any(e => e.IDUtilizador == id);

@@ -6,10 +6,16 @@ import Avatar from "../../modular/Avatar";
  * 
  * Painel de mensagens
  * 
- * @returns 
+ * @param ownerId - O ID do dono da conta
+ * @param friendGroupData - Dados do amigo/grupo
+ * @param selectedFriendItem - O ID do amigo selecionado
+ * @param selectedGroupItem - O ID do grupo selecionado
+ * @param isFriends - Indica se o separador de amigos está ativo
+ * 
+ * @returns
  */
 export default function MessagePanel({ ownerId, friendGroupData, selectedFriendItem, selectedGroupItem, isFriends }) {
-    //debugger;
+    
     const messages = useRef(
         [{
             IDMensagem: 0,
@@ -56,7 +62,7 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
             }
             paragraphText += value[i];
         }
-        //debugger;
+        
         return jsxParagraphs.map(paragraph => {
             return (
                 <p className="text-break m-0">{paragraph}</p>

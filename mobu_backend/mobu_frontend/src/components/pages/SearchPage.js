@@ -46,7 +46,7 @@ export default function SearchPage() {
 
         fetch(process.env.REACT_APP_API_URL + "/get-search-page" + queryParams, options)
             .then((response) => {
-                //debugger;
+                
                 if (response.status === 404) {
                     window.location.assign("error-404");
                 }
@@ -69,7 +69,7 @@ export default function SearchPage() {
             })
                 .configureLogging(LogLevel.Debug)
                 .build();
-        //debugger;
+        
         connection.current.start();
         logSignalRAccess(connection.current);
         listenToSignalRLeaving(connection.current);
@@ -80,7 +80,7 @@ export default function SearchPage() {
 
 
         var expiryIntervalInit = expiry.current - startDate.current;
-        //debugger;
+        
         if (expiryIntervalInit !== 15 * 1000 * 60) {
             window.location.assign("/");
         }
@@ -97,7 +97,7 @@ export default function SearchPage() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        //debugger;
+        
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {

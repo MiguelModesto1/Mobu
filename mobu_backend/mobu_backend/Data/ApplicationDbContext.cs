@@ -12,7 +12,7 @@ namespace mobu_backend.Data
 		}
 
 		/// <summary>
-		/// este método é executado imediatamente antes 
+		/// Este método é executado imediatamente antes 
 		/// da criação do Modelo.
 		/// É utilizado para adicionar as últimas instruções
 		/// à criação do modelo

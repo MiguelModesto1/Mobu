@@ -7,13 +7,33 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
+    /// <summary>
+    /// Controlador das Salas de Chat
+    /// </summary>
     [Authorize]
     public class SalasChatController : Controller
     {
+        /// <summary>
+        /// Contexto da Base de dados
+        /// </summary>
         private readonly ApplicationDbContext _context;
+
+        /// <summary>
+        /// Ambiente do anfitrião web
+        /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
+
+        /// <summary>
+        /// Logger de mensagens
+        /// </summary>
         private readonly ILogger<SalasChatController> _logger;
 
+        /// <summary>
+        /// Construtor do controlador das salas de chat
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="webHostEnvironment"></param>
+        /// <param name="logger"></param>
         public SalasChatController(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
@@ -25,6 +45,10 @@ namespace mobu.Controllers.Backend
             _logger = logger;
         }
 
+        /// <summary>
+        /// Obter vista do Índice
+        /// </summary>
+        /// <returns></returns>
         // GET: SalasChat
         public async Task<IActionResult> Index()
         {
@@ -33,6 +57,11 @@ namespace mobu.Controllers.Backend
                         Problem("Entity set 'ApplicationDbContext.SalasChat'  is null.");
         }
 
+        /// <summary>
+        /// Obter vista de detalhes
+        /// </summary>
+        /// <param name="id">ID da sala</param>
+        /// <returns></returns>
         // GET: SalasChat/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -51,12 +80,22 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Obter vista de criação
+        /// </summary>
+        /// <returns></returns>
         // GET: SalasChat/Create
         public IActionResult Create()
         {
             return View();
         }
 
+        /// <summary>
+        /// Publicar criação
+        /// </summary>
+        /// <param name="salasChat">Instância de modelo</param>
+        /// <param name="fotografia">Fotografia de avatar</param>
+        /// <returns></returns>
         // POST: SalasChat/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -173,6 +212,11 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Obter vista de edição
+        /// </summary>
+        /// <param name="id">ID da sala</param>
+        /// <returns></returns>
         // GET: SalasChat/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -189,6 +233,13 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Publicar edição
+        /// </summary>
+        /// <param name="id">ID da sala</param>
+        /// <param name="salasChat">Instância de modelo</param>
+        /// <param name="fotografia">Fotografia de avatar</param>
+        /// <returns></returns>
         // POST: SalasChat/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -322,6 +373,11 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Obter vista de remoção
+        /// </summary>
+        /// <param name="id">ID da sala</param>
+        /// <returns></returns>
         // GET: SalasChat/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -340,6 +396,11 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Publicar remoção
+        /// </summary>
+        /// <param name="id">ID da sala</param>
+        /// <returns></returns>
         // POST: SalasChat/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -393,6 +454,11 @@ namespace mobu.Controllers.Backend
             return View(salasChat);
         }
 
+        /// <summary>
+        /// Verifica se existe uma sala de chat na base de dados
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private bool SalasChatExists(int id)
         {
             return (_context.SalasChat?.Any(e => e.IDSala == id)).GetValueOrDefault();

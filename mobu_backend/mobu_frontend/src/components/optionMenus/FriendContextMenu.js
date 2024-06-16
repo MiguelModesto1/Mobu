@@ -6,6 +6,14 @@ import MenuItem from "../modular/MenuItem";
  * 
  * Menu de contexto do amigo
  * 
+ * @param itemId - O ID do item do separador
+ * @param isFriendOverBlocked - Indica se o amigo sob o cursor do rato foi bloqueado pelo utilizador
+ * @param hasFriendOverBlockedMe - Indica se o amigo sob o cursor do rato bloqueou o utilizador
+ * @param owner - O ID do dono da conta
+ * @param onBlock - A callback de bloqueio do amigo
+ * @param id - O ID do amigo
+ * @param connection - Conexão SignalR
+ * 
  * @returns
  */
 export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) {

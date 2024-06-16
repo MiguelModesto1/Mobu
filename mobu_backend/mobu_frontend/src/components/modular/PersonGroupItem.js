@@ -6,7 +6,13 @@ import TopTextBottomText from "./TopTextBottomText";
  * 
  * Item de amigos ou grupos do utilizador
  * 
- * @returns 
+ * 
+ * @param friendGroupData - Dados do amigo/grupo
+ * @param onItemClick - Callback de clique no item
+ * @param connection - Conexão SignalR
+ * @param selectedItem - Índice do Item selecionado
+ * @param isFriends - Indica se é item de amigo ou pessoa
+ * @param onOverItem - Callback do cursor do rato sobre o item
  */
 export default function PersonGroupItem({ friendGroupData, onItemClick, connection, selectedItem, isFriends, onOverItem }) {
 

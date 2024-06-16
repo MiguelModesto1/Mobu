@@ -16,6 +16,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller API de acesso a perfis
+/// </summary>
 [ApiController]
 public class ProfileApiController : ControllerBase
 {
@@ -62,6 +65,16 @@ public class ProfileApiController : ControllerBase
     /// </summary>
     private readonly ILogger<EmailSender> _emailLogger;
 
+    /// <summary>
+    /// Construtor do controller da API de acesso a perfis
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public ProfileApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -84,8 +97,8 @@ public class ProfileApiController : ControllerBase
     /// <summary>
     /// Obter dados de perfis
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="requester"></param>
+    /// <param name="id">ID do utilizador requisitado</param>
+    /// <param name="requester">ID do utilizador requisitador</param>
     /// <param name="isGroup"></param>
     /// <returns></returns>
     [HttpGet]
@@ -137,10 +150,11 @@ public class ProfileApiController : ControllerBase
                     profileObj.Add("avatar", $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/imagens/" + profile.NomeFotografia);
                     profileObj.Add("groupName", profile.NomeSala);
 
-
+                    // registo de relacionamento onde id = SalaFK
                     var registadosSalasChat = _context.RegistadosSalasChat
                     .Where(rs => rs.SalaFK == id);
 
+                    // verificar se o utilizador pedinte é administrador (para dar permissões de edição)
                     var isRequesterAdmin = registadosSalasChat
                         .Where(rs => rs.UtilizadorFK == requester)
                         .Select(rs => rs.IsAdmin)
@@ -148,6 +162,7 @@ public class ProfileApiController : ControllerBase
 
                     profileObj.Add("isRequesterAdmin", isRequesterAdmin);
 
+                    // registados da sala específica
                     var registados = registadosSalasChat
                         .Select(rs => rs.Utilizador)
                         .ToArray();
@@ -155,6 +170,7 @@ public class ProfileApiController : ControllerBase
                     List<object> members = [];
                     var i = 0;
 
+                    // percorrer o array de registados e adicionar membros de grupo
                     foreach (var registado in registados)
                     {
                         var groupMember = new GroupMember()
@@ -179,6 +195,7 @@ public class ProfileApiController : ControllerBase
             }
             else
             {
+                // utilizador amigo
                 UtilizadorRegistado profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
                 if (profile != null)
                 {
@@ -218,6 +235,7 @@ public class ProfileApiController : ControllerBase
     {
         try
         {
+            // verificar se perfil associado ao ID existe
             var profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
             var identityProfile = await _context.Users.FirstOrDefaultAsync(u => u.Id == profile.AuthenticationID);
 
@@ -260,6 +278,7 @@ public class ProfileApiController : ControllerBase
     {
         try
         {
+            // verificar se o perfil associado ao ID existe e se o mesmo é administrador da sala
             var profile = await _context.SalasChat.FirstOrDefaultAsync(s => s.IDSala == id);
             var user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == admin);
             var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.AuthenticationID);
@@ -273,7 +292,7 @@ public class ProfileApiController : ControllerBase
                 return Unauthorized();
             }
 
-            //validar cookie de sessao
+            // validar cookie de sessao
             if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
             {
                 return Unauthorized();
@@ -323,12 +342,14 @@ public class ProfileApiController : ControllerBase
             var profile = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
             var identityProfile = await _context.Users.FirstOrDefaultAsync(u => u.Id == profile.AuthenticationID);
 
+            // verificar se os inputs estão vazios
             if (username == null || email == null ||
                 newPassword == null || currPassword == null || birthDate == new DateTime())
             {
                 return BadRequest();
             }
 
+            // verificar se o perfil associado ao ID existe
             if (profile == null || identityProfile == null)
             {
                 return Unauthorized();
@@ -550,6 +571,7 @@ public class ProfileApiController : ControllerBase
 
             _logger.LogWarning("Entrou no método post");
 
+            // organizar os dados
             var id = profileEdit.Id;
             var adminId = profileEdit.AdminId;
             var avatar = profileEdit.Avatar;
@@ -563,11 +585,14 @@ public class ProfileApiController : ControllerBase
                 .Select(rs => rs.IsAdmin)
                 .ToArray()[0];
 
+            // verificar se o campo de nome do grupo está vazio
             if (groupName == null)
             {
                 return BadRequest();
             }
 
+            // verificar se o perfil de grupo é nulo ou se o administrador
+            // existe
             if (profile == null || adminProfile == null ||
                 identityAdminProfile == null || !isAdmin)
             {

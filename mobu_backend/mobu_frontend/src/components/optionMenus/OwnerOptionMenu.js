@@ -1,6 +1,17 @@
 import React from "react";
 import MenuItem from "../modular/MenuItem";
 
+/**
+ * 
+ * Menu de acesso do dono da conta
+ * 
+ * @param owner - O ID do dono da conta
+ * @param showMenu - Indica se o menu deve ser mostrado ou não
+ * @param connection - Conexão SignalR
+ * @param logoutCallback - Callback de logout
+ * 
+ * @returns
+ */
 export default function OwnerOptionMenu({owner, showMenu, connection, logoutCallback}){ 
 
     const handleClick = async (option) => {

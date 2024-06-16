@@ -3,6 +3,11 @@ import ProfileProperty from "../modular/ProfileProperty";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
 
+/**
+ * Página de edição de um perfil pessoal
+ * 
+ * @returns
+ */
 export default function EditPersonProfilePage() {
 
     const queryStrings = new URLSearchParams(window.location.search);
@@ -57,7 +62,7 @@ export default function EditPersonProfilePage() {
 
 
         var expiryIntervalInit = expiry.current - startDate.current;
-        //debugger;
+        
         if (expiryIntervalInit !== 15 * 1000 * 60) {
             window.location.assign("/");
         }

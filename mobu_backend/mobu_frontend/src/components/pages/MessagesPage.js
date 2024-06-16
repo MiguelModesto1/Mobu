@@ -96,7 +96,7 @@ export default function MessagesPage() {
      */
     const listenToGroupLeaving = useCallback((connection) => {
         connection.on("ReceiveLeaving", (group, message) => {
-            //debugger;
+            
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -174,7 +174,7 @@ export default function MessagesPage() {
      */
     const listenToMemberExpelling = useCallback((connection) => {
         connection.on("ReceiveExpelling", (roomId, message) => {
-            //debugger;
+            
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -221,7 +221,7 @@ export default function MessagesPage() {
 
     useEffect(() => {
 
-        //debugger;
+        
         if (hasFetchedFriendsData || hasFetchedGroupsData) {
             // atualizar dados das mensagens de amigos do utilizador
             var aux = {};
@@ -302,7 +302,7 @@ export default function MessagesPage() {
             }
 
             var queryParams = `?id=${queryParamId}`;
-            //debugger;
+            
             fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
                 .then(response => {
                     if (response.status === 404) {
@@ -328,7 +328,7 @@ export default function MessagesPage() {
                     var auxTabNum = 0;
 
                     // dados
-                    //debugger;
+                    
                     if (data.friends.length !== 0) {
                         setFriendsData([...data.friends]);
                         setHasFetchedFriendsData(true);
@@ -374,15 +374,15 @@ export default function MessagesPage() {
             document.addEventListener("mousemove", () => getNewCookie());
             document.addEventListener("keydown", () => getNewCookie());
             
-            //debugger
+            
             var expiryIntervalInit = expiry.current - startDate.current;
-            //debugger
+            
             if (expiryIntervalInit !== 15 * 1000 * 60) {
                 window.location.assign("/");
             }
 
             var expiryInterval = expiry.current - Date.now();
-            //debugger;
+            
             timeout.current = setTimeout(() => {
                 logout();
                 window.location.assign("/");
@@ -392,7 +392,7 @@ export default function MessagesPage() {
     }, [lastMessageReceived]);
 
     useEffect(() => {
-        //debugger;
+        
         if (hasFetchedGroupsData) {
             listenToGroupLeaving(connection.current);
             listenToMemberExpelling(connection.current);
@@ -426,7 +426,7 @@ export default function MessagesPage() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        //debugger;
+        
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {
@@ -471,7 +471,7 @@ export default function MessagesPage() {
      */
     const start = async (connection) => {
         try {
-            //debugger;
+            
             await connection.start();
             console.log("SignalR Connected.");
         } catch (err) {
@@ -717,7 +717,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverFriendItem(itemKey) {
-        //debugger;
+        
         setOverFriendItem(itemKey);
         setIsFriendOverBlocked(friendsData[itemKey].BlockedThem);
         setHasFriendOverBlockedMe(friendsData[itemKey].BlockedYou);
@@ -769,7 +769,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverGroupItem(itemKey) {
-        //debugger
+        
         setOverGroupItem(itemKey);
     }
 

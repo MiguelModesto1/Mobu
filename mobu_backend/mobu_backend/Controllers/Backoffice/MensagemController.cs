@@ -7,24 +7,43 @@ using mobu_backend.Models;
 
 namespace mobu.Controllers.Backend
 {
+    /// <summary>
+    /// Controlador de mensagens
+    /// </summary>
     [Authorize]
     public class MensagemController : Controller
     {
+        /// <summary>
+        /// Contexto da base de dados
+        /// </summary>
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Construtor do controlador de mensagens
+        /// </summary>
+        /// <param name="context"></param>
         public MensagemController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Mensagems
+        /// <summary>
+        /// Obter vista de Índice
+        /// </summary>
+        /// <returns></returns>
+        // GET: Mensagem
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Mensagem.Include(m => m.Remetente).Include(m => m.Sala);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Mensagems/Details/5
+        /// <summary>
+        /// Obter vista de detalhes
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <returns></returns>
+        // GET: Mensagem/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Mensagem == null)
@@ -44,7 +63,11 @@ namespace mobu.Controllers.Backend
             return View(mensagem);
         }
 
-        // GET: Mensagems/Create
+        /// <summary>
+        /// Obter vista de criação
+        /// </summary>
+        /// <returns></returns>
+        // GET: Mensagem/Create
         public IActionResult Create()
         {
             ViewData["RemetenteFK"] = new SelectList(_context.UtilizadorRegistado, "IDUtilizador", "NomeUtilizador");
@@ -52,7 +75,12 @@ namespace mobu.Controllers.Backend
             return View();
         }
 
-        // POST: Mensagems/Create
+        /// <summary>
+        /// Publicar criação
+        /// </summary>
+        /// <param name="mensagem">Instância de modelo</param>
+        /// <returns></returns>
+        // POST: Mensagem/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -70,7 +98,12 @@ namespace mobu.Controllers.Backend
             return View(mensagem);
         }
 
-        // GET: Mensagems/Edit/5
+        /// <summary>
+        /// Obter vista de edição
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <returns></returns>
+        // GET: Mensagem/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Mensagem == null)
@@ -88,7 +121,13 @@ namespace mobu.Controllers.Backend
             return View(mensagem);
         }
 
-        // POST: Mensagems/Edit/5
+        /// <summary>
+        /// Publicar edição
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <param name="mensagem">Instância de modelo</param>
+        /// <returns></returns>
+        // POST: Mensagem/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -125,7 +164,12 @@ namespace mobu.Controllers.Backend
             return View(mensagem);
         }
 
-        // GET: Mensagems/Delete/5
+        /// <summary>
+        /// Obter vista de remoção
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <returns></returns>
+        // GET: Mensagem/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Mensagem == null)
@@ -145,7 +189,12 @@ namespace mobu.Controllers.Backend
             return View(mensagem);
         }
 
-        // POST: Mensagems/Delete/5
+        /// <summary>
+        /// Publicar remoção
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <returns></returns>
+        // POST: Mensagem/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -164,6 +213,11 @@ namespace mobu.Controllers.Backend
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Verificar se uma mensagem existe na base de dados
+        /// </summary>
+        /// <param name="id">ID da mensagem</param>
+        /// <returns></returns>
         private bool MensagemExists(int id)
         {
             return _context.Mensagem.Any(e => e.IDMensagem == id);

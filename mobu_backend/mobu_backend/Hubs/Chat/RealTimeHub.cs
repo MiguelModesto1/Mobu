@@ -9,7 +9,7 @@ using mobu_backend.Data;
 using mobu_backend.Hubs.Connections;
 using mobu_backend.Hubs.Objects;
 using mobu_backend.Models;
-using Org.BouncyCastle.Utilities.Encoders;
+//using Org.BouncyCastle.Utilities.Encoders;
 
 namespace mobu_backend.Hubs.Chat
 {
@@ -53,14 +53,14 @@ namespace mobu_backend.Hubs.Chat
         {
 
             // Obtém o valor do cabeçalho de autorização
-            var httpCtx = Context.GetHttpContext();
-            string header = httpCtx.Request.Headers.Authorization;
-            string token = "";
+            //var httpCtx = Context.GetHttpContext();
+            //string header = httpCtx.Request.Headers.Authorization;
+            //string token = "";
 
-            if (header != null && header.Length != 0)
-            {
-                token = this.GenerateTokenFromHeader(header);
-            }
+            //if (header != null && header.Length != 0)
+            //{
+            //    token = GenerateTokenFromHeader(header);
+            //}
 
             // cookie com ID de sessao
             Context.GetHttpContext().Request.Cookies.TryGetValue("Session-Id", out var sesisonId);
@@ -95,6 +95,7 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Método assíncrono que é invocado quando uma conexão é desestabelecida.
         /// </summary>
+        /// <param name="ex">(Exceção não utilizada)</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         public override async Task OnDisconnectedAsync(Exception ex)
         {
@@ -106,16 +107,16 @@ namespace mobu_backend.Hubs.Chat
             Context.Abort();
         }
 
-        /// <summary>
-        /// Gera um token a partir do cabeçalho de autorização.
-        /// </summary>
-        /// <param name="header">O cabeçalho de autorização.</param>
-        /// <returns>O token gerado a partir do cabeçalho.</returns>
-        private string GenerateTokenFromHeader(string header)
-        {
-            string decodedHeader = System.Text.Encoding.UTF8.GetString(Base64.Decode(header));
-            return header;
-        }
+        ///// <summary>
+        ///// Gera um token a partir do cabeçalho de autorização.
+        ///// </summary>
+        ///// <param name="header">O cabeçalho de autorização.</param>
+        ///// <returns>O token gerado a partir do cabeçalho.</returns>
+        //private string GenerateTokenFromHeader(string header)
+        //{
+        //    string decodedHeader = System.Text.Encoding.UTF8.GetString(Base64.Decode(header));
+        //    return decodedHeader;
+        //}
 
         /// <summary>
         /// Aguarda a chegada de uma mensagem de um determinado utilizador.
@@ -550,7 +551,7 @@ namespace mobu_backend.Hubs.Chat
         /// Expulsa a um utilizador de um grupo
         /// </summary>
         /// <param name="toUser">Utilizador expulso</param>
-        /// <param name="roomId">Sala de que <see cref="toUser"/> foi expulso></param>
+        /// <param name="roomId">Sala de que 'toUser' foi expulso></param>
         /// <returns></returns>
         public async Task ExpelFromGroup(string toUser, string roomId)
         {

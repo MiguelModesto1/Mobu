@@ -36,7 +36,7 @@ export default function LoginForm() {
 
     //    fetch(process.env.REACT_APP_API_URL + "/get-login", options)
     //        .then((response) => {
-    //            //debugger;
+    //            
     //            if (response.status === 200) {
     //                return response.json();
     //            }
@@ -56,7 +56,7 @@ export default function LoginForm() {
      * clique no botao de submissao
      */
     async function handleButtonClick() {
-        //debugger;
+        
         var options = {
             method: 'POST',
             redirect: 'follow',
@@ -72,7 +72,7 @@ export default function LoginForm() {
 
         await fetch(process.env.REACT_APP_API_URL + "/login", options)
             .then((response) => {
-                //debugger;
+                
                 if (response.status === 404) {
                     setWarningText("Tentativa de login inválida!");
                 } else {

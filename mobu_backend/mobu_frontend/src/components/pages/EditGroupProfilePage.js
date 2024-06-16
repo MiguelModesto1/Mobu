@@ -3,6 +3,12 @@ import Avatar from "../modular/Avatar";
 import ProfileProperty from "../modular/ProfileProperty";
 import ClickableIcon from "../modular/ClickableIcon";
 
+/**
+ * 
+ * Página de edição de um perfil de grupo
+ * 
+ * @returns
+ */
 export default function EditGroupProfilePage() {
 
     const queryStrings = new URLSearchParams(window.location.search);
@@ -53,7 +59,7 @@ export default function EditGroupProfilePage() {
 
 
         var expiryIntervalInit = expiry.current - startDate.current;
-        //debugger;
+        
         if (expiryIntervalInit !== 15 * 1000 * 60) {
             window.location.assign("/");
         }
@@ -70,7 +76,7 @@ export default function EditGroupProfilePage() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        //debugger;
+        
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {

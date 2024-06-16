@@ -18,7 +18,7 @@ export default function GroupFoundationForm() {
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
 
-    const [groupName, setgroupName] = useState("");
+    const [groupName, setGroupName] = useState("");
     const [localAvatar, setLocalAvatar] = useState(new File([""], ""));
     const [warningText, setWarningText] = useState("");
 
@@ -37,7 +37,7 @@ export default function GroupFoundationForm() {
         fetch(process.env.REACT_APP_API_URL + "/get-group-foundation" + queryParams, options)
             .then((response) => {
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    window.location.assign("/error-404");
                 }
                 else if (response.status === 500) {
                     window.location.assign("/error-500");
@@ -57,7 +57,7 @@ export default function GroupFoundationForm() {
 
 
         var expiryIntervalInit = expiry.current - startDate.current;
-        //debugger;
+        
         if (expiryIntervalInit !== 15 * 1000 * 60) {
             window.location.assign("/");
         }
@@ -74,7 +74,7 @@ export default function GroupFoundationForm() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        //debugger;
+        
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {
@@ -190,7 +190,7 @@ export default function GroupFoundationForm() {
      * @param {any} value
      */
     function handleGroupNameChange(value) {
-        setgroupName(value);
+        setGroupName(value);
     }
 
     /**
@@ -217,10 +217,16 @@ export default function GroupFoundationForm() {
         }
     }
 
+    /**
+     * Executar no clique do ícone
+     */
     function handleIconClick() {
         document.getElementsByClassName('avatar-input')[0].click();
     }
 
+    /**
+     * Executar no clique do botão para fundar grupo
+     */
     async function handleButtonClick() {
 
         var formData = new FormData();

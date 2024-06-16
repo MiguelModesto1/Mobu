@@ -4,7 +4,11 @@ import React,{ useState } from "react";
  * 
  * Conjunto de textos (superior e inferior)
  * 
- * @returns 
+ * 
+ * @param itemId - ID do Item do separador
+ * @param selectedItem - ID do item selecionado
+ * @param TTBTProps - props do componente - top, bottom (textos inferior e superior)
+ * @param fromParent - texto de classe do componente pai
  */
 export default function TopTextBottomText({itemId, selectedItem, TTBTProps, fromParent=""}){ //
 

@@ -6,6 +6,13 @@ import MenuItem from "../modular/MenuItem";
  * 
  * Menu de contexto do grupo
  * 
+ * @param hasLeft - Indica se o utilizador saiu do grupo
+ * @param wasExpelled - Indica se o utilizador foi expulso do grupo
+ * @param owner - O ID do dono da conta
+ * @param isOwnerAdmin - Indica se o dono da conta é um administrador
+ * @param id - O ID do grupo
+ * @param connection - Conexão SignalR
+ * 
  * @returns
  */
 export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerAdmin, id, connection }) {

@@ -13,6 +13,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller API para o registo
+/// </summary>
 [ApiController]
 public class RegisterApiController : ControllerBase
 {
@@ -58,6 +61,17 @@ public class RegisterApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Construtor do controller da API para o login
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="hostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public RegisterApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -79,6 +93,11 @@ public class RegisterApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    /// <summary>
+    /// Método de registo
+    /// </summary>
+    /// <param name="registerData">Dados de registo</param>
+    /// <returns></returns>
     [HttpPost]
     [Route("api/register")]
     public async Task<IActionResult> RegisterUser([FromForm] Register registerData)
@@ -309,6 +328,11 @@ public class RegisterApiController : ControllerBase
         }
     }*/
 
+    /// <summary>
+    /// Método que verifica se exsite um utilizador na base de dados
+    /// </summary>
+    /// <param name="id">ID do utilizador</param>
+    /// <returns></returns>
     private bool UtilizadorRegistadoExists(int id)
     {
         return _context.UtilizadorRegistado.Any(e => e.IDUtilizador == id);

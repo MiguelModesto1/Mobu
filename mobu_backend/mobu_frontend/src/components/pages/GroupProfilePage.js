@@ -8,9 +8,6 @@ import GroupMemberItem from "../modular/GroupMemberItem"
  * 
  * Perfil de grupo
  * 
- * @param {*} avatarSrc origem do avatar
- * @param id id do grupo
- * @param isAdmin booleano de administrador de grupo
  * @returns 
  */
 export default function GroupProfilePage() {
@@ -43,7 +40,7 @@ export default function GroupProfilePage() {
     const listenToMemberExpelling = useCallback((connection) => {
         connection.on("ReceiveExpelling", (memberId, message) => {
             var aux = [];
-            //debugger;
+            
             for (var i = 0; i < members.length; i++) {
                 if (members[i].Id + "" !== memberId) {
                     aux.push({ ...members[i] });
@@ -101,7 +98,7 @@ export default function GroupProfilePage() {
                 })
                     .configureLogging(LogLevel.Debug)
                     .build();
-            //debugger;
+            
             connection.current.start();
             logSignalRAccess(connection.current);
             listenToSignalRLeaving(connection.current);

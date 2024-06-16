@@ -112,14 +112,14 @@ export default function RegisterForm() {
     }
 
     /** 
-     * clique no icone
+     * executar no clique no icone
      */
     function handleIconClick() {
         document.getElementsByClassName('avatar-input')[0].click();
     }
 
     /**
-     * clique no botao de submissao
+     * executar no clique no botao de submissao
      */
     async function handleButtonClick() {
 

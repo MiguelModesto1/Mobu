@@ -5,10 +5,19 @@ using SendGrid.Helpers.Mail;
 
 namespace mobu_backend.Services
 {
+    /// <summary>
+    /// Distribuidor de emails de confirmação
+    /// </summary>
     public class EmailSender : IEmailSender
     {
+        
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// Contstrutor do distribuidor de emails de confirmação
+        /// </summary>
+        /// <param name="optionsAccessor">acesso à opções</param>
+        /// <param name="logger"></param>
         public EmailSender(IOptions<AuthMessageSenderOptions> optionsAccessor,
                            ILogger<EmailSender> logger)
         {
@@ -16,8 +25,16 @@ namespace mobu_backend.Services
             _logger = logger;
         }
 
-        public AuthMessageSenderOptions Options { get; } //Set with Secret Manager.
+        public AuthMessageSenderOptions Options { get; } //Atribuição com o gestor de segredos
 
+        /// <summary>
+        /// Envio de e-mail assíncrono
+        /// </summary>
+        /// <param name="toEmail">destinatário</param>
+        /// <param name="subject">assunto</param>
+        /// <param name="message">mensagem</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Lançada caso a chave do sendGrid seja nula</exception>
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
             if (string.IsNullOrEmpty(Options.SendGridKey))
@@ -27,6 +44,14 @@ namespace mobu_backend.Services
             await Execute(Options.SendGridKey, subject, message, toEmail);
         }
 
+        /// <summary>
+        /// Execução do envio
+        /// </summary>
+        /// <param name="apiKey">chave de API</param>
+        /// <param name="subject">assunto</param>
+        /// <param name="message">mensagem</param>
+        /// <param name="toEmail">destinatário</param>
+        /// <returns></returns>
         public async Task Execute(string apiKey, string subject, string message, string toEmail)
         {
             var client = new SendGridClient(apiKey);

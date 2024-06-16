@@ -12,6 +12,9 @@ using Newtonsoft.Json.Linq;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller da API para a palavra-passe esquecida
+/// </summary>
 [ApiController]
 public class ForgotPasswordApiController : ControllerBase
 {
@@ -53,6 +56,16 @@ public class ForgotPasswordApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Construtor do controller API da palavra-passe esquecida
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public ForgotPasswordApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -72,6 +85,11 @@ public class ForgotPasswordApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    /// <summary>
+    /// Envia e-mail de confirmação
+    /// </summary>
+    /// <param name="emailJson">Objeto com o email</param>
+    /// <returns></returns>
     [HttpPost]
     [Route("api/forgot-password/send-email")]
     public async Task<IActionResult> SendEmail([FromBody] ForgotPassworEmail emailJson)
@@ -127,6 +145,11 @@ public class ForgotPasswordApiController : ControllerBase
 
     }
 
+    /// <summary>
+    /// Re-inicia a palavra-passe
+    /// </summary>
+    /// <param name="passwordResetJson">Obleto com as passwords atual e nova e o email</param>
+    /// <returns></returns>
     [HttpPost]
     [Route("api/forgot-password/reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPassword passwordResetJson)
