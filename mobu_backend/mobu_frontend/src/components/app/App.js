@@ -16,6 +16,7 @@ import Error403Page from '../pages/Error403Page';
 import EditPersonProfilePage from '../pages/EditPersonProfilePage';
 import EditGroupProfilePage from '../pages/EditGroupProfilePage';
 import PendingRequestsPage from '../pages/PendingRequestsPage';
+import AuthorsPage from '../pages/AuthorsPage';
 
 //var messagingContextInterface = {
 //    context: {
@@ -59,6 +60,8 @@ export default function App() {
                     <Route path="/edit-person-profile" Component={EditPersonProfilePage} />
 
                     <Route path="/search" Component={SearchPage} />
+
+                    <Route path="/authors" Component={AuthorsPage} />
                 </Routes>
             </ Router>
         );

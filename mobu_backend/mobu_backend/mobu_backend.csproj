@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Views\Authors.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\imagens\default_avatar.png" />
   </ItemGroup>
 

@@ -93,7 +93,11 @@ export default function LoginForm() {
         <>
             <div className="d-flex justify-content-center" style={{ marginTop: "15%" }}>
                 <div className="row" style={{ width: "100%" }}>
-                    <div className="d-flex justify-content-center col-lg">
+                    <div
+                        className="d-flex justify-content-center col-lg"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => window.location.assign("/authors")}
+                    >
                         <img className="rounded img-fluid" src="./assets/images/logo_min.png" alt="mobu logo" />
                     </div>
                     <div className="d-flex justify-content-center col-lg" style={{ marginRight: "15%" }}>
