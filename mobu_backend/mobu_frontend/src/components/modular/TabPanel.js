@@ -13,9 +13,11 @@ import FriendContextMenu from "../optionMenus/FriendContextMenu";
  * @param selectedItem - Índice do Item selecionado
  * @param connection - Conexão SignalR
  * @param isFriends - Indica se o separador é de amigos ou de grupos
- * @param onOverItem: Callback do cursor do rato sobre um item no painel
+ * @param onOverItem - Callback do cursor do rato sobre um item no painel
+ * @param prevRoom - ID da sala anterior
+ * @param onSetPrevRoom - callback da sala anterior
  */
-export default function TabPanel({ display, personGroupData, onItemClick, selectedItem, connection, isFriends, onOverItem }) { 
+export default function TabPanel({ display, personGroupData, onItemClick, selectedItem, connection, isFriends, onOverItem, prevRoom, onSetPrevRoom }) { 
 
     var personGroupItems = personGroupData.length !== 0 ?
         personGroupData.map(item => {
@@ -27,6 +29,8 @@ export default function TabPanel({ display, personGroupData, onItemClick, select
                 connection={connection}
                 isFriends={isFriends}
                 onOverItem={onOverItem}
+                prevRoom={prevRoom}
+                onSetPrevRoom={onSetPrevRoom}
             />
         })
         :

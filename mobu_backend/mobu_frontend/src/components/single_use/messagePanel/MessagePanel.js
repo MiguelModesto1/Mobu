@@ -1,5 +1,4 @@
 import React, { useRef, useMemo, useEffect } from "react";
-import "./MessagePanel.css"
 import Avatar from "../../modular/Avatar";
 
 /**

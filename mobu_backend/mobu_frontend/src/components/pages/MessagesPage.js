@@ -18,29 +18,55 @@ import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
  */
 export default function MessagesPage() {
 
+    // Obtém o parâmetro 'id' da URL
     const queryParamId = new URLSearchParams(window.location.search).get('id');
 
+    // Cria referências para o dono da conta, 
+    // conexão signalR, data de expiração do cookie, data de início do cookie e timeout de sessão
     const owner = useRef();
     const connection = useRef();
     const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const timeout = useRef(0);
 
+    // Define o estado para mostrar o menu
     const [showMenu, setShowMenu] = useState(false);
+
+    // Define o estado para o número de separadores
     const [tabsNumber, setTabsNumber] = useState(0);
+
+    // Define o estado para a sala anterior
+    const [prevRoom, setPrevRoom] = useState(-1);
+
+    // Define o estado para indicar se os dados dos amigos foram recolhidos
     const [hasFetchedFriendsData, setHasFetchedFriendsData] = useState(false);
+
+    // Define o estado para indicar se os dados dos grupos foram recolhidos
     const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
+
+    // Define o estado para indicar se o amigo está bloqueado
     const [isFriendOverBlocked, setIsFriendOverBlocked] = useState(false);
+
+    // Define o estado para indicar se o amigo bloqueou o utilizador
     const [hasFriendOverBlockedMe, setHasFriendOverBlockedMe] = useState(false);
+
+    // Define o estado para o item de amigo sob o cursor do rato
     const [overFriendItem, setOverFriendItem] = useState(0);
+
+    // Define o estado para o item de grupo sob o cursor do rato
     const [overGroupItem, setOverGroupItem] = useState(0);
+
+    // Define o estado para o item de amigo selecionado
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
+
+    // Define o estado para o item de grupo selecionado
     const [selectedGroupItem, setSelectedGroupItem] = useState(0);
+
+    // Define o estado para a última mensagem recebida
     const [lastMessageReceived, setLastMessageReceived] = useState({
-        ItemId: -1,
         IsFriends: true,
-        Message:
-        {
+        Message: {
+            IDSala: -1,
             IDMensagem: -1,
             IDRemetente: -1,
             URLImagemRemetente: "",
@@ -48,7 +74,11 @@ export default function MessagesPage() {
             ConteudoMsg: ""
         }
     });
+
+    // Define o estado para indicar se o separador de amigos está ativo
     const [friendsTab, setFriendsTab] = useState(true);
+
+    // Define o estado para os dados dos amigos
     const [friendsData, setFriendsData] = useState([
         {
             ItemId: -1,
@@ -58,6 +88,7 @@ export default function MessagesPage() {
             ImageURL: "",
             Messages: new Array(
                 {
+                    IDSala: -1,
                     IDMensagem: -1,
                     IDRemetente: -1,
                     URLImagemRemetente: "",
@@ -69,6 +100,8 @@ export default function MessagesPage() {
             BlockedYou: false
         }
     ]);
+
+    // Define o estado para os dados dos grupos
     const [groupsData, setGroupsData] = useState([
         {
             ItemId: -1,
@@ -77,6 +110,7 @@ export default function MessagesPage() {
             ImageURL: "",
             Mensagens: new Array(
                 {
+                    IDSala: -1,
                     IDMensagem: -1,
                     IDRemetente: -1,
                     URLImagemRemetente: "",
@@ -90,13 +124,14 @@ export default function MessagesPage() {
         }
     ]);
 
+
     /**
      * ouvir a saida de um grupo
      * @param {any} connection
      */
     const listenToGroupLeaving = useCallback((connection) => {
         connection.on("ReceiveLeaving", (group, message) => {
-            
+
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -132,6 +167,7 @@ export default function MessagesPage() {
                             ...trailing
                         ]);
                     }
+                    break;
                 }
             }
 
@@ -166,7 +202,7 @@ export default function MessagesPage() {
             }
 
         });
-    },[friendsData]);
+    }, [friendsData]);
 
     /**
      * Ouvir rececao de expulsao
@@ -174,7 +210,7 @@ export default function MessagesPage() {
      */
     const listenToMemberExpelling = useCallback((connection) => {
         connection.on("ReceiveExpelling", (roomId, message) => {
-            
+
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -210,6 +246,7 @@ export default function MessagesPage() {
                             ...trailing
                         ]);
                     }
+                    break;
                 }
             }
 
@@ -221,75 +258,85 @@ export default function MessagesPage() {
 
     useEffect(() => {
 
-        
+
         if (hasFetchedFriendsData || hasFetchedGroupsData) {
             // atualizar dados das mensagens de amigos do utilizador
             var aux = {};
             var trailing = [];
             var leading = [];
             var isGroup = !lastMessageReceived.IsFriends;
-            var itemId = lastMessageReceived.ItemId;
             var messageObject = lastMessageReceived.Message;
 
             if (!isGroup) {
-                aux = { ...friendsData[itemId] };
-                aux.Messages.push({ ...messageObject });
-                if (itemId === 0) {
+                for (let i = 0; i < friendsData.length; i++) {
+                    if (messageObject.IDSala === friendsData[i].CommonRoomId) {
+                        aux = { ...friendsData[i] };
+                        aux.Messages.push({ ...messageObject });
+                        if (i === 0) {
 
-                    trailing = friendsData.slice(1, friendsData.length);
+                            trailing = friendsData.slice(1, friendsData.length);
 
-                    setFriendsData([
-                        { ...aux },
-                        ...trailing
-                    ]);
-                } else if (itemId === friendsData.length - 1) {
+                            setFriendsData([
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        } else if (i === friendsData.length - 1) {
 
-                    leading = friendsData.slice(0, friendsData.length - 1);
+                            leading = friendsData.slice(0, friendsData.length - 1);
 
-                    setFriendsData([
-                        ...leading,
-                        { ...aux }
-                    ]);
-                } else {
+                            setFriendsData([
+                                ...leading,
+                                { ...aux }
+                            ]);
+                        } else {
 
-                    leading = friendsData.slice(0, itemId);
-                    trailing = friendsData.slice(itemId + 1, friendsData.length)
+                            leading = friendsData.slice(0, i);
+                            trailing = friendsData.slice(i + 1, friendsData.length)
 
-                    setFriendsData([
-                        ...leading,
-                        { ...aux },
-                        ...trailing
-                    ]);
+                            setFriendsData([
+                                ...leading,
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        }
+                        break;
+                    }
                 }
+
             } else {
-                aux = { ...groupsData[itemId] };
-                aux.Mensagens.push({ ...messageObject });
-                if (itemId === 0) {
+                for (let i = 0; i < groupsData.length; i++) {
+                    if (messageObject.IDSala === groupsData[i].IDSala) {
+                        aux = { ...groupsData[i] };
+                        aux.Mensagens.push({ ...messageObject });
+                        if (i === 0) {
 
-                    trailing = groupsData.slice(1, groupsData.length);
+                            trailing = groupsData.slice(1, groupsData.length);
 
-                    setGroupsData([
-                        { ...aux },
-                        ...trailing
-                    ]);
-                } else if (itemId === groupsData.length - 1) {
+                            setGroupsData([
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        } else if (i === groupsData.length - 1) {
 
-                    leading = groupsData.slice(0, groupsData.length - 1);
+                            leading = groupsData.slice(0, groupsData.length - 1);
 
-                    setGroupsData([
-                        ...leading,
-                        { ...aux }
-                    ]);
-                } else {
+                            setGroupsData([
+                                ...leading,
+                                { ...aux }
+                            ]);
+                        } else {
 
-                    leading = groupsData.slice(0, itemId);
-                    trailing = groupsData.slice(itemId + 1, groupsData.length)
+                            leading = groupsData.slice(0, i);
+                            trailing = groupsData.slice(i + 1, groupsData.length)
 
-                    setGroupsData([
-                        ...leading,
-                        { ...aux },
-                        ...trailing
-                    ]);
+                            setGroupsData([
+                                ...leading,
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -302,7 +349,7 @@ export default function MessagesPage() {
             }
 
             var queryParams = `?id=${queryParamId}`;
-            
+
             fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
                 .then(response => {
                     if (response.status === 404) {
@@ -328,11 +375,12 @@ export default function MessagesPage() {
                     var auxTabNum = 0;
 
                     // dados
-                    
+
                     if (data.friends.length !== 0) {
                         setFriendsData([...data.friends]);
                         setHasFetchedFriendsData(true);
                         auxTabNum++;
+                        setPrevRoom([...data.friends][0].CommonRoomId);
                         connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
                     }
                     else {
@@ -343,12 +391,13 @@ export default function MessagesPage() {
                         setGroupsData([...data.groups]);
                         setHasFetchedGroupsData(true);
                         auxTabNum++;
+                        setPrevRoom([...data.groups][0].IDSala);
                         connection.current.invoke("AddConnection", [...data.groups][0].IDSala + "");
                     }
 
                     setTabsNumber(auxTabNum);
 
-                    
+
                 })
                 .catch(err => console.error("error: ", err));
 
@@ -373,16 +422,16 @@ export default function MessagesPage() {
             //verificar novo cookie
             document.addEventListener("mousemove", () => getNewCookie());
             document.addEventListener("keydown", () => getNewCookie());
-            
-            
+
+
             var expiryIntervalInit = expiry.current - startDate.current;
-            
+
             if (expiryIntervalInit !== 15 * 1000 * 60) {
                 window.location.assign("/");
             }
 
             var expiryInterval = expiry.current - Date.now();
-            
+
             timeout.current = setTimeout(() => {
                 logout();
                 window.location.assign("/");
@@ -392,12 +441,12 @@ export default function MessagesPage() {
     }, [lastMessageReceived]);
 
     useEffect(() => {
-        
+
         if (hasFetchedGroupsData) {
             listenToGroupLeaving(connection.current);
             listenToMemberExpelling(connection.current);
         }
-        
+
     }, [hasFetchedGroupsData, listenToGroupLeaving, listenToMemberExpelling]);
 
     useEffect(() => {
@@ -426,7 +475,7 @@ export default function MessagesPage() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        
+
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {
@@ -471,7 +520,7 @@ export default function MessagesPage() {
      */
     const start = async (connection) => {
         try {
-            
+
             await connection.start();
             console.log("SignalR Connected.");
         } catch (err) {
@@ -540,14 +589,14 @@ export default function MessagesPage() {
      * @param {any} connection
      */
     const listenToSignalRMessages = (connection) => {
-        connection.on("ReceiveMessage", (itemId, isGroup, messageObject) => {
-
+        connection.on("ReceiveMessage", (isGroup, messageObject) => {
+            
             console.log("ReceiveMessage");
 
             setLastMessageReceived({
-                ItemId: itemId,
                 IsFriends: !isGroup,
                 Message: {
+                    IDSala: messageObject.idSala,
                     IDMensagem: messageObject.idMensagem,
                     IDRemetente: messageObject.idRemetente,
                     URLImagemRemetente: messageObject.urlImagemRemetente,
@@ -566,6 +615,7 @@ export default function MessagesPage() {
      */
     const listenToSignalRGroupChange = (connection) => {
         connection.on("AddedToGroup", (connectionId, roomId) => {
+            setPrevRoom(Number(roomId));
             console.log("conexão " + connectionId + " adicionada à sala " + roomId);
         });
 
@@ -590,7 +640,7 @@ export default function MessagesPage() {
      */
     const listenToBlock = (connection) => {
         connection.on("ReceiveBlock", (fromUser) => {
-
+            
             var aux = {};
             var trailing = [];
             var leading = [];
@@ -680,22 +730,22 @@ export default function MessagesPage() {
         });
     };
 
-    
 
-    
+
+
 
     /**
      * clique no separador dos amigos
      */
     const handleFriendsTabHeaderClick = () => {
-        setFriendsTab(true)
+        setFriendsTab(true);
     }
 
     /**
      * clique no separador dos grupos
      */
     const handleGroupsTabHeaderClick = () => {
-        setFriendsTab(false)
+        setFriendsTab(false);
     }
 
     /**
@@ -717,7 +767,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverFriendItem(itemKey) {
-        
+
         setOverFriendItem(itemKey);
         setIsFriendOverBlocked(friendsData[itemKey].BlockedThem);
         setHasFriendOverBlockedMe(friendsData[itemKey].BlockedYou);
@@ -769,7 +819,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverGroupItem(itemKey) {
-        
+
         setOverGroupItem(itemKey);
     }
 
@@ -778,6 +828,10 @@ export default function MessagesPage() {
      */
     const handleMenuIconClick = () => {
         setShowMenu(!showMenu);
+    }
+
+    const handleSetPrevRoom = (value) => {
+        setPrevRoom(value)
     }
 
     return (
@@ -802,6 +856,7 @@ export default function MessagesPage() {
                                         }}
                                         connection={connection.current}
                                         isFriends={friendsTab}
+                                        
 
                                     />
                                 }
@@ -822,10 +877,10 @@ export default function MessagesPage() {
                                         isFriends={friendsTab}
                                     />
                                 }
-                                
+
                             </div>
                             <div className="tabs-div">
-                                
+
                                 {hasFetchedFriendsData && friendsData.length !== 0 &&
                                     <TabPanel
                                         display={friendsTab ? "block" : "none"}
@@ -835,6 +890,8 @@ export default function MessagesPage() {
                                         connection={connection.current}
                                         isFriends={true}
                                         onOverItem={handleOverFriendItem}
+                                        prevRoom={prevRoom}
+                                        onSetPrevRoom={handleSetPrevRoom}
                                     />
                                 }
                                 {hasFetchedGroupsData && groupsData.length !== 0 &&
@@ -846,6 +903,8 @@ export default function MessagesPage() {
                                         connection={connection.current}
                                         isFriends={false}
                                         onOverItem={handleOverGroupItem}
+                                        prevRoom={prevRoom}
+                                        onSetPrevRoom={handleSetPrevRoom}
                                     />
                                 }
                             </div>

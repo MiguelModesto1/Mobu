@@ -33,11 +33,10 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Recebe uma mensagem em tempo real.
         /// </summary>
-        /// <param name="itemId">O ID do item associado à mensagem.</param>
         /// <param name="isGroup">Indica se a mensagem é para um grupo.</param>
         /// <param name="message">A mensagem a ser recebida.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveMessage(int itemId, bool isGroup, Messages message);
+        Task ReceiveMessage(bool isGroup, Messages message);
 
         /// <summary>
         /// Notifica a conexão do cliente atraves uma mensagem.

@@ -43,9 +43,9 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
 
             if (message !== "") {
                 if (isFriends) {
-                    await connection.invoke("SendMessageToRoom", selectedFriendItem + "", ownerId + "", roomId.current + "", message);
+                    await connection.invoke("SendMessageToRoom", ownerId + "", roomId.current + "", message);
                 } else {
-                    await connection.invoke("SendMessageToRoom", selectedGroupItem + "", ownerId + "", roomId.current + "", message);
+                    await connection.invoke("SendMessageToRoom", ownerId + "", roomId.current + "", message);
                 }
                 setMessage("");
                 document.getElementsByClassName("message-box")[0].value = "";    

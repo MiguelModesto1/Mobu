@@ -13,8 +13,10 @@ import TopTextBottomText from "./TopTextBottomText";
  * @param selectedItem - Índice do Item selecionado
  * @param isFriends - Indica se é item de amigo ou pessoa
  * @param onOverItem - Callback do cursor do rato sobre o item
+ * @param prevRoom - ID da sala anterior
+ * @param onSetPrevRoom - callback da sala anterior
  */
-export default function PersonGroupItem({ friendGroupData, onItemClick, connection, selectedItem, isFriends, onOverItem }) {
+export default function PersonGroupItem({ friendGroupData, onItemClick, connection, selectedItem, isFriends, onOverItem, prevRoom, onSetPrevRoom }) {
 
     const itemId = useRef();
 
@@ -51,9 +53,11 @@ export default function PersonGroupItem({ friendGroupData, onItemClick, connecti
             }}
             onMouseOver={() => onOverItem(itemId.current)}
             onClick={async () => {
-                await connection.invoke("RemoveConnection", roomId.current + "");
+                
+                await connection.invoke("RemoveConnection", prevRoom + "");
                 onItemClick(itemId.current);
                 await connection.invoke("AddConnection", roomId.current + "");
+
             }}>
             <div style={{ marginTop: ".5rem" }}>
                 <Avatar avatarProps={{

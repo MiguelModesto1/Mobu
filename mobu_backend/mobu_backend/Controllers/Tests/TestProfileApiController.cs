@@ -20,7 +20,7 @@ namespace mobu.Controllers.Frontend;
 /// Controller API de acesso a perfis
 /// </summary>
 [ApiController]
-public class ProfileApiController : ControllerBase
+public class TestProfileApiController : ControllerBase
 {
 
     /// <summary>
@@ -75,7 +75,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="http"></param>
     /// <param name="optionsAccessor"></param>
     /// <param name="logger"></param>
-    public ProfileApiController(
+    public TestProfileApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
@@ -103,7 +103,7 @@ public class ProfileApiController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Authorize]
-    [Route("api/profile/get-profile")]
+    [Route("api/profile/test-get-profile")]
     public async Task<IActionResult> GetProfile([FromQuery(Name = "id")] int id, [FromQuery(Name = "requester")] int requester, [FromQuery(Name = "isGroup")] bool isGroup)
     {
         try
@@ -123,7 +123,7 @@ public class ProfileApiController : ControllerBase
             }
 
             //validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + requester, out var sessionId))
             {
                 return Unauthorized();
             }
@@ -230,7 +230,7 @@ public class ProfileApiController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Authorize]
-    [Route("api/profile/get-edit-person-profile")]
+    [Route("api/profile/test-get-edit-person-profile")]
     public async Task<IActionResult> GetEditPersonProfile([FromQuery(Name = "id")] int id)
     {
         try
@@ -245,7 +245,7 @@ public class ProfileApiController : ControllerBase
             }
 
             //validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + id, out var sessionId))
             {
                 return Unauthorized();
             }
@@ -274,7 +274,7 @@ public class ProfileApiController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Authorize]
-    [Route("api/profile/get-edit-group-profile")]
+    [Route("api/profile/test-get-edit-group-profile")]
     public async Task<IActionResult> GetEditGroupProfile([FromQuery(Name = "id")] int id, [FromQuery(Name = "admin")] int admin)
     {
         try
@@ -294,7 +294,7 @@ public class ProfileApiController : ControllerBase
             }
 
             // validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + admin, out var sessionId))
             {
                 return Unauthorized();
             }
@@ -322,7 +322,7 @@ public class ProfileApiController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Authorize]
-    [Route("api/profile/edit-person-profile")]
+    [Route("api/profile/test-edit-person-profile")]
     public async Task<IActionResult> EditPersonProfile([FromForm] ProfileEdit profileEdit)
     {
         try
@@ -357,7 +357,7 @@ public class ProfileApiController : ControllerBase
             }
 
             //validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + id, out var sessionId))
             {
                 return Unauthorized();
             }
@@ -564,7 +564,7 @@ public class ProfileApiController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Authorize]
-    [Route("api/profile/edit-group-profile")]
+    [Route("api/profile/test-edit-group-profile")]
     public async Task<IActionResult> EditGroupProfile([FromForm] GroupProfileEdit profileEdit)
     {
         try
@@ -601,7 +601,7 @@ public class ProfileApiController : ControllerBase
             }
 
             //validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + adminId, out var sessionId))
             {
                 return Unauthorized();
             }

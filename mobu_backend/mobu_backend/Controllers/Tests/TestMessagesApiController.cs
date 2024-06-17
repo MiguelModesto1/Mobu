@@ -17,7 +17,7 @@ namespace mobu.Controllers.Frontend;
 /// Controller API para a recolha de dados de mensagens
 /// </summary>
 [ApiController]
-public class MessagesApiController : ControllerBase
+public class TestMessagesApiController : ControllerBase
 {
 
     /// <summary>
@@ -73,7 +73,7 @@ public class MessagesApiController : ControllerBase
     /// <param name="http"></param>
     /// <param name="optionsAccessor"></param>
     /// <param name="logger"></param>
-    public MessagesApiController(
+    public TestMessagesApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
         UserManager<IdentityUser> userManager,
@@ -97,11 +97,11 @@ public class MessagesApiController : ControllerBase
     /// <summary>
     /// Obter informação dos amigos e grupos
     /// </summary>
-    /// <param name="id">ID do utilizador</param>
+    /// <param name="id">ID do utilzador</param>
     /// <returns></returns>
     [HttpGet]
     [Authorize]
-    [Route("api/messages")]
+    [Route("api/test-messages")]
     public async Task<IActionResult> GetFriendsAndGroupsInformation([FromQuery(Name = "id")] int id)
     {
         try
@@ -123,7 +123,7 @@ public class MessagesApiController : ControllerBase
             }
 
             //validar cookie de sessao
-            if (!Request.Cookies.TryGetValue("Session-Id", out var sessionId))
+            if (!Request.Cookies.TryGetValue("Session-Id-" + id, out var sessionId))
             {
                 return Unauthorized();
             }
