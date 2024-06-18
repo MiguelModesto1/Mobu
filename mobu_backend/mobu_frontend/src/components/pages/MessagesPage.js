@@ -177,32 +177,7 @@ export default function MessagesPage() {
         });
     }, [groupsData]);
 
-    /**
-     * Ouvir resposta a pedidos
-     * @param {any} connection
-     */
-    const listenToRequestReply = useCallback((connection) => {
-        connection.on("ReceiveRequestReply", (replierObject, reply) => {
-
-            if (reply) {
-
-                var newFriend = {
-                    ItemId: friendsData.length,
-                    FriendId: replierObject.friendId,
-                    FriendName: replierObject.friendName,
-                    CommonRoomId: replierObject.commonRoomId,
-                    ImageURL: replierObject.imageURL,
-                    Messages: []
-                }
-
-                var aux = [...friendsData];
-                aux.push([...newFriend]);
-
-                setFriendsData([...aux]);
-            }
-
-        });
-    }, [friendsData]);
+    
 
     /**
      * Ouvir rececao de expulsao
@@ -255,6 +230,129 @@ export default function MessagesPage() {
             console.log(message);
         })
     }, [groupsData]);
+
+    /**
+     * Ouvir resposta a pedidos de amizade
+     * @param {any} connection
+     */
+    const listenToRequestReply = useCallback((connection) => {
+        connection.on("ReceiveRequestReply", (replierObject, reply) => {
+
+            if (reply) {
+
+                var newFriend = {
+                    ItemId: friendsData.length,
+                    FriendId: replierObject.friendId,
+                    FriendName: replierObject.friendName,
+                    CommonRoomId: replierObject.commonRoomId,
+                    ImageURL: replierObject.imageURL,
+                    Messages: []
+                }
+
+                var aux = [...friendsData];
+                aux.push([...newFriend]);
+
+                setFriendsData([...aux]);
+            }
+
+        });
+    }, [friendsData]);
+
+    /**
+     * ouvir o bloqueio de um amigo
+     * @param {any} connection
+     */
+    const listenToBlock = useCallback((connection) => {
+        connection.on("ReceiveBlock", (fromUser) => {
+
+            var aux = {};
+            var trailing = [];
+            var leading = [];
+
+            for (var i = 0; i < friendsData.length; i++) {
+                if (friendsData[i].FriendId + "" === fromUser) {
+                    aux = { ...friendsData[i] }
+                    aux.BlockedYou = true;
+                    if (i === 0) {
+
+                        trailing = friendsData.slice(1, friendsData.length);
+
+                        setFriendsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === friendsData.length - 1) {
+
+                        leading = friendsData.slice(0, friendsData.length - 1);
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = friendsData.slice(0, i);
+                        trailing = friendsData.slice(i + 1, friendsData.length)
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                    break;
+                }
+            }
+        });
+    }, [friendsData]);
+
+    /**
+     * ouvir o desbloqueio de um amigo
+     * @param {any} connection
+     */
+    const listenToUnblock = useCallback((connection) => {
+        connection.on("ReceiveUnblock", (fromUser) => {
+
+            var aux = {};
+            var trailing = [];
+            var leading = [];
+
+            for (var i = 0; i < friendsData.length; i++) {
+                if (friendsData[i].FriendId + "" === fromUser) {
+                    aux = { ...friendsData[i] }
+                    aux.BlockedYou = false;
+                    if (i === 0) {
+
+                        trailing = friendsData.slice(1, friendsData.length);
+
+                        setFriendsData([
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    } else if (i === friendsData.length - 1) {
+
+                        leading = friendsData.slice(0, friendsData.length - 1);
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux }
+                        ]);
+                    } else {
+
+                        leading = friendsData.slice(0, i);
+                        trailing = friendsData.slice(i + 1, friendsData.length)
+
+                        setFriendsData([
+                            ...leading,
+                            { ...aux },
+                            ...trailing
+                        ]);
+                    }
+                    break;
+                }
+            }
+        });
+    }, [friendsData]);
 
     useEffect(() => {
 
@@ -416,8 +514,8 @@ export default function MessagesPage() {
             listenToSignalRMessages(connection.current);
             listenToSignalRGroupChange(connection.current);
             listenToGroupEntry(connection.current);
-            listenToBlock(connection.current);
-            listenToUnblock(connection.current);
+            
+            
 
             //verificar novo cookie
             document.addEventListener("mousemove", () => getNewCookie());
@@ -452,7 +550,9 @@ export default function MessagesPage() {
     useEffect(() => {
         if (hasFetchedFriendsData)
             listenToRequestReply(connection.current);
-    }, [hasFetchedFriendsData, listenToRequestReply]);
+            listenToBlock(connection.current);
+            listenToUnblock(connection.current);
+    }, [hasFetchedFriendsData, listenToBlock, listenToRequestReply, listenToUnblock]);
 
     useEffect(() => {
 
@@ -634,101 +734,9 @@ export default function MessagesPage() {
         });
     }
 
-    /**
-     * ouvir o bloqueio de um amigo
-     * @param {any} connection
-     */
-    const listenToBlock = (connection) => {
-        connection.on("ReceiveBlock", (fromUser) => {
-            
-            var aux = {};
-            var trailing = [];
-            var leading = [];
+    
 
-            for (var i = 0; i < friendsData.length; i++) {
-                if (friendsData[i].FriendId + "" === fromUser) {
-                    aux = { ...friendsData[i] }
-                    aux.BlockedYou = true;
-                    if (i === 0) {
-
-                        trailing = friendsData.slice(1, friendsData.length);
-
-                        setFriendsData([
-                            { ...aux },
-                            ...trailing
-                        ]);
-                    } else if (i === friendsData.length - 1) {
-
-                        leading = friendsData.slice(0, friendsData.length - 1);
-
-                        setFriendsData([
-                            ...leading,
-                            { ...aux }
-                        ]);
-                    } else {
-
-                        leading = friendsData.slice(0, i);
-                        trailing = friendsData.slice(i + 1, friendsData.length)
-
-                        setFriendsData([
-                            ...leading,
-                            { ...aux },
-                            ...trailing
-                        ]);
-                    }
-                    break;
-                }
-            }
-        });
-    };
-
-    /**
-     * ouvir o desbloqueio de um amigo
-     * @param {any} connection
-     */
-    const listenToUnblock = (connection) => {
-        connection.on("ReceiveUnblock", (fromUser) => {
-
-            var aux = {};
-            var trailing = [];
-            var leading = [];
-
-            for (var i = 0; i < friendsData.length; i++) {
-                if (friendsData[i].FriendId + "" === fromUser) {
-                    aux = { ...friendsData[i] }
-                    aux.BlockedYou = false;
-                    if (i === 0) {
-
-                        trailing = friendsData.slice(1, friendsData.length);
-
-                        setFriendsData([
-                            { ...aux },
-                            ...trailing
-                        ]);
-                    } else if (i === friendsData.length - 1) {
-
-                        leading = friendsData.slice(0, friendsData.length - 1);
-
-                        setFriendsData([
-                            ...leading,
-                            { ...aux }
-                        ]);
-                    } else {
-
-                        leading = friendsData.slice(0, i);
-                        trailing = friendsData.slice(i + 1, friendsData.length)
-
-                        setFriendsData([
-                            ...leading,
-                            { ...aux },
-                            ...trailing
-                        ]);
-                    }
-                    break;
-                }
-            }
-        });
-    };
+    
 
 
 

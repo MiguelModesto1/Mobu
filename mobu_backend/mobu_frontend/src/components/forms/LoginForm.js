@@ -134,6 +134,9 @@ export default function LoginForm() {
                                 <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                 <a href={window.location.origin + "/register"} style={{ color: "#3b9ae1" }}>Não tenho uma conta</a>
                             </div>
+                            <div className="my-2 d-flex justify-content-center" style={{ textAlign: "center" }}>
+                                <a href={process.env.REACT_APP_BACKOFFICE_URL} style={{ color: "#3b9ae1" }}>Sou moderador/a</a>
+                            </div>
                         </div>
                     </div>
                 </div>

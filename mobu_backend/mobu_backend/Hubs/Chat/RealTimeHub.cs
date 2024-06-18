@@ -17,7 +17,7 @@ namespace mobu_backend.Hubs.Chat
     /// <summary>
     /// Esta classe implementa um hub em tempo real para gerir a comunicação entre o cliente e o servidor.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [ValidateAntiForgeryToken]
     public class RealTimeHub : Hub<IRealTimeHub>
     {
