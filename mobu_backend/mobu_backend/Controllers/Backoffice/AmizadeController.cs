@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace mobu_backend.Controllers.Backend
     /// <summary>
     /// Controlador das amizades
     /// </summary>
+    [Authorize(Roles = "Moderador")]
     public class AmizadeController : Controller
     {
         private readonly ApplicationDbContext _context;

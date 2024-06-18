@@ -23,6 +23,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
@@ -45,6 +46,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
@@ -53,6 +55,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
             IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -167,6 +170,11 @@ namespace mobu_backend.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    if(!await _roleManager.RoleExistsAsync("Moderador"))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole("Moderador"));
+                        }
+                        await _userManager.AddToRoleAsync(user, "Moderador");
 
                     _logger.LogInformation("Foi criado novo utilizador!");
 

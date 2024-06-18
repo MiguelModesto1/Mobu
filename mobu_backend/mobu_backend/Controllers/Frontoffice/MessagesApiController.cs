@@ -100,7 +100,7 @@ public class MessagesApiController : ControllerBase
     /// <param name="id">ID do utilizador</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/messages")]
     public async Task<IActionResult> GetFriendsAndGroupsInformation([FromQuery(Name = "id")] int id)
     {

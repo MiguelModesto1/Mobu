@@ -16,7 +16,7 @@ namespace mobu.Controllers.Backend
     /// <summary>
     /// Controlador de utilizadores
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class UtilizadorRegistadoController : Controller
     {
         /// <summary>
@@ -28,6 +28,11 @@ namespace mobu.Controllers.Backend
         /// ferramenta com acesso a gestao de users
         /// </summary>
         private readonly UserManager<IdentityUser> _userManager;
+
+        /// <summary>
+        /// ferramenta com acesso a roles
+        /// </summary>
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         /// <summary>
         /// Este recurso (tecnicamente, um atributo) mostra os 
@@ -70,6 +75,7 @@ namespace mobu.Controllers.Backend
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<RegisterModel> logger,
             ILogger<EmailSender> loggerEmail,
             IHttpContextAccessor http,
@@ -78,6 +84,7 @@ namespace mobu.Controllers.Backend
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _userManager = userManager;
+            _roleManager = roleManager;
             _logger = logger;
             _emailLogger = loggerEmail;
             _http = http;
@@ -212,6 +219,11 @@ namespace mobu.Controllers.Backend
 
                     if (result.Succeeded)
                     {
+                        if(!await _roleManager.RoleExistsAsync("Moderador"))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole("Moderador"));
+                        }
+                        await _userManager.AddToRoleAsync(user, "Moderador");
 
                         _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
 

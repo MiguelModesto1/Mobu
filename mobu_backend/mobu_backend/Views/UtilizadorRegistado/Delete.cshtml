@@ -1,6 +1,10 @@
-﻿@model mobu_backend.Models.UtilizadorRegistado
+﻿@using Microsoft.AspNetCore.Identity
+@using mobu_backend.Data
+@model mobu_backend.Models.UtilizadorRegistado
 
 @inject IHttpContextAccessor http;
+@inject UserManager<IdentityUser> userManager;
+@inject ApplicationDbContext context
 
 @{
     ViewData["Title"] = "Apagar";
@@ -53,6 +57,22 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.NomeFotografia)
             <img style="height:75px;" src=@("https://" + request.Host.ToString() + "/imagens/" + Model.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+        </dd>
+        <dt class="col-sm-10">
+            É Moderador?
+        </dt>
+        <dd class="col-sm-10">
+            @{
+                var identityUser = context.Users.Where(u => Model.AuthenticationID == u.Id).ToArray()[0];
+                if (await userManager.IsInRoleAsync(identityUser, "Moderador"))
+                {
+                    <input type="checkbox" disabled="disabled" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" disabled="disabled" />
+                }
+            }
         </dd>
     </dl>
     

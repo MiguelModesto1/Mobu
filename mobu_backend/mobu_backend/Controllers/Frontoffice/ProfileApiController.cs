@@ -102,7 +102,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="isGroup">Verifica se pede dados de um perfil de grupo</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/profile/get-profile")]
     public async Task<IActionResult> GetProfile([FromQuery(Name = "id")] int id, [FromQuery(Name = "requester")] int requester, [FromQuery(Name = "isGroup")] bool isGroup)
     {
@@ -229,7 +229,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="id">Id do editor</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/profile/get-edit-person-profile")]
     public async Task<IActionResult> GetEditPersonProfile([FromQuery(Name = "id")] int id)
     {
@@ -273,7 +273,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="admin">ID do administrador de grupo</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/profile/get-edit-group-profile")]
     public async Task<IActionResult> GetEditGroupProfile([FromQuery(Name = "id")] int id, [FromQuery(Name = "admin")] int admin)
     {
@@ -321,7 +321,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="profileEdit">Objeto de edição de perfil</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/profile/edit-person-profile")]
     public async Task<IActionResult> EditPersonProfile([FromForm] ProfileEdit profileEdit)
     {
@@ -563,7 +563,7 @@ public class ProfileApiController : ControllerBase
     /// <param name="profileEdit">Objeto de edição de perfil</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/profile/edit-group-profile")]
     public async Task<IActionResult> EditGroupProfile([FromForm] GroupProfileEdit profileEdit)
     {

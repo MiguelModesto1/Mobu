@@ -91,7 +91,7 @@ public class RequestsApiController : ControllerBase
     /// <param name="id">ID do utilizador</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/pending-requests")]
     public async Task<IActionResult> GetPendingRequests([FromQuery(Name = "id")] int id)
     {

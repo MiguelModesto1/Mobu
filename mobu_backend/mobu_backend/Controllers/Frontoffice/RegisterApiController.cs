@@ -30,6 +30,11 @@ public class RegisterApiController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
 
     /// <summary>
+    /// ferramenta com acesso à gestão de roles
+    /// </summary>
+    private readonly RoleManager<IdentityRole> _roleManager;
+
+    /// <summary>
     /// Este recurso (tecnicamente, um atributo) mostra os 
     /// dados do servidor. 
     /// E necessário inicializar este atributo no construtor da classe
@@ -77,6 +82,7 @@ public class RegisterApiController : ControllerBase
         IWebHostEnvironment webHostEnvironment,
         IHostEnvironment hostEnvironment,
         UserManager<IdentityUser> userManager,
+        RoleManager<IdentityRole> roleManager,
         ILogger<EmailSender> loggerEmail,
         IHttpContextAccessor http,
         IOptions<AuthMessageSenderOptions> optionsAccessor,
@@ -87,6 +93,7 @@ public class RegisterApiController : ControllerBase
         _webHostEnvironment = webHostEnvironment;
         _hostEnvironment = hostEnvironment;
         _userManager = userManager;
+        _roleManager = roleManager;
         _logger = logger;
         _loggerEmail = loggerEmail;
         _http = http;
@@ -178,6 +185,12 @@ public class RegisterApiController : ControllerBase
 
             if (result.Succeeded)
             {
+
+                if(!await _roleManager.RoleExistsAsync("Mobber"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Mobber"));
+                }
+                await _userManager.AddToRoleAsync(user, "Mobber");
 
                 _logger.LogInformation("Utilizador criou uma nova conta com palavra-passe.");
 

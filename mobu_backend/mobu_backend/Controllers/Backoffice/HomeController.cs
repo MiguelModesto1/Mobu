@@ -8,7 +8,7 @@ namespace mobu.Controllers.Backend
     /// <summary>
     /// Controlador principal para gerir as vistas Home
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

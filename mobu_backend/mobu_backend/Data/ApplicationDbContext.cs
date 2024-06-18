@@ -20,7 +20,6 @@ namespace mobu_backend.Data
 		/// <param name="modelBuilder"></param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-
 			base.OnModelCreating(modelBuilder);
 
 			modelBuilder.Entity<Amizade>().HasKey(f => new { f.DestinatarioFK, f.RemetenteFK });

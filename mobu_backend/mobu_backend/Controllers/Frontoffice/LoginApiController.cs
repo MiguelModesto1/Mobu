@@ -108,7 +108,7 @@ public class LoginApiController : ControllerBase
     /// <param name="id">ID do utilizador</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-new-cookie")]
     public async Task<IActionResult> GetNewCookie([FromQuery(Name = "id")] int id)
     {
@@ -272,7 +272,7 @@ public class LoginApiController : ControllerBase
     /// <param name="logoutDataJson">Dados para o logout</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/logout")]
     public async Task<IActionResult> Logout([FromBody] Logout logoutDataJson)
     {

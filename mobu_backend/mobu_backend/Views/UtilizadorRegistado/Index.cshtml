@@ -1,6 +1,10 @@
-﻿@model IEnumerable<mobu_backend.Models.UtilizadorRegistado>
+﻿@using Microsoft.AspNetCore.Identity
+@using mobu_backend.Data
+@model IEnumerable<mobu_backend.Models.UtilizadorRegistado>
 
 @inject IHttpContextAccessor http;
+@inject UserManager<IdentityUser> userManager;
+@inject ApplicationDbContext context;
 
 @{
 	ViewData["Title"] = "Índice";
@@ -12,7 +16,7 @@
 <h1>Índice</h1>
 
 <p>
-	<a asp-action="Create">Criar Utilizador Registado</a>
+	<a asp-action="Create">Criar Novo Moderador</a>
 </p>
 
 <table class="table">
@@ -30,6 +34,7 @@
 			<th>
 				Fotografia
 			</th>
+			<th>É Moderador?</th>
 			<th></th>
 		</tr>
 	</thead>
@@ -50,6 +55,20 @@
 					<img class="rounded-circle avatar border border-1 border-primary-subtle"
 						 style="width:75px; height:75px; object-fit:cover;"
 						 src=@("https://" + request.Host.ToString() + "/imagens/" + item.NomeFotografia) />    @*DisplayFor(modelItem => item.Fotografia)*@
+				</td>
+				<td>
+					@{
+						var identityUser = context.Users.Where(u => item.AuthenticationID == u.Id).ToArray()[0];
+						if(await userManager.IsInRoleAsync(identityUser, "Moderador"))
+						{
+							<input type="checkbox" disabled="disabled" checked="checked" />
+						}
+						else
+						{
+							<input type="checkbox" disabled="disabled" />
+						}
+					}
+
 				</td>
 				<td>
 					<a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a> |

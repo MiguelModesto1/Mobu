@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace mobu_backend.Areas.Identity.Pages.Account
 {
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class ConfirmEmailChangeModel : PageModel
     {
         private readonly UserManager<IdentityUser> _userManager;

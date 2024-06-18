@@ -10,7 +10,7 @@ namespace mobu.Controllers.Backend
     /// <summary>
     /// Controlador da tabela de relacionamento registado <-> sala de chat
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class RegistadosSalasChatController : Controller
     {
         private readonly ApplicationDbContext _context;

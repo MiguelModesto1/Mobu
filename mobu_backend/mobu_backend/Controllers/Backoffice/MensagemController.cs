@@ -10,7 +10,7 @@ namespace mobu.Controllers.Backend
     /// <summary>
     /// Controlador de mensagens
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class MensagemController : Controller
     {
         /// <summary>

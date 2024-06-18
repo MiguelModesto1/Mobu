@@ -26,6 +26,9 @@
 				@Html.DisplayNameFor(model => model.Sala)
 			</th>
 			<th>
+				@Html.DisplayNameFor(model => model.ConteudoMsg)
+			</th>
+			<th>
 				Fotografia
 			</th>
 			@*<th>
@@ -46,6 +49,9 @@
 				</td>
 				<td>
 					@Html.DisplayFor(modelItem => item.Sala.NomeSala)
+				</td>
+				<td>
+					<div class="text-truncate" style="width: 6rem">@Html.DisplayFor(modelItem => item.ConteudoMsg)</div>
 				</td>
 				<td>
 					<img class="rounded-circle avatar border border-1 border-primary-subtle"

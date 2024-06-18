@@ -92,7 +92,7 @@ public class GroupFoundationApiController : ControllerBase
     /// <param name="id">ID do novo administrador de grupo</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-group-foundation")]
     public async Task<IActionResult> GetGroupFoundation([FromQuery(Name = "id")] int id)
     {
@@ -140,7 +140,7 @@ public class GroupFoundationApiController : ControllerBase
     /// <param name="registerData">Dados de registo</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/group-foundation")]
     public async Task<IActionResult> RegisterGroup([FromForm] RegisterGroup registerData)
     {

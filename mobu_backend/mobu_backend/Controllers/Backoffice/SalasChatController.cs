@@ -10,7 +10,7 @@ namespace mobu.Controllers.Backend
     /// <summary>
     /// Controlador das Salas de Chat
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Moderador")]
     public class SalasChatController : Controller
     {
         /// <summary>

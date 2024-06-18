@@ -85,7 +85,7 @@ public class SearchApiController : ControllerBase
     /// <param name="id">ID do utilizador</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-search-page")]
     public async Task<IActionResult> GetSearchPage([FromQuery(Name = "id")] int id)
     {
@@ -128,7 +128,7 @@ public class SearchApiController : ControllerBase
     /// <param name="searchString">String de pesquisa</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/search")]
     public async Task<IActionResult> GetUnknownPeopleAndGroups([FromQuery(Name = "id")] int id, [FromQuery(Name = "searchString")] string searchString)
     {
