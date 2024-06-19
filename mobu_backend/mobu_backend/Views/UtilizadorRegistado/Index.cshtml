@@ -3,6 +3,7 @@
 @model IEnumerable<mobu_backend.Models.UtilizadorRegistado>
 
 @inject IHttpContextAccessor http;
+@inject SignInManager<IdentityUser> signInManager;
 @inject UserManager<IdentityUser> userManager;
 @inject ApplicationDbContext context;
 
@@ -71,9 +72,17 @@
 
 				</td>
 				<td>
-					<a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a> |
-					<a asp-action="Edit" asp-route-id="@item.IDUtilizador">Editar</a> |
-					<a asp-action="Delete" asp-route-id="@item.IDUtilizador">Apagar</a>
+					<a asp-action="Details" asp-route-id="@item.IDUtilizador">Detalhes</a>
+					@{
+						if (User.Identity.Name != item.NomeUtilizador)
+						{
+							<span> | </span>
+							<a asp-action="Edit" asp-route-id="@item.IDUtilizador">Editar</a>
+							<span> | </span>
+							<a asp-action="Delete" asp-route-id="@item.IDUtilizador">Apagar</a>
+						}
+					}
+					
 				</td>
 			</tr>
 		}

@@ -1,60 +1,70 @@
 ﻿@page
 @model RegisterModel
+
+@using Microsoft.AspNetCore.Identity
+
+@inject RoleManager<IdentityRole> roleManager;
 @{
-    ViewData["Title"] = "Registar";
+	ViewData["Title"] = "Registar";
 }
 
 <h1>@ViewData["Title"]</h1>
 
 <div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-            <input type="hidden" value="a@a.aa" asp-for="Input.Utilizador.Email" />
-            <input type="hidden" value="111Qqq#" asp-for="Input.Utilizador.Password" />
-            <input type="hidden" value="aaaaaa" asp-for="Input.Utilizador.NomeUtilizador" />
-            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataJuncao" />
-            <input type="hidden" value="" asp-for="Input.Utilizador.NomeFotografia" />
-            <input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataFotografia" />
+	@{
+		if (!await roleManager.RoleExistsAsync("Moderador"))
+		{
+			<div class="col-md-4">
+				<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
+					<input type="hidden" value="a@a.aa" asp-for="Input.Utilizador.Email" />
+					<input type="hidden" value="111Qqq#" asp-for="Input.Utilizador.Password" />
+					<input type="hidden" value="aaaaaa" asp-for="Input.Utilizador.NomeUtilizador" />
+					<input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataJuncao" />
+					<input type="hidden" value="" asp-for="Input.Utilizador.NomeFotografia" />
+					<input type="hidden" value="@(DateTime.UnixEpoch)" asp-for="Input.Utilizador.DataFotografia" />
 
-            <h2>Crie uma nova conta.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Name" class="form-control" autocomplete="username" aria-required="true" placeholder="name" />
-                <label asp-for="Input.Name">Nome de Utilizador</label>
-                <span asp-validation-for="Input.Name" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="date" asp-for="Input.DataNasc" class="form-control" autocomplete="username" aria-required="true" />
-                <label asp-for="Input.DataNasc">Data de Nascimento</label>
-                <span asp-validation-for="Input.DataNasc" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Palavra-passe" />
-                <label asp-for="Input.Password">Palavra-passe</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Repita palvara-passe" />
-                <label asp-for="Input.ConfirmPassword">Confirmar Palavra-passe</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <input type="file"
-                       name="fotografia"
-                       accept=".jpg,.jpeg,.png"
-                       class="form-control" />
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registar</button>
-        </form>
-    </div>
+					<h2>Crie uma nova conta.</h2>
+					<hr />
+					<div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+					<div class="form-floating mb-3">
+						<input asp-for="Input.Name" class="form-control" autocomplete="username" aria-required="true" placeholder="name" />
+						<label asp-for="Input.Name">Nome de Utilizador</label>
+						<span asp-validation-for="Input.Name" class="text-danger"></span>
+					</div>
+					<div class="form-floating mb-3">
+						<input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+						<label asp-for="Input.Email">Email</label>
+						<span asp-validation-for="Input.Email" class="text-danger"></span>
+					</div>
+					<div class="form-floating mb-3">
+						<input type="date" asp-for="Input.DataNasc" class="form-control" autocomplete="username" aria-required="true" />
+						<label asp-for="Input.DataNasc">Data de Nascimento</label>
+						<span asp-validation-for="Input.DataNasc" class="text-danger"></span>
+					</div>
+					<div class="form-floating mb-3">
+						<input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Palavra-passe" />
+						<label asp-for="Input.Password">Palavra-passe</label>
+						<span asp-validation-for="Input.Password" class="text-danger"></span>
+					</div>
+					<div class="form-floating mb-3">
+						<input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Repita palvara-passe" />
+						<label asp-for="Input.ConfirmPassword">Confirmar Palavra-passe</label>
+						<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+					</div>
+					<div class="mb-3">
+						<input type="file"
+							   name="fotografia"
+							   accept=".jpg,.jpeg,.png"
+							   class="form-control" />
+					</div>
+					<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registar</button>
+				</form>
+			</div>
+		}
+	}
+
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<partial name="_ValidationScriptsPartial" />
 }
