@@ -2,11 +2,18 @@
 
 namespace mobu_backend.Hubs.Connections
 {
+    /// <summary>
+    /// Classe para guardar conexões signalR in-memory
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ConnectionMapping<T>
     {
         private readonly Dictionary<T, HashSet<string>> _connections =
             new Dictionary<T, HashSet<string>>();
 
+        /// <summary>
+        /// Método para contagem das conexões
+        /// </summary>
         public int Count
         {
             get
@@ -15,6 +22,11 @@ namespace mobu_backend.Hubs.Connections
             }
         }
 
+        /// <summary>
+        /// Método para adicionar conexões
+        /// </summary>
+        /// <param name="key">Chave identificadora</param>
+        /// <param name="connectionId">ID de conexão</param>
         public void Add(T key, string connectionId)
         {
             lock (_connections)
@@ -33,6 +45,10 @@ namespace mobu_backend.Hubs.Connections
             }
         }
 
+        /// <summary>
+        /// Método para obter conexões
+        /// </summary>
+        /// <param name="key">Chave identificadora</param>
         public IEnumerable<string> GetConnections(T key)
         {
             HashSet<string> connections;
@@ -44,6 +60,11 @@ namespace mobu_backend.Hubs.Connections
             return Enumerable.Empty<string>();
         }
 
+        /// <summary>
+        /// Método para eliminar conexões
+        /// </summary>
+        /// <param name="key">Chave identificadora</param>
+        /// <param name="connectionId">ID de conexão</param>
         public void Remove(T key, string connectionId)
         {
             lock (_connections)

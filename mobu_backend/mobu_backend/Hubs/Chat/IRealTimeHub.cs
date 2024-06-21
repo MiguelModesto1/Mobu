@@ -33,11 +33,10 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Recebe uma mensagem em tempo real.
         /// </summary>
-        /// <param name="itemId">O ID do item associado à mensagem.</param>
         /// <param name="isGroup">Indica se a mensagem é para um grupo.</param>
         /// <param name="message">A mensagem a ser recebida.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        Task ReceiveMessage(int itemId, bool isGroup, Messages message);
+        Task ReceiveMessage(bool isGroup, Messages message);
 
         /// <summary>
         /// Notifica a conexão do cliente atraves uma mensagem.
@@ -70,6 +69,7 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Notifica a receção de uma entrada de um utilizador.
         /// </summary>
+        /// <param name="group">O ID do grupo</param>
         /// <param name="fromUser">O utilizador que entrou.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         Task ReceiveEntry(string group, string fromUser);
@@ -101,7 +101,7 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// Recebe uma expulsao de um grupo
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="Id">Id do utilizador expulso ou sala</param>
         /// <param name="message">Mensagem que informa que o utilizador foi expulso.</param>
         /// <returns></returns>
         Task ReceiveExpelling(string Id, string message);

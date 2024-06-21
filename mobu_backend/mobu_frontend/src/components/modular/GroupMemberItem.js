@@ -4,12 +4,19 @@ import TopTextBottomText from "./TopTextBottomText";
 
 /**
  * 
- * Item do membro do grupo
- *
- * @returns 
+ * Item de membro de grupo
+ * 
+ * @param requester - ID do solicitador
+ * @param avatar - Avatar do membro
+ * @param personId - ID da pessoa/membro
+ * @param personName - Nome da pessoa/membro
+ * @param isAdmin - Booleano que indica se o membro é administrador
+ * @param isRequesterAdmin - Booleano que indica se o solicitador é administrador
+ * @param connection - Conexão SignalR
+ * @param roomId - ID da sala
  */
 export default function GroupMemberItem({ requester, avatar, personId, personName, isAdmin, isRequesterAdmin, connection, roomId }) {
-    //debugger
+    
     /**
      * expulsao de membros do grupo
      * @param {any} member

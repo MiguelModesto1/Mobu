@@ -7,8 +7,13 @@ import Avatar from "../../modular/Avatar";
  * 
  * Cabecalho do painel de mensagens
  * 
- * @param {*} text propriedades para o conjunto de textos
- * @returns 
+ * @param personGroupData - Dados do amigo/grupo
+ * @param selectedFriendItem - O ID do amigo selecionado
+ * @param selectedGroupItem - O ID do grupo selecionado
+ * @param isFriends - Indica se o separador de amigos está ativo
+ * @param onMenuIconClick - Callback do clique no ícone
+ * 
+ * @returns
  */
 export default function MessageHeaderBar({ personGroupData, selectedFriendItem, selectedGroupItem, isFriends, onMenuIconClick }) {
 

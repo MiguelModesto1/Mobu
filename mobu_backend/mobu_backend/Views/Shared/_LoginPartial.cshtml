@@ -2,14 +2,15 @@
 @using Microsoft.AspNetCore.Mvc.RazorPages
 @using Microsoft.AspNetCore.Authentication.Cookies;
 
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-@inject IHttpContextAccessor http
-@inject CookieAuthenticationHandler cookies
+@inject SignInManager<IdentityUser> SignInManager;
+@inject UserManager<IdentityUser> UserManager;
+@inject RoleManager<IdentityRole> RoleManager;
+@inject IHttpContextAccessor http;
+@inject CookieAuthenticationHandler cookies;
 
 <ul class="navbar-nav">
 
-@if (SignInManager.IsSignedIn(User))
+@if (SignInManager.IsSignedIn(User) && User.IsInRole("Moderador"))
 {
     if (http.HttpContext.Request.Path.ToString().Contains("Login"))
     {
@@ -32,18 +33,24 @@
             <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                 <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
             </form>
-        </li>
+            </li>
         }
 
     }
     else
     {
-        <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Registar</a>
-        </li>
+        if(!await RoleManager.RoleExistsAsync("Moderador"))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Registar</a>
+            </li>
+        }
         
         <li class="nav-item">
             <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="../../Authors.html">Autores</a>
         </li>
 }
 </ul>

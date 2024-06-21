@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Formulario de fundacao de grupos
@@ -8,6 +9,8 @@ import ClickableIcon from "../modular/ClickableIcon";
  * @returns 
  */
 export default function GroupFoundationForm() {
+
+    const navigate = useNavigate();
 
     const queryStrings = new URLSearchParams(window.location.search);
 
@@ -18,7 +21,7 @@ export default function GroupFoundationForm() {
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
 
-    const [groupName, setgroupName] = useState("");
+    const [groupName, setGroupName] = useState("");
     const [localAvatar, setLocalAvatar] = useState(new File([""], ""));
     const [warningText, setWarningText] = useState("");
 
@@ -37,16 +40,16 @@ export default function GroupFoundationForm() {
         fetch(process.env.REACT_APP_API_URL + "/get-group-foundation" + queryParams, options)
             .then((response) => {
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
             })
             .catch((err) => { console.error("error: ", err) });
@@ -57,16 +60,16 @@ export default function GroupFoundationForm() {
 
 
         var expiryIntervalInit = expiry.current - startDate.current;
-        //debugger;
+        
         if (expiryIntervalInit !== 15 * 1000 * 60) {
-            window.location.assign("/");
+            navigate("/");
         }
 
         var expiryInterval = expiry.current - Date.now();
 
         timeout.current = setTimeout(() => {
             logout();
-            window.location.assign("/");
+            navigate("/");
 
         }, expiryInterval);
     }, []);
@@ -74,7 +77,7 @@ export default function GroupFoundationForm() {
     const getNewCookie = async () => {
 
         console.log("getNewCookie!!");
-        //debugger;
+        
         var expiryInterval = expiry.current - Date.now();
 
         if (expiryInterval < (15 * 1000 * 60) / 2) {
@@ -92,7 +95,7 @@ export default function GroupFoundationForm() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -108,7 +111,7 @@ export default function GroupFoundationForm() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -137,10 +140,10 @@ export default function GroupFoundationForm() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -190,7 +193,7 @@ export default function GroupFoundationForm() {
      * @param {any} value
      */
     function handleGroupNameChange(value) {
-        setgroupName(value);
+        setGroupName(value);
     }
 
     /**
@@ -217,10 +220,16 @@ export default function GroupFoundationForm() {
         }
     }
 
+    /**
+     * Executar no clique do ícone
+     */
     function handleIconClick() {
         document.getElementsByClassName('avatar-input')[0].click();
     }
 
+    /**
+     * Executar no clique do botão para fundar grupo
+     */
     async function handleButtonClick() {
 
         var formData = new FormData();
@@ -239,21 +248,21 @@ export default function GroupFoundationForm() {
             .then((response) => {
                 debugger;
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    navigate("error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
                 else if (response.status === 400)
                     setWarningText("Tentativa de fundação de grupo inválida");
 
-                window.location.assign(`/messages?id=${adminId}`);
+                navigate(`/messages?id=${adminId}`);
 
             })
             .catch(err => { console.error("error", err) });
@@ -296,7 +305,7 @@ export default function GroupFoundationForm() {
                 </div>
 
                 <div className="my-2 d-flex justify-content-evenly">
-                    <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${adminId}`)}>Voltar à lista de mensagens</button>
+                    <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => navigate(`/messages?id=${adminId}`)}>Voltar à lista de mensagens</button>
                 </div>
             </div>
         </div>

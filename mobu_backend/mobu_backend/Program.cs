@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -6,6 +7,7 @@ using mobu_backend;
 using mobu_backend.Data;
 using mobu_backend.Hubs.Chat;
 using mobu_backend.Services;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,11 +87,15 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+//app.UseAuthorization();
+
+app.UseRouting();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=UtilizadorRegistado}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");

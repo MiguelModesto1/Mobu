@@ -1,13 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ClickableIcon from "../../modular/ClickableIcon";
-import "./MessageFooterBar.css";
 
 /**
  * 
  * Rodape do painel de mensagens
  * 
+ * @param ownerId - O ID do dono da conta
+ * @param friendGroupData - Dados do amigo/grupo
+ * @param selectedFriendItem - O ID do amigo selecionado
+ * @param selectedGroupItem - O ID de grupo selecionado
+ * @param isFriends - Indica se o separador de amigos está ativo
+ * @param connection - Conexão SignalR
  * 
- * @returns 
+ * @returns
  */
 export default function MessageFooterBar({ ownerId, friendGroupData, selectedFriendItem, selectedGroupItem, isFriends, connection }) {
 
@@ -38,9 +43,9 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
 
             if (message !== "") {
                 if (isFriends) {
-                    await connection.invoke("SendMessageToRoom", selectedFriendItem + "", ownerId + "", roomId.current + "", message);
+                    await connection.invoke("SendMessageToRoom", ownerId + "", roomId.current + "", message);
                 } else {
-                    await connection.invoke("SendMessageToRoom", selectedGroupItem + "", ownerId + "", roomId.current + "", message);
+                    await connection.invoke("SendMessageToRoom", ownerId + "", roomId.current + "", message);
                 }
                 setMessage("");
                 document.getElementsByClassName("message-box")[0].value = "";    
@@ -60,7 +65,7 @@ export default function MessageFooterBar({ ownerId, friendGroupData, selectedFri
     }
 
     //const handleKeyPress = (value) => {
-    //    //debugger;
+    //    
     //    if (value === "Enter") {
     //        setMessage(message + "\r")
     //    }

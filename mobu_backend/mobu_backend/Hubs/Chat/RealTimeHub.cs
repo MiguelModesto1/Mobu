@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,14 +10,15 @@ using mobu_backend.Data;
 using mobu_backend.Hubs.Connections;
 using mobu_backend.Hubs.Objects;
 using mobu_backend.Models;
-using Org.BouncyCastle.Utilities.Encoders;
+//using Org.BouncyCastle.Utilities.Encoders;
 
 namespace mobu_backend.Hubs.Chat
 {
     /// <summary>
     /// Esta classe implementa um hub em tempo real para gerir a comunicação entre o cliente e o servidor.
     /// </summary>
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
+    [ValidateAntiForgeryToken]
     public class RealTimeHub : Hub<IRealTimeHub>
     {
         /// <summary>
@@ -32,13 +34,14 @@ namespace mobu_backend.Hubs.Chat
         /// <summary>
         /// mapeamento de utilizadores
         /// </summary>
-        private readonly ConnectionMapping<string> _connections = new ConnectionMapping<string>();
+        private readonly static ConnectionMapping<string> _connections = new ConnectionMapping<string>();
 
         /// <summary>
         /// Construtor da classe RealTimeHub.
         /// </summary>
         /// <param name="context">O contexto do banco de dados a ser usado pela classe.</param>
-        public RealTimeHub(ApplicationDbContext context,
+        public RealTimeHub(
+            ApplicationDbContext context,
             ILogger<RealTimeHub> logger)
         {
             _context = context;
@@ -53,48 +56,49 @@ namespace mobu_backend.Hubs.Chat
         {
 
             // Obtém o valor do cabeçalho de autorização
-            var httpCtx = Context.GetHttpContext();
-            string header = httpCtx.Request.Headers.Authorization;
-            string token = "";
+            //var httpCtx = Context.GetHttpContext();
+            //string header = httpCtx.Request.Headers.Authorization;
+            //string token = "";
 
-            if (header != null && header.Length != 0)
-            {
-                token = this.GenerateTokenFromHeader(header);
-            }
+            //if (header != null && header.Length != 0)
+            //{
+            //    token = GenerateTokenFromHeader(header);
+            //}
 
-            // cookie com ID de sessao
-            Context.GetHttpContext().Request.Cookies.TryGetValue("Session-Id", out var sesisonId);
+            //// cookie com ID de sessao
+            //Context.GetHttpContext().Request.Cookies.TryGetValue("Session-Id", out var sesisonId);
 
-            // encontrar utilizador com o ID de sessao
-            var sessionClaim = await _context.UserClaims
-                .FirstOrDefaultAsync(u => u.ClaimValue == sesisonId);
+            //// encontrar utilizador com o ID de sessao
+            //var sessionClaim = await _context.UserClaims
+            //    .FirstOrDefaultAsync(u => u.ClaimValue == sesisonId);
 
-            if (sessionClaim == null)
-            {
-                Context.Abort();
-                return;
-            }
+            //if (sessionClaim == null)
+            //{
+            //    Context.Abort();
+            //    return;
+            //}
 
-            var identityUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id == sessionClaim.UserId);
-            var user = await _context.UtilizadorRegistado
-                .FirstOrDefaultAsync(u => u.AuthenticationID == identityUser.Id);
+            //var identityUser = await _context.Users
+            //        .FirstOrDefaultAsync(u => u.Id == sessionClaim.UserId);
+            //var user = await _context.UtilizadorRegistado
+            //    .FirstOrDefaultAsync(u => u.AuthenticationID == identityUser.Id);
 
-            if (identityUser == null || user == null)
-            {
-                Context.Abort();
-                return;
-            }
+            //if (identityUser == null || user == null)
+            //{
+            //    Context.Abort();
+            //    return;
+            //}
 
             _connections.Add(Context.UserIdentifier, Context.ConnectionId);
 
             //await Clients.User(Context.UserIdentifier).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
-            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.ConnectionId);
+            await Clients.Client(Context.ConnectionId).OnConnectedAsyncPrivate("Entraste e o teu ID é o " + Context.UserIdentifier);
         }
 
         /// <summary>
         /// Método assíncrono que é invocado quando uma conexão é desestabelecida.
         /// </summary>
+        /// <param name="ex">(Exceção não utilizada)</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
         public override async Task OnDisconnectedAsync(Exception ex)
         {
@@ -106,16 +110,16 @@ namespace mobu_backend.Hubs.Chat
             Context.Abort();
         }
 
-        /// <summary>
-        /// Gera um token a partir do cabeçalho de autorização.
-        /// </summary>
-        /// <param name="header">O cabeçalho de autorização.</param>
-        /// <returns>O token gerado a partir do cabeçalho.</returns>
-        private string GenerateTokenFromHeader(string header)
-        {
-            string decodedHeader = System.Text.Encoding.UTF8.GetString(Base64.Decode(header));
-            return header;
-        }
+        ///// <summary>
+        ///// Gera um token a partir do cabeçalho de autorização.
+        ///// </summary>
+        ///// <param name="header">O cabeçalho de autorização.</param>
+        ///// <returns>O token gerado a partir do cabeçalho.</returns>
+        //private string GenerateTokenFromHeader(string header)
+        //{
+        //    string decodedHeader = System.Text.Encoding.UTF8.GetString(Base64.Decode(header));
+        //    return decodedHeader;
+        //}
 
         /// <summary>
         /// Aguarda a chegada de uma mensagem de um determinado utilizador.
@@ -153,21 +157,20 @@ namespace mobu_backend.Hubs.Chat
                 // Tratar entrada inválida aqui.
                 return;
             }
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
             await Clients.Group(roomId).RemovedFromGroup(Context.ConnectionId, roomId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomId);
         }
 
         /// <summary>
         /// Envia uma mensagem a um grupo específico.
         /// </summary>
-        /// <param name="item">O ID do item associado à mensagem.</param>
         /// <param name="fromUser">O ID do utilizador de origem.</param>
         /// <param name="roomId">O ID do grupo a que a mensagem será enviada.</param>
         /// <param name="message">A mensagem a ser enviada.</param>
         /// <returns>Uma tarefa que representa a operação assíncrona.</returns>
-        public async Task SendMessageToRoom(string item, string fromUser, string roomId, string message)
+        public async Task SendMessageToRoom(string fromUser, string roomId, string message)
         {
-            if (!int.TryParse(item, out var itemId) || !int.TryParse(fromUser, out var fromUserId) || !int.TryParse(roomId, out var roomIdOut))
+            if (!int.TryParse(fromUser, out var fromUserId) || !int.TryParse(roomId, out var roomIdOut))
             {
                 // Tratar entrada inválida aqui.
                 return;
@@ -214,6 +217,7 @@ namespace mobu_backend.Hubs.Chat
             // Cria um objeto de mensagem para envio ao cliente
             var messageObject = new Messages()
             {
+                IDSala = msg.SalaFK,
                 IDMensagem = msg.IDMensagem,
                 IDRemetente = msg.RemetenteFK,
                 URLImagemRemetente = $"{Context.GetHttpContext().Request.Scheme}://{Context.GetHttpContext().Request.Host}" + "/imagens/" + msg.Remetente.NomeFotografia,
@@ -222,7 +226,8 @@ namespace mobu_backend.Hubs.Chat
             };
 
             // Envia a mensagem ao grupo
-            await Clients.Group(roomId).ReceiveMessage(itemId, sala.SeGrupo, messageObject);
+            await Clients.Group(roomId).ReceiveMessage(sala.SeGrupo, messageObject);
+            //await Clients.User(Context.UserIdentifier).ReceiveMessage(sala.SeGrupo, messageObject);
         }
 
         /// <summary>
@@ -260,7 +265,11 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             // Notifica o utilizador bloqueado
-            await Clients.User(friend.AuthenticationID).ReceiveBlock(fromUser);
+            var connections = _connections.GetConnections(friend.AuthenticationID);
+            foreach (var connection in connections)
+            {
+                await Clients.Client(connection).ReceiveBlock(fromUser);
+            }
 
             // Notifica o utilizador bloqueador
             await Clients.User(Context.UserIdentifier).ReceiveBlock(fromUser);
@@ -301,7 +310,11 @@ namespace mobu_backend.Hubs.Chat
             await _context.SaveChangesAsync();
 
             // Notifica o utilizador desbloqueado
-            await Clients.User(friend.AuthenticationID).ReceiveUnblock(fromUser);
+            var connections = _connections.GetConnections(friend.AuthenticationID);
+            foreach (var connection in connections)
+            {
+                await Clients.Client(connection).ReceiveUnblock(fromUser);
+            }
 
             // Notifica o utilizador desbloqueador
             await Clients.User(Context.UserIdentifier).ReceiveUnblock(fromUser);
@@ -550,7 +563,7 @@ namespace mobu_backend.Hubs.Chat
         /// Expulsa a um utilizador de um grupo
         /// </summary>
         /// <param name="toUser">Utilizador expulso</param>
-        /// <param name="roomId">Sala de que <see cref="toUser"/> foi expulso></param>
+        /// <param name="roomId">Sala de que 'toUser' foi expulso></param>
         /// <returns></returns>
         public async Task ExpelFromGroup(string toUser, string roomId)
         {

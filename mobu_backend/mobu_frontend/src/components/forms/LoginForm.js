@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 /**
  * Formulario de login
  * @returns 
  */
 export default function LoginForm() {
+
+    const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -36,14 +39,14 @@ export default function LoginForm() {
 
     //    fetch(process.env.REACT_APP_API_URL + "/get-login", options)
     //        .then((response) => {
-    //            //debugger;
+    //            
     //            if (response.status === 200) {
     //                return response.json();
     //            }
     //            //return;
     //        })
     //        .then(data => {
-    //            window.location.assign("/messages?id=" + data.userId);
+    //            navigate("/messages?id=" + data.userId);
     //        })
     //        .then(data => console.log(data))
     //        .catch(err => { console.error("error", err) });
@@ -56,7 +59,7 @@ export default function LoginForm() {
      * clique no botao de submissao
      */
     async function handleButtonClick() {
-        //debugger;
+        
         var options = {
             method: 'POST',
             redirect: 'follow',
@@ -72,7 +75,7 @@ export default function LoginForm() {
 
         await fetch(process.env.REACT_APP_API_URL + "/login", options)
             .then((response) => {
-                //debugger;
+                
                 if (response.status === 404) {
                     setWarningText("Tentativa de login inválida!");
                 } else {
@@ -83,7 +86,7 @@ export default function LoginForm() {
             .then(data => {
                 sessionStorage.setItem("expiry", data.expiryDate);
                 sessionStorage.setItem("startDate", data.startDate);
-                window.location.assign("/messages?id=" + data.userId);
+                navigate("/messages?id=" + data.userId);
             })
             .then(data => console.log(data))
             .catch(err => { console.error("error", err) });
@@ -93,7 +96,11 @@ export default function LoginForm() {
         <>
             <div className="d-flex justify-content-center" style={{ marginTop: "15%" }}>
                 <div className="row" style={{ width: "100%" }}>
-                    <div className="d-flex justify-content-center col-lg">
+                    <div
+                        className="d-flex justify-content-center col-lg"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/authors")}
+                    >
                         <img className="rounded img-fluid" src="./assets/images/logo_min.png" alt="mobu logo" />
                     </div>
                     <div className="d-flex justify-content-center col-lg" style={{ marginRight: "15%" }}>
@@ -129,6 +136,9 @@ export default function LoginForm() {
                                 <a href={window.location.origin + "/forgot-password"} style={{ color: "#3b9ae1" }}>Esqueci-me da palavra-passe</a>
                                 <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                 <a href={window.location.origin + "/register"} style={{ color: "#3b9ae1" }}>Não tenho uma conta</a>
+                            </div>
+                            <div className="my-2 d-flex justify-content-center" style={{ textAlign: "center" }}>
+                                <a href={process.env.REACT_APP_BACKOFFICE_URL} style={{ color: "#3b9ae1" }}>Sou moderador/a</a>
                             </div>
                         </div>
                     </div>

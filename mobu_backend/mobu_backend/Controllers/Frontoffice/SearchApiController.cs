@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using mobu_backend.ApiModels;
@@ -14,6 +15,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller API para as pesquisas de pessoas e grupos
+/// </summary>
 [ApiController]
 public class SearchApiController : ControllerBase
 {
@@ -55,6 +59,8 @@ public class SearchApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    // Construtor do controller da API para as
+    // pesquisas de pessoas e grupos
     public SearchApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -74,8 +80,13 @@ public class SearchApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    /// <summary>
+    /// Acesso à página de pesquisas
+    /// </summary>
+    /// <param name="id">ID do utilizador</param>
+    /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-search-page")]
     public async Task<IActionResult> GetSearchPage([FromQuery(Name = "id")] int id)
     {
@@ -111,8 +122,14 @@ public class SearchApiController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Processamento da pesquisa efetuada
+    /// </summary>
+    /// <param name="id">ID do utilizador</param>
+    /// <param name="searchString">String de pesquisa</param>
+    /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/search")]
     public async Task<IActionResult> GetUnknownPeopleAndGroups([FromQuery(Name = "id")] int id, [FromQuery(Name = "searchString")] string searchString)
     {
@@ -180,10 +197,11 @@ public class SearchApiController : ControllerBase
 
             if (isNumber)
             {
-
+                // consulta
                 peopleQuery = _context.UtilizadorRegistado
                 .Where(u => u.IDUtilizador == searchId && u.IDUtilizador != id);
 
+                // pessoas desconhecidas
                 unknownPeople = peopleQuery.Except(friendsList).Except(pendingRequests)
                     .Select(u => new UnkownPerson()
                     {
@@ -194,6 +212,7 @@ public class SearchApiController : ControllerBase
                     })
                     .ToList<object>();
 
+                // grupos desconhecidos
                 groupsQuery = _context.RegistadosSalasChat
                 .Where(rs =>
                 rs.Sala.IDSala == searchId &&
@@ -213,12 +232,14 @@ public class SearchApiController : ControllerBase
             }
             else
             {
+                // consulta
                 peopleQuery = _context.UtilizadorRegistado
                 .Where(u => 
                 (u.NomeUtilizador.ToString().Contains(searchString) ||
                 u.Email.Contains(searchString)) &&
                 u.IDUtilizador != id);
 
+                // pessoas desconhecidas
                 unknownPeople = peopleQuery.Except(friendsList).Except(pendingRequests)
                 .Select(u => new UnkownPerson()
                 {
@@ -229,6 +250,7 @@ public class SearchApiController : ControllerBase
                 })
                 .ToList<object>();
 
+                // grupos desconhecidos
                 groupsQuery = _context.RegistadosSalasChat
                 .Where(rs =>
                 rs.Sala.NomeSala.ToString().Contains(searchString) &&
@@ -247,7 +269,7 @@ public class SearchApiController : ControllerBase
                 .ToList<object>();
             }
 
-            // adicionar array ao objeto JSON
+            // adicionar arrays ao objeto JSON
             unknownPeopleAndGroupsObj.Add("unknownPeople", unknownPeople.ToJToken());
             unknownPeopleAndGroupsObj.Add("unknownGroups", unknownGroups.ToJToken());
 

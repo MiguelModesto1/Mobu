@@ -13,139 +13,147 @@ using mobu_backend.Data;
 
 namespace mobu_backend.Areas.Identity.Pages.Account.Manage
 {
-    [Authorize]
-    public class DeletePersonalDataModel : PageModel
-    {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<DeletePersonalDataModel> _logger;
+	[Authorize]
+	public class DeletePersonalDataModel : PageModel
+	{
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly ILogger<DeletePersonalDataModel> _logger;
 
-        /// <summary>
-        /// Contexto da base de dados
-        /// </summary>
-        private readonly ApplicationDbContext _context;
+		/// <summary>
+		/// Contexto da base de dados
+		/// </summary>
+		private readonly ApplicationDbContext _context;
 
-        /// <summary>
-        /// Permite acesso ao conteudo do servidor
-        /// </summary>
-        private readonly IWebHostEnvironment _webHostEnvironment;
+		/// <summary>
+		/// Permite acesso ao conteudo do servidor
+		/// </summary>
+		private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public DeletePersonalDataModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger,
-            ApplicationDbContext context,
-            IWebHostEnvironment webHostEnvironment)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            _context = context;
-            _webHostEnvironment = webHostEnvironment;
-        }
+		public DeletePersonalDataModel(
+			UserManager<IdentityUser> userManager,
+			RoleManager<IdentityRole> roleManager,
+			SignInManager<IdentityUser> signInManager,
+			ILogger<DeletePersonalDataModel> logger,
+			ApplicationDbContext context,
+			IWebHostEnvironment webHostEnvironment)
+		{
+			_userManager = userManager;
+			_roleManager = roleManager;
+			_signInManager = signInManager;
+			_logger = logger;
+			_context = context;
+			_webHostEnvironment = webHostEnvironment;
+		}
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        [BindProperty]
-        public InputModel Input { get; set; }
+		/// <summary>
+		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+		///     directly from your code. This API may change or be removed in future releases.
+		/// </summary>
+		[BindProperty]
+		public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public class InputModel
-        {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
-            [DataType(DataType.Password)]
-            [Display(Name = "Palavra-passe")]
-            public string Password { get; set; }
-        }
+		/// <summary>
+		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+		///     directly from your code. This API may change or be removed in future releases.
+		/// </summary>
+		public class InputModel
+		{
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+			[DataType(DataType.Password)]
+			[Display(Name = "Palavra-passe")]
+			public string Password { get; set; }
+		}
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public bool RequirePassword { get; set; }
+		/// <summary>
+		///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+		///     directly from your code. This API may change or be removed in future releases.
+		/// </summary>
+		public bool RequirePassword { get; set; }
 
-        public async Task<IActionResult> OnGet()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+		public async Task<IActionResult> OnGet()
+		{
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+			}
 
-            RequirePassword = await _userManager.HasPasswordAsync(user);
-            return Page();
-        }
+			RequirePassword = await _userManager.HasPasswordAsync(user);
+			return Page();
+		}
 
-        public async Task<IActionResult> OnPostAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-            }
+		public async Task<IActionResult> OnPostAsync()
+		{
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+			}
 
-            RequirePassword = await _userManager.HasPasswordAsync(user);
-            if (RequirePassword)
-            {
-                if (!await _userManager.CheckPasswordAsync(user, Input.Password))
-                {
-                    ModelState.AddModelError(string.Empty, "Palavara-passe incorreta.");
-                    return Page();
-                }
-            }
+			if (await _roleManager.RoleExistsAsync("Moderador"))
+			{
+				await _roleManager.DeleteAsync(new IdentityRole("Moderador"));
+			}
 
-            // eliminar fotografia de user do disco
+			RequirePassword = await _userManager.HasPasswordAsync(user);
+			if (RequirePassword)
+			{
+				if (!await _userManager.CheckPasswordAsync(user, Input.Password))
+				{
+					ModelState.AddModelError(string.Empty, "Palavara-passe incorreta.");
+					return Page();
+				}
+			}
 
-            // buscar nome na base de dados
+			// eliminar fotografia de user do disco
 
-            // administrador do POV do negocio
-            var admin = await _context.UtilizadorRegistado
-                .FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
+			// buscar nome na base de dados
 
-            // nome da fotografia do administrador
-            var nomeFoto = admin.NomeFotografia;
+			// administrador do POV do negocio
+			var admin = await _context.UtilizadorRegistado
+				.FirstOrDefaultAsync(a => a.AuthenticationID == user.Id);
 
-            // caminho completo da foto
-            nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
+			// nome da fotografia do administrador
+			var nomeFoto = admin.NomeFotografia;
 
-            //fileInfo da foto
-            FileInfo fif = new(nomeFoto);
+			// caminho completo da foto
+			nomeFoto = Path.Combine(_webHostEnvironment.WebRootPath, "imagens", nomeFoto);
 
-            // garantir que foto existe
-            if (fif.Exists && fif.Name != "default_avatar.png")
-            {
-                //apagar foto
-                fif.Delete();
-            }
+			//fileInfo da foto
+			FileInfo fif = new(nomeFoto);
 
-            _context.Remove(admin);
+			// garantir que foto existe
+			if (fif.Exists && fif.Name != "default_avatar.png")
+			{
+				//apagar foto
+				fif.Delete();
+			}
 
-            await _context.SaveChangesAsync();
+			_context.Remove(admin);
 
-            var result = await _userManager.DeleteAsync(user);
-            var userId = await _userManager.GetUserIdAsync(user);
+			await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Um administrador foi removido.");
+			var result = await _userManager.DeleteAsync(user);
+			var userId = await _userManager.GetUserIdAsync(user);
 
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException($"Unexpected error occurred deleting user.");
-            }
+			_logger.LogInformation("Um administrador foi removido.");
 
-            await _signInManager.SignOutAsync();
+			if (!result.Succeeded)
+			{
+				throw new InvalidOperationException($"Unexpected error occurred deleting user.");
+			}
 
-            _logger.LogInformation("Administrador com ID '{UserId}' apagou-se a ele mesmo.", userId);
+			await _signInManager.SignOutAsync();
 
-            return Redirect("~/");
-        }
-    }
+			_logger.LogInformation("Administrador com ID '{UserId}' apagou-se a ele mesmo.", userId);
+
+			return Redirect("~/");
+		}
+	}
 }

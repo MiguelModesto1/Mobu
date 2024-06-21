@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace mobu_backend.Areas.Identity.Pages.Account
 {
+    [Authorize(Roles = "Moderador")]
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;

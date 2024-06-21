@@ -6,6 +6,11 @@
     public class Messages
     {
         /// <summary>
+        /// ID da sala
+        /// </summary>
+        public int IDSala { get; set; }
+
+        /// <summary>
         /// ID da mensagm
         /// </summary>
         public int IDMensagem { get; set; }

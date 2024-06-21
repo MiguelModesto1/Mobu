@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Formulario de password esquecida
  * @returns 
  */
 export default function ForgotPasswordForm() {
+
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [warningText, setWarningText] = useState("");

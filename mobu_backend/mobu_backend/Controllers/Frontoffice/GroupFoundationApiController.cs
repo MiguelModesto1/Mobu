@@ -14,6 +14,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller da API para a fundação de grupos
+/// </summary>
 [ApiController]
 public class GroupFoundationApiController : ControllerBase
 {
@@ -54,6 +57,16 @@ public class GroupFoundationApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Construtor do controller da API para a fundação de grupos
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public GroupFoundationApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -76,10 +89,10 @@ public class GroupFoundationApiController : ControllerBase
     /// <summary>
     /// Autorizacao para aceder ao formulario de fundacao de grupos
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="id">ID do novo administrador de grupo</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-group-foundation")]
     public async Task<IActionResult> GetGroupFoundation([FromQuery(Name = "id")] int id)
     {
@@ -124,10 +137,10 @@ public class GroupFoundationApiController : ControllerBase
     /// <summary>
     /// Registo de grupos
     /// </summary>
-    /// <param name="registerData"></param>
+    /// <param name="registerData">Dados de registo</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/group-foundation")]
     public async Task<IActionResult> RegisterGroup([FromForm] RegisterGroup registerData)
     {
@@ -320,6 +333,11 @@ public class GroupFoundationApiController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Verifica se existe uma sala de chat na base de dados
+    /// </summary>
+    /// <param name="id">ID da sala</param>
+    /// <returns></returns>
     private bool SalaChatExists(int id)
     {
         return _context.UtilizadorRegistado.Any(e => e.IDUtilizador == id);

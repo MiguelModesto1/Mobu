@@ -1,8 +1,13 @@
-//https://www.pluralsight.com/guides/how-to-create-a-right-click-menu-using-react
+// https://www.pluralsight.com/guides/how-to-create-a-right-click-menu-using-react
 
 import React, { useState, useCallback, useEffect } from "react";
-import PersonGroupItem from "../components/modular/PersonGroupItem";
 
+/**
+ * 
+ * Hook para um menu de contexto personalizado
+ * 
+ * @returns
+ */
 export function useContextMenu() {
     const [xPos, setXPos] = useState("0px");
     const [yPos, setYPos] = useState("0px");

@@ -6,10 +6,18 @@ import FriendContextMenu from "../optionMenus/FriendContextMenu";
  * 
  * Painel de itens de amigos/grupos
  * 
- * @param  
- * @returns 
+ * 
+ * @param display - Valor da prpriedade de display do div separador
+ * @param personGroupData - Dados do grupo/pessoas
+ * @param onItemClick - Callback para o clique num item no painel
+ * @param selectedItem - Índice do Item selecionado
+ * @param connection - Conexão SignalR
+ * @param isFriends - Indica se o separador é de amigos ou de grupos
+ * @param onOverItem - Callback do cursor do rato sobre um item no painel
+ * @param prevRoom - ID da sala anterior
+ * @param onSetPrevRoom - callback da sala anterior
  */
-export default function TabPanel({ display, personGroupData, onItemClick, selectedItem, connection, isFriends, owner, expiry, onOverItem }) { 
+export default function TabPanel({ display, personGroupData, onItemClick, selectedItem, connection, isFriends, onOverItem, prevRoom, onSetPrevRoom }) { 
 
     var personGroupItems = personGroupData.length !== 0 ?
         personGroupData.map(item => {
@@ -21,6 +29,8 @@ export default function TabPanel({ display, personGroupData, onItemClick, select
                 connection={connection}
                 isFriends={isFriends}
                 onOverItem={onOverItem}
+                prevRoom={prevRoom}
+                onSetPrevRoom={onSetPrevRoom}
             />
         })
         :

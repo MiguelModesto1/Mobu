@@ -6,9 +6,9 @@ import Button from "./Button";
  * 
  * Item de amigos ou grupos do utilizador
  * 
- * @param {*} PIProps propriedades do item : image, text
- * @param onClick gestor de clique no item
- * @param isGroup booleano de grupo 
+ * @param PIProps - propriedades do item - image, text
+ * @param onClick - callback de clique no item
+ * @param isGroup - booleano de grupo 
  * @returns 
  */
 export default function RequestItem({PIProps, onClick}){ 

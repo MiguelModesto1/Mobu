@@ -13,6 +13,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller API para a recolha de dados de mensagens
+/// </summary>
 [ApiController]
 public class MessagesApiController : ControllerBase
 {
@@ -59,6 +62,17 @@ public class MessagesApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Construtor da API de mensagens
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="signInManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public MessagesApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -80,10 +94,15 @@ public class MessagesApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    /// <summary>
+    /// Obter informação dos amigos e grupos
+    /// </summary>
+    /// <param name="id">ID do utilizador</param>
+    /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/messages")]
-    public async Task<IActionResult> GetFriendsInformation([FromQuery(Name = "id")] int id)
+    public async Task<IActionResult> GetFriendsAndGroupsInformation([FromQuery(Name = "id")] int id)
     {
         try
         {
@@ -177,6 +196,7 @@ public class MessagesApiController : ControllerBase
                             .Where(m => m.SalaFK == commonRoomId)
                             .Select(m => new Messages()
                             {
+                                IDSala = m.SalaFK,
                                 IDMensagem = m.IDMensagem,
                                 IDRemetente = m.RemetenteFK,
                                 URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,
@@ -221,6 +241,7 @@ public class MessagesApiController : ControllerBase
                     }
                     catch(Exception ex)
                     {
+                        // Exceção de índice fora de alcançe
                         continue;
                     }
 
@@ -247,6 +268,7 @@ public class MessagesApiController : ControllerBase
                 var msgs = _context.Mensagem.Where(m => m.SalaFK == userGroups[i].IDSala)
                 .Select(m => new Messages()
                 {
+                    IDSala = m.SalaFK,
                     IDMensagem = m.IDMensagem,
                     IDRemetente = m.RemetenteFK,
                     URLImagemRemetente = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}" + "/imagens/" + m.Remetente.NomeFotografia,

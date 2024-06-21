@@ -2,18 +2,18 @@ import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/si
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ProfileProperty from "../modular/ProfileProperty";
 import Avatar from "../modular/Avatar";
-import GroupMemberItem from "../modular/GroupMemberItem"
+import GroupMemberItem from "../modular/GroupMemberItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
  * Perfil de grupo
  * 
- * @param {*} avatarSrc origem do avatar
- * @param id id do grupo
- * @param isAdmin booleano de administrador de grupo
  * @returns 
  */
 export default function GroupProfilePage() {
+
+    const navigate = useNavigate();
 
     const queryStrings = new URLSearchParams(window.location.search);
 
@@ -43,7 +43,7 @@ export default function GroupProfilePage() {
     const listenToMemberExpelling = useCallback((connection) => {
         connection.on("ReceiveExpelling", (memberId, message) => {
             var aux = [];
-            //debugger;
+            
             for (var i = 0; i < members.length; i++) {
                 if (members[i].Id + "" !== memberId) {
                     aux.push({ ...members[i] });
@@ -71,16 +71,16 @@ export default function GroupProfilePage() {
             fetch(process.env.REACT_APP_API_URL + "/profile/get-profile" + queryParams, options)
                 .then((response) => {
                     if (response.status === 404) {
-                        window.location.assign("/error-404");
+                        navigate("/error-404");
                     }
                     else if (response.status === 500) {
-                        window.location.assign("/error-500");
+                        navigate("/error-500");
                     }
                     else if (response.status === 403) {
-                        window.location.assign("/error-403");
+                        navigate("/error-403");
                     }
                     else if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -101,7 +101,7 @@ export default function GroupProfilePage() {
                 })
                     .configureLogging(LogLevel.Debug)
                     .build();
-            //debugger;
+            
             connection.current.start();
             logSignalRAccess(connection.current);
             listenToSignalRLeaving(connection.current);
@@ -113,14 +113,14 @@ export default function GroupProfilePage() {
             var expiryIntervalInit = expiry.current - startDate.current;
 
             if (expiryIntervalInit !== 15 * 1000 * 60) {
-                window.location.assign("/");
+                navigate("/");
             }
 
             var expiryInterval = expiry.current - Date.now();
 
             timeout.current = setTimeout(() => {
                 logout();
-                window.location.assign("/");
+                navigate("/");
 
             }, expiryInterval);
         }
@@ -147,7 +147,7 @@ export default function GroupProfilePage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -163,7 +163,7 @@ export default function GroupProfilePage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -193,10 +193,10 @@ export default function GroupProfilePage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -284,7 +284,7 @@ export default function GroupProfilePage() {
                                         <button
                                             className="btn"
                                             style={{ backgroundColor: "#3b9ae1", color: "white" }}
-                                            onClick={() => window.location.assign(`/edit-group-profile?id=${id}&admin=${requester}`)}
+                                            onClick={() => navigate(`/edit-group-profile?id=${id}&admin=${requester}`)}
                                         >
                                             Editar grupo
                                         </button>
@@ -294,7 +294,7 @@ export default function GroupProfilePage() {
                             }
 
                             <div className="my-2 d-flex justify-content-evenly">
-                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => navigate(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
                             </div>
                         </div>
                     </div>

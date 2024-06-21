@@ -2,8 +2,15 @@ import React, { useRef, useEffect, useState } from "react";
 
 /**
  * 
- * Propriedade de perfil
+ * Propriedade de um atributo de perfil de pessoa ou grupo
  * 
+ * 
+ * @param keyProp - Chave da propriedade do perfil
+ * @param isEditing - Indica se a propriedade está em modo de edição
+ * @param isBirthDate - Indica se é uma propriedade de data de nascimento
+ * @param isText - Indica se é uma propriedade de texto
+ * @param text - Texto da propriedade, se aplicável
+ * @param onChangeText - Callback de alteração do texto
  */
 export default function ProfileProperty({ keyProp, isEditing, isAvatar = null, isBirthDate = null, isText = null, text, onChangeText = null }) {
 

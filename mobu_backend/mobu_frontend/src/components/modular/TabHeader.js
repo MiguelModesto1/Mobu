@@ -4,7 +4,14 @@ import React, { useMemo, useLayoutEffect, useState } from "react";
  * 
  * Cabecalho de separador
  * 
- * @returns 
+ * 
+ * @param tabsNumber - Número total de separadores
+ * @param text - Texto a ser mostrado no cabeçalho do separador
+ * @param onHeaderClick - Callback para o clique no cabeçalho do separador
+ * @param personGroupData - Dados de grupo/pessoa
+ * @param selectedItem - Índice do Item selecionado
+ * @param connection - Conexão SignalR
+ * @param isFriends - Indica se o cabeçalho é de amigos ou de grupos
  */
 export default function TabHeader({ tabsNumber, text, onHeaderClick, personGroupData, selectedItem, connection, isFriends }) {
 

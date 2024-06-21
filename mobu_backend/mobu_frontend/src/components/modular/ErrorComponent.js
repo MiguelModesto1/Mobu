@@ -4,7 +4,8 @@ import React from "react";
  * 
  * Componente de erro
  * 
- * @returns 
+ * @param error - Código do erro HTTP
+ * @param text - texto do erro 
  */
 export default function ErrorComponent({error, text}){
     

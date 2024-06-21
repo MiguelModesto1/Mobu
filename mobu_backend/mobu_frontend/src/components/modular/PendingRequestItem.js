@@ -4,7 +4,14 @@ import Avatar from "./Avatar";
 
 
 /**
+ * 
  * Item de pedidos pendentes
+ * 
+ * @param connection - Conexão SignalR
+ * @param ownerId - ID do dono da conta
+ * @param personId - ID da pessoa solicitadora
+ * @param name - Nome da pessoa solicitadora
+ * @param avatar - URL do avatar da pessoa solicitadora
  */
 export default function PendingRequestItem({ connection, ownerId, personId, name, avatar }) {
 

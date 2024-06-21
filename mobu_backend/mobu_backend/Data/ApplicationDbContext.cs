@@ -12,7 +12,7 @@ namespace mobu_backend.Data
 		}
 
 		/// <summary>
-		/// este método é executado imediatamente antes 
+		/// Este método é executado imediatamente antes 
 		/// da criação do Modelo.
 		/// É utilizado para adicionar as últimas instruções
 		/// à criação do modelo
@@ -20,7 +20,6 @@ namespace mobu_backend.Data
 		/// <param name="modelBuilder"></param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-
 			base.OnModelCreating(modelBuilder);
 
 			modelBuilder.Entity<Amizade>().HasKey(f => new { f.DestinatarioFK, f.RemetenteFK });

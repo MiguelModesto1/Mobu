@@ -8,6 +8,7 @@ import MessagePanel from "../single_use/messagePanel/MessagePanel";
 import GroupContextMenu from "../optionMenus/GroupContextMenu";
 import FriendContextMenu from "../optionMenus/FriendContextMenu";
 import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -18,29 +19,57 @@ import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
  */
 export default function MessagesPage() {
 
+    const navigate = useNavigate();
+
+    // Obtém o parâmetro 'id' da URL
     const queryParamId = new URLSearchParams(window.location.search).get('id');
 
+    // Cria referências para o dono da conta, 
+    // conexão signalR, data de expiração do cookie, data de início do cookie e timeout de sessão
     const owner = useRef();
     const connection = useRef();
     const expiry = useRef(Date.parse(sessionStorage.getItem("expiry")));
     const startDate = useRef(Date.parse(sessionStorage.getItem("startDate")));
     const timeout = useRef(0);
 
+    // Define o estado para mostrar o menu
     const [showMenu, setShowMenu] = useState(false);
+
+    // Define o estado para o número de separadores
     const [tabsNumber, setTabsNumber] = useState(0);
+
+    // Define o estado para a sala anterior
+    const [prevRoom, setPrevRoom] = useState(-1);
+
+    // Define o estado para indicar se os dados dos amigos foram recolhidos
     const [hasFetchedFriendsData, setHasFetchedFriendsData] = useState(false);
+
+    // Define o estado para indicar se os dados dos grupos foram recolhidos
     const [hasFetchedGroupsData, setHasFetchedGroupsData] = useState(false);
+
+    // Define o estado para indicar se o amigo está bloqueado
     const [isFriendOverBlocked, setIsFriendOverBlocked] = useState(false);
+
+    // Define o estado para indicar se o amigo bloqueou o utilizador
     const [hasFriendOverBlockedMe, setHasFriendOverBlockedMe] = useState(false);
+
+    // Define o estado para o item de amigo sob o cursor do rato
     const [overFriendItem, setOverFriendItem] = useState(0);
+
+    // Define o estado para o item de grupo sob o cursor do rato
     const [overGroupItem, setOverGroupItem] = useState(0);
+
+    // Define o estado para o item de amigo selecionado
     const [selectedFriendItem, setSelectedFriendItem] = useState(0);
+
+    // Define o estado para o item de grupo selecionado
     const [selectedGroupItem, setSelectedGroupItem] = useState(0);
+
+    // Define o estado para a última mensagem recebida
     const [lastMessageReceived, setLastMessageReceived] = useState({
-        ItemId: -1,
         IsFriends: true,
-        Message:
-        {
+        Message: {
+            IDSala: -1,
             IDMensagem: -1,
             IDRemetente: -1,
             URLImagemRemetente: "",
@@ -48,7 +77,11 @@ export default function MessagesPage() {
             ConteudoMsg: ""
         }
     });
+
+    // Define o estado para indicar se o separador de amigos está ativo
     const [friendsTab, setFriendsTab] = useState(true);
+
+    // Define o estado para os dados dos amigos
     const [friendsData, setFriendsData] = useState([
         {
             ItemId: -1,
@@ -58,6 +91,7 @@ export default function MessagesPage() {
             ImageURL: "",
             Messages: new Array(
                 {
+                    IDSala: -1,
                     IDMensagem: -1,
                     IDRemetente: -1,
                     URLImagemRemetente: "",
@@ -69,6 +103,8 @@ export default function MessagesPage() {
             BlockedYou: false
         }
     ]);
+
+    // Define o estado para os dados dos grupos
     const [groupsData, setGroupsData] = useState([
         {
             ItemId: -1,
@@ -77,6 +113,7 @@ export default function MessagesPage() {
             ImageURL: "",
             Mensagens: new Array(
                 {
+                    IDSala: -1,
                     IDMensagem: -1,
                     IDRemetente: -1,
                     URLImagemRemetente: "",
@@ -90,13 +127,14 @@ export default function MessagesPage() {
         }
     ]);
 
+
     /**
      * ouvir a saida de um grupo
      * @param {any} connection
      */
     const listenToGroupLeaving = useCallback((connection) => {
         connection.on("ReceiveLeaving", (group, message) => {
-            //debugger;
+
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -132,6 +170,7 @@ export default function MessagesPage() {
                             ...trailing
                         ]);
                     }
+                    break;
                 }
             }
 
@@ -141,32 +180,7 @@ export default function MessagesPage() {
         });
     }, [groupsData]);
 
-    /**
-     * Ouvir resposta a pedidos
-     * @param {any} connection
-     */
-    const listenToRequestReply = useCallback((connection) => {
-        connection.on("ReceiveRequestReply", (replierObject, reply) => {
-
-            if (reply) {
-
-                var newFriend = {
-                    ItemId: friendsData.length,
-                    FriendId: replierObject.friendId,
-                    FriendName: replierObject.friendName,
-                    CommonRoomId: replierObject.commonRoomId,
-                    ImageURL: replierObject.imageURL,
-                    Messages: []
-                }
-
-                var aux = [...friendsData];
-                aux.push([...newFriend]);
-
-                setFriendsData([...aux]);
-            }
-
-        });
-    },[friendsData]);
+    
 
     /**
      * Ouvir rececao de expulsao
@@ -174,7 +188,7 @@ export default function MessagesPage() {
      */
     const listenToMemberExpelling = useCallback((connection) => {
         connection.on("ReceiveExpelling", (roomId, message) => {
-            //debugger;
+
             var leading = [];
             var trailing = [];
             var aux = {};
@@ -210,6 +224,7 @@ export default function MessagesPage() {
                             ...trailing
                         ]);
                     }
+                    break;
                 }
             }
 
@@ -219,376 +234,38 @@ export default function MessagesPage() {
         })
     }, [groupsData]);
 
-    useEffect(() => {
+    /**
+     * Ouvir resposta a pedidos de amizade
+     * @param {any} connection
+     */
+    const listenToRequestReply = useCallback((connection) => {
+        connection.on("ReceiveRequestReply", (replierObject, reply) => {
 
-        //debugger;
-        if (hasFetchedFriendsData || hasFetchedGroupsData) {
-            // atualizar dados das mensagens de amigos do utilizador
-            var aux = {};
-            var trailing = [];
-            var leading = [];
-            var isGroup = !lastMessageReceived.IsFriends;
-            var itemId = lastMessageReceived.ItemId;
-            var messageObject = lastMessageReceived.Message;
+            if (reply) {
 
-            if (!isGroup) {
-                aux = { ...friendsData[itemId] };
-                aux.Messages.push({ ...messageObject });
-                if (itemId === 0) {
-
-                    trailing = friendsData.slice(1, friendsData.length);
-
-                    setFriendsData([
-                        { ...aux },
-                        ...trailing
-                    ]);
-                } else if (itemId === friendsData.length - 1) {
-
-                    leading = friendsData.slice(0, friendsData.length - 1);
-
-                    setFriendsData([
-                        ...leading,
-                        { ...aux }
-                    ]);
-                } else {
-
-                    leading = friendsData.slice(0, itemId);
-                    trailing = friendsData.slice(itemId + 1, friendsData.length)
-
-                    setFriendsData([
-                        ...leading,
-                        { ...aux },
-                        ...trailing
-                    ]);
+                var newFriend = {
+                    ItemId: friendsData.length,
+                    FriendId: replierObject.friendId,
+                    FriendName: replierObject.friendName,
+                    CommonRoomId: replierObject.commonRoomId,
+                    ImageURL: replierObject.imageURL,
+                    Messages: []
                 }
-            } else {
-                aux = { ...groupsData[itemId] };
-                aux.Mensagens.push({ ...messageObject });
-                if (itemId === 0) {
 
-                    trailing = groupsData.slice(1, groupsData.length);
+                var aux = [...friendsData];
+                aux.push([...newFriend]);
 
-                    setGroupsData([
-                        { ...aux },
-                        ...trailing
-                    ]);
-                } else if (itemId === groupsData.length - 1) {
-
-                    leading = groupsData.slice(0, groupsData.length - 1);
-
-                    setGroupsData([
-                        ...leading,
-                        { ...aux }
-                    ]);
-                } else {
-
-                    leading = groupsData.slice(0, itemId);
-                    trailing = groupsData.slice(itemId + 1, groupsData.length)
-
-                    setGroupsData([
-                        ...leading,
-                        { ...aux },
-                        ...trailing
-                    ]);
-                }
-            }
-        }
-        else {
-
-            var options = {
-                method: "GET",
-                redirect: "follow",
-                credentials: "include"
+                setFriendsData([...aux]);
             }
 
-            var queryParams = `?id=${queryParamId}`;
-            //debugger;
-            fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
-                .then(response => {
-                    if (response.status === 404) {
-                        window.location.assign(`/search?id=${queryParamId}`);
-                    }
-                    else if (response.status === 500) {
-                        window.location.assign("/error-500");
-                    }
-                    else if (response.status === 403) {
-                        window.location.assign("/error-403");
-                    }
-                    else if (response.status === 401) {
-                        window.history.back();
-                    }
-                    return response.json();
-                })
-                .then(data => {
-
-                    // dono
-                    owner.current = data.ownerInfo;
-
-                    // numero de separadores
-                    var auxTabNum = 0;
-
-                    // dados
-                    //debugger;
-                    if (data.friends.length !== 0) {
-                        setFriendsData([...data.friends]);
-                        setHasFetchedFriendsData(true);
-                        auxTabNum++;
-                        connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
-                    }
-                    else {
-                        setFriendsTab(false);
-                    }
-
-                    if (data.groups.length !== 0) {
-                        setGroupsData([...data.groups]);
-                        setHasFetchedGroupsData(true);
-                        auxTabNum++;
-                        connection.current.invoke("AddConnection", [...data.groups][0].IDSala + "");
-                    }
-
-                    setTabsNumber(auxTabNum);
-
-                    
-                })
-                .catch(err => console.error("error: ", err));
-
-            connection.current =
-                new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL + "/RealTimeHub", {
-                    skipNegotiation: true,
-                    transport: HttpTransportType.WebSockets
-                })
-                    .configureLogging(LogLevel.Debug)
-                    .build();
-
-            //tratar da conexao do signalR
-            connection.current.start();
-            logSignalRAccess(connection.current);
-            listenToSignalRLeaving(connection.current);
-            listenToSignalRMessages(connection.current);
-            listenToSignalRGroupChange(connection.current);
-            listenToGroupEntry(connection.current);
-            listenToBlock(connection.current);
-            listenToUnblock(connection.current);
-
-            //verificar novo cookie
-            document.addEventListener("mousemove", () => getNewCookie());
-            document.addEventListener("keydown", () => getNewCookie());
-            
-            //debugger
-            var expiryIntervalInit = expiry.current - startDate.current;
-            //debugger
-            if (expiryIntervalInit !== 15 * 1000 * 60) {
-                window.location.assign("/");
-            }
-
-            var expiryInterval = expiry.current - Date.now();
-            //debugger;
-            timeout.current = setTimeout(() => {
-                logout();
-                window.location.assign("/");
-
-            }, expiryInterval);
-        }
-    }, [lastMessageReceived]);
-
-    useEffect(() => {
-        //debugger;
-        if (hasFetchedGroupsData) {
-            listenToGroupLeaving(connection.current);
-            listenToMemberExpelling(connection.current);
-        }
-        
-    }, [hasFetchedGroupsData, listenToGroupLeaving, listenToMemberExpelling]);
-
-    useEffect(() => {
-        if (hasFetchedFriendsData)
-            listenToRequestReply(connection.current);
-    }, [hasFetchedFriendsData, listenToRequestReply]);
-
-    useEffect(() => {
-
-        if (friendsData.length === 0 && groupsData.length !== 0) {
-            setFriendsTab(false);
-        }
-
-        if (groupsData.length === 0 && friendsData.length !== 0) {
-            setFriendsTab(true);
-        }
-
-        if (friendsData.length === 0 && groupsData.length === 0) {
-            window.location.assign(`/search?id=${queryParamId}`);
-        }
-    }, [friendsData.length, groupsData.length, queryParamId]);
-
-    /**
-     * Obter novo cookie de sessao depois deste chegar a meia-vida
-     */
-    const getNewCookie = async () => {
-
-        console.log("getNewCookie!!");
-        //debugger;
-        var expiryInterval = expiry.current - Date.now();
-
-        if (expiryInterval < (15 * 1000 * 60) / 2) {
-
-            var options = {
-                method: "GET",
-                redirect: "follow",
-                credentials: "include"
-            }
-
-            var queryParams = `?id=${queryParamId}`;
-            await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
-                .then(response => {
-                    if (response.status === 401) {
-                        window.history.back();
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    sessionStorage.setItem("expiry", data.expiryDate);
-                    sessionStorage.setItem("startDate", data.startDate);
-                    expiry.current = Date.parse(data.expiryDate);
-                    startDate.current = Date.parse(data.sartDate);
-
-                    expiryInterval = expiry.current - Date.now();
-
-                    clearTimeout(timeout.current);
-                    timeout.current = setTimeout(
-                        () => {
-                            logout();
-                            window.location.assign("/");
-
-                        }, expiryInterval);
-                })
-                .catch(err => console.error("error: ", err));
-        }
-
-    };
-
-    /**
-     * ligacao ao hub signalR
-     */
-    const start = async (connection) => {
-        try {
-            //debugger;
-            await connection.start();
-            console.log("SignalR Connected.");
-        } catch (err) {
-            console.log(err);
-            setTimeout(start, 5000);
-        }
-    }
-
-    /**
-     * funcao de logout
-     */
-    const logout = async () => {
-
-        await connection.current.stop();
-        sessionStorage.removeItem("expiry");
-        sessionStorage.removeItem("startDate");
-
-        var options = {
-            method: "POST",
-            redirect: "follow",
-            body: JSON.stringify({ Id: owner.current }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8'
-            },
-            credentials: "include"
-        }
-
-        await fetch(process.env.REACT_APP_API_URL + "/logout", options)
-            .then(response => {
-                if (response.status === 404) {
-                    window.location.assign("/error-404");
-                }
-                else if (response.status === 500) {
-                    window.location.assign("/error-500");
-                }
-            })
-            .catch(err => console.error("error: ", err));
-    }
-
-    /**
-     * mensagem de log do signalR ao conectar
-     * 
-     * @param {any} connection
-     */
-    const logSignalRAccess = (connection) => {
-        connection.on("OnConnectedAsyncPrivate", message => {
-            console.log(message);
         });
-    }
-
-    /**
-     * mensagem do signalR ao desconectar
-     * 
-     * @param {any} connection
-     */
-    const listenToSignalRLeaving = (connection) => {
-        connection.on("OnDisconnectedAsyncPrivate", message => {
-            console.log(message);
-        });
-    }
-
-    /**
-     * Colocar o listener para o metodo 'ReceiveMessage' vindo do hub signalR
-     * e armazenar mensagens recebidas
-     * 
-     * @param {any} connection
-     */
-    const listenToSignalRMessages = (connection) => {
-        connection.on("ReceiveMessage", (itemId, isGroup, messageObject) => {
-
-            console.log("ReceiveMessage");
-
-            setLastMessageReceived({
-                ItemId: itemId,
-                IsFriends: !isGroup,
-                Message: {
-                    IDMensagem: messageObject.idMensagem,
-                    IDRemetente: messageObject.idRemetente,
-                    URLImagemRemetente: messageObject.urlImagemRemetente,
-                    NomeRemetente: messageObject.nomeRemetente,
-                    ConteudoMsg: messageObject.conteudoMsg
-                }
-            });
-            console.log("ReceiveMessage");
-        })
-    };
-
-    /**
-     * ouvir a mudanca entre salas para mudar o grupo do signalR
-     * 
-     * @param {any} connection
-     */
-    const listenToSignalRGroupChange = (connection) => {
-        connection.on("AddedToGroup", (connectionId, roomId) => {
-            console.log("conexão " + connectionId + " adicionada à sala " + roomId);
-        });
-
-        connection.on("RemovedFromGroup", (connectionId, roomId) => {
-            console.log("conexão " + connectionId + " removida da sala " + roomId);
-        });
-    };
-
-    /**
-     * Ouvir a entrada num grupo
-     * @param {any} connection
-     */
-    const listenToGroupEntry = (connection) => {
-        connection.on("ReceiveEntry", (group, message) => {
-            console.log(message);
-        });
-    }
+    }, [friendsData]);
 
     /**
      * ouvir o bloqueio de um amigo
      * @param {any} connection
      */
-    const listenToBlock = (connection) => {
+    const listenToBlock = useCallback((connection) => {
         connection.on("ReceiveBlock", (fromUser) => {
 
             var aux = {};
@@ -630,13 +307,13 @@ export default function MessagesPage() {
                 }
             }
         });
-    };
+    }, [friendsData]);
 
     /**
      * ouvir o desbloqueio de um amigo
      * @param {any} connection
      */
-    const listenToUnblock = (connection) => {
+    const listenToUnblock = useCallback((connection) => {
         connection.on("ReceiveUnblock", (fromUser) => {
 
             var aux = {};
@@ -678,24 +355,408 @@ export default function MessagesPage() {
                 }
             }
         });
+    }, [friendsData]);
+
+    useEffect(() => {
+
+
+        if (hasFetchedFriendsData || hasFetchedGroupsData) {
+            // atualizar dados das mensagens de amigos do utilizador
+            var aux = {};
+            var trailing = [];
+            var leading = [];
+            var isGroup = !lastMessageReceived.IsFriends;
+            var messageObject = lastMessageReceived.Message;
+
+            if (!isGroup) {
+                for (let i = 0; i < friendsData.length; i++) {
+                    if (messageObject.IDSala === friendsData[i].CommonRoomId) {
+                        aux = { ...friendsData[i] };
+                        aux.Messages.push({ ...messageObject });
+                        if (i === 0) {
+
+                            trailing = friendsData.slice(1, friendsData.length);
+
+                            setFriendsData([
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        } else if (i === friendsData.length - 1) {
+
+                            leading = friendsData.slice(0, friendsData.length - 1);
+
+                            setFriendsData([
+                                ...leading,
+                                { ...aux }
+                            ]);
+                        } else {
+
+                            leading = friendsData.slice(0, i);
+                            trailing = friendsData.slice(i + 1, friendsData.length)
+
+                            setFriendsData([
+                                ...leading,
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        }
+                        break;
+                    }
+                }
+
+            } else {
+                for (let i = 0; i < groupsData.length; i++) {
+                    if (messageObject.IDSala === groupsData[i].IDSala) {
+                        aux = { ...groupsData[i] };
+                        aux.Mensagens.push({ ...messageObject });
+                        if (i === 0) {
+
+                            trailing = groupsData.slice(1, groupsData.length);
+
+                            setGroupsData([
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        } else if (i === groupsData.length - 1) {
+
+                            leading = groupsData.slice(0, groupsData.length - 1);
+
+                            setGroupsData([
+                                ...leading,
+                                { ...aux }
+                            ]);
+                        } else {
+
+                            leading = groupsData.slice(0, i);
+                            trailing = groupsData.slice(i + 1, groupsData.length)
+
+                            setGroupsData([
+                                ...leading,
+                                { ...aux },
+                                ...trailing
+                            ]);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+
+            var options = {
+                method: "GET",
+                redirect: "follow",
+                credentials: "include"
+            }
+
+            var queryParams = `?id=${queryParamId}`;
+
+            fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
+                .then(response => {
+                    if (response.status === 404) {
+                        navigate(`/search?id=${queryParamId}`);
+                    }
+                    else if (response.status === 500) {
+                        navigate("/error-500");
+                    }
+                    else if (response.status === 403) {
+                        navigate("/error-403");
+                    }
+                    else if (response.status === 401) {
+                        window.history.back();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+
+                    // dono
+                    owner.current = data.ownerInfo;
+
+                    // numero de separadores
+                    var auxTabNum = 0;
+
+                    // dados
+
+                    if (data.friends.length !== 0) {
+                        setFriendsData([...data.friends]);
+                        setHasFetchedFriendsData(true);
+                        auxTabNum++;
+                        setPrevRoom([...data.friends][0].CommonRoomId);
+                        connection.current.invoke("AddConnection", [...data.friends][0].CommonRoomId + "");
+                    }
+                    else {
+                        setFriendsTab(false);
+                    }
+
+                    if (data.groups.length !== 0) {
+                        setGroupsData([...data.groups]);
+                        setHasFetchedGroupsData(true);
+                        auxTabNum++;
+                        setPrevRoom([...data.groups][0].IDSala);
+                        connection.current.invoke("AddConnection", [...data.groups][0].IDSala + "");
+                    }
+
+                    setTabsNumber(auxTabNum);
+
+
+                })
+                .catch(err => console.error("error: ", err));
+
+            connection.current =
+                new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL + "/RealTimeHub", {
+                    skipNegotiation: true,
+                    transport: HttpTransportType.WebSockets
+                })
+                    .configureLogging(LogLevel.Debug)
+                    .build();
+
+            //tratar da conexao do signalR
+            connection.current.start();
+            logSignalRAccess(connection.current);
+            listenToSignalRLeaving(connection.current);
+            listenToSignalRMessages(connection.current);
+            listenToSignalRGroupChange(connection.current);
+            listenToGroupEntry(connection.current);
+            
+            
+
+            //verificar novo cookie
+            document.addEventListener("mousemove", () => getNewCookie());
+            document.addEventListener("keydown", () => getNewCookie());
+
+
+            var expiryIntervalInit = expiry.current - startDate.current;
+
+            if (expiryIntervalInit !== 15 * 1000 * 60) {
+                navigate("/");
+            }
+
+            var expiryInterval = expiry.current - Date.now();
+
+            timeout.current = setTimeout(() => {
+                logout();
+                navigate("/");
+
+            }, expiryInterval);
+        }
+    }, [lastMessageReceived]);
+
+    useEffect(() => {
+
+        if (hasFetchedGroupsData) {
+            listenToGroupLeaving(connection.current);
+            listenToMemberExpelling(connection.current);
+        }
+
+    }, [hasFetchedGroupsData, listenToGroupLeaving, listenToMemberExpelling]);
+
+    useEffect(() => {
+        if (hasFetchedFriendsData)
+            listenToRequestReply(connection.current);
+            listenToBlock(connection.current);
+            listenToUnblock(connection.current);
+    }, [hasFetchedFriendsData, listenToBlock, listenToRequestReply, listenToUnblock]);
+
+    useEffect(() => {
+
+        if (friendsData.length === 0 && groupsData.length !== 0) {
+            setFriendsTab(false);
+        }
+
+        if (groupsData.length === 0 && friendsData.length !== 0) {
+            setFriendsTab(true);
+        }
+
+        if (friendsData.length === 0 && groupsData.length === 0) {
+            navigate(`/search?id=${queryParamId}`);
+        }
+    }, [friendsData.length, groupsData.length, queryParamId]);
+
+    /**
+     * Obter novo cookie de sessao depois deste chegar a meia-vida
+     */
+    const getNewCookie = async () => {
+
+        console.log("getNewCookie!!");
+
+        var expiryInterval = expiry.current - Date.now();
+
+        if (expiryInterval < (15 * 1000 * 60) / 2) {
+
+            var options = {
+                method: "GET",
+                redirect: "follow",
+                credentials: "include"
+            }
+
+            var queryParams = `?id=${queryParamId}`;
+            await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
+                .then(response => {
+                    if (response.status === 401) {
+                        navigate(-1);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    sessionStorage.setItem("expiry", data.expiryDate);
+                    sessionStorage.setItem("startDate", data.startDate);
+                    expiry.current = Date.parse(data.expiryDate);
+                    startDate.current = Date.parse(data.sartDate);
+
+                    expiryInterval = expiry.current - Date.now();
+
+                    clearTimeout(timeout.current);
+                    timeout.current = setTimeout(
+                        () => {
+                            logout();
+                            navigate("/");
+
+                        }, expiryInterval);
+                })
+                .catch(err => console.error("error: ", err));
+        }
+
     };
 
+    /**
+     * ligacao ao hub signalR
+     */
+    const start = async (connection) => {
+        try {
+
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+    }
+
+    /**
+     * funcao de logout
+     */
+    const logout = async () => {
+
+        await connection.current.stop();
+        sessionStorage.removeItem("expiry");
+        sessionStorage.removeItem("startDate");
+
+        var options = {
+            method: "POST",
+            redirect: "follow",
+            body: JSON.stringify({ Id: owner.current }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            },
+            credentials: "include"
+        }
+
+        await fetch(process.env.REACT_APP_API_URL + "/logout", options)
+            .then(response => {
+                if (response.status === 404) {
+                    navigate("/error-404");
+                }
+                else if (response.status === 500) {
+                    navigate("/error-500");
+                }
+            })
+            .catch(err => console.error("error: ", err));
+    }
+
+    /**
+     * mensagem de log do signalR ao conectar
+     * 
+     * @param {any} connection
+     */
+    const logSignalRAccess = (connection) => {
+        connection.on("OnConnectedAsyncPrivate", message => {
+            console.log(message);
+        });
+    }
+
+    /**
+     * mensagem do signalR ao desconectar
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRLeaving = (connection) => {
+        connection.on("OnDisconnectedAsyncPrivate", message => {
+            console.log(message);
+        });
+    }
+
+    /**
+     * Colocar o listener para o metodo 'ReceiveMessage' vindo do hub signalR
+     * e armazenar mensagens recebidas
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRMessages = (connection) => {
+        connection.on("ReceiveMessage", (isGroup, messageObject) => {
+            
+            console.log("ReceiveMessage");
+
+            setLastMessageReceived({
+                IsFriends: !isGroup,
+                Message: {
+                    IDSala: messageObject.idSala,
+                    IDMensagem: messageObject.idMensagem,
+                    IDRemetente: messageObject.idRemetente,
+                    URLImagemRemetente: messageObject.urlImagemRemetente,
+                    NomeRemetente: messageObject.nomeRemetente,
+                    ConteudoMsg: messageObject.conteudoMsg
+                }
+            });
+            console.log("ReceiveMessage");
+        })
+    };
+
+    /**
+     * ouvir a mudanca entre salas para mudar o grupo do signalR
+     * 
+     * @param {any} connection
+     */
+    const listenToSignalRGroupChange = (connection) => {
+        connection.on("AddedToGroup", (connectionId, roomId) => {
+            setPrevRoom(Number(roomId));
+            console.log("conexão " + connectionId + " adicionada à sala " + roomId);
+        });
+
+        connection.on("RemovedFromGroup", (connectionId, roomId) => {
+            console.log("conexão " + connectionId + " removida da sala " + roomId);
+        });
+    };
+
+    /**
+     * Ouvir a entrada num grupo
+     * @param {any} connection
+     */
+    const listenToGroupEntry = (connection) => {
+        connection.on("ReceiveEntry", (group, message) => {
+            console.log(message);
+        });
+    }
+
     
 
     
+
+
+
+
 
     /**
      * clique no separador dos amigos
      */
     const handleFriendsTabHeaderClick = () => {
-        setFriendsTab(true)
+        setFriendsTab(true);
     }
 
     /**
      * clique no separador dos grupos
      */
     const handleGroupsTabHeaderClick = () => {
-        setFriendsTab(false)
+        setFriendsTab(false);
     }
 
     /**
@@ -717,7 +778,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverFriendItem(itemKey) {
-        //debugger;
+
         setOverFriendItem(itemKey);
         setIsFriendOverBlocked(friendsData[itemKey].BlockedThem);
         setHasFriendOverBlockedMe(friendsData[itemKey].BlockedYou);
@@ -769,7 +830,7 @@ export default function MessagesPage() {
      * @param {any} itemKey
      */
     function handleOverGroupItem(itemKey) {
-        //debugger
+
         setOverGroupItem(itemKey);
     }
 
@@ -778,6 +839,10 @@ export default function MessagesPage() {
      */
     const handleMenuIconClick = () => {
         setShowMenu(!showMenu);
+    }
+
+    const handleSetPrevRoom = (value) => {
+        setPrevRoom(value)
     }
 
     return (
@@ -802,6 +867,7 @@ export default function MessagesPage() {
                                         }}
                                         connection={connection.current}
                                         isFriends={friendsTab}
+                                        
 
                                     />
                                 }
@@ -822,10 +888,10 @@ export default function MessagesPage() {
                                         isFriends={friendsTab}
                                     />
                                 }
-                                
+
                             </div>
                             <div className="tabs-div">
-                                
+
                                 {hasFetchedFriendsData && friendsData.length !== 0 &&
                                     <TabPanel
                                         display={friendsTab ? "block" : "none"}
@@ -835,6 +901,8 @@ export default function MessagesPage() {
                                         connection={connection.current}
                                         isFriends={true}
                                         onOverItem={handleOverFriendItem}
+                                        prevRoom={prevRoom}
+                                        onSetPrevRoom={handleSetPrevRoom}
                                     />
                                 }
                                 {hasFetchedGroupsData && groupsData.length !== 0 &&
@@ -846,6 +914,8 @@ export default function MessagesPage() {
                                         connection={connection.current}
                                         isFriends={false}
                                         onOverItem={handleOverGroupItem}
+                                        prevRoom={prevRoom}
+                                        onSetPrevRoom={handleSetPrevRoom}
                                     />
                                 }
                             </div>

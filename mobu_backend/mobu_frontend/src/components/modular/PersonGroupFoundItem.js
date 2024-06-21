@@ -5,7 +5,13 @@ import Avatar from "./Avatar";
  * 
  * Item do resultado da pesquisa
  * 
- * @returns 
+ * @param connection - Conexão SignalR
+ * @param ownerId - ID do dono da conta
+ * @param personRoomId - ID da sala da pessoa ou grupo
+ * @param name - Nome da pessoa ou grupo
+ * @param avatar - Avatar da pessoa ou grupo
+ * @param email - Email da pessoa (se não for grupo)
+ * @param isGroup - Indica se é um grupo
  */
 export default function PersonGroupFoundItem({ connection, ownerId, personRoomId, name, avatar, email = null, isGroup }) {
 

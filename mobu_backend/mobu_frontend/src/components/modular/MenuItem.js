@@ -4,9 +4,9 @@ import React, { useState } from "react";
  * 
  * Item de menu
  * 
- * @param {*} text
- * @param onClick gestor de clique no item
- * @param onClickPrm parametro para passar ao gestor 
+ * @param text - texto do item do menu
+ * @param onClick - callback de clique no item
+ * @param onClickPrm - parametro para passar à callback 
  * @returns 
  */
 export default function MenuItem({ text, onClick, onClickPrm }) {

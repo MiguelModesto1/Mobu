@@ -1,22 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
  * Menu de contexto do amigo
  * 
+ * @param itemId - O ID do item do separador
+ * @param isFriendOverBlocked - Indica se o amigo sob o cursor do rato foi bloqueado pelo utilizador
+ * @param hasFriendOverBlockedMe - Indica se o amigo sob o cursor do rato bloqueou o utilizador
+ * @param owner - O ID do dono da conta
+ * @param onBlock - A callback de bloqueio do amigo
+ * @param id - O ID do amigo
+ * @param connection - Conexão SignalR
+ * 
  * @returns
  */
 export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) {
 
+    const navigate = useNavigate();
+    
     const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
     const handleClick = async (option) => {
         switch (option) {
             case "perfil":
                 await connection.stop();
-                window.location.assign("/person-profile?id=" + id + "&requester=" + owner);
+                navigate("/person-profile?id=" + id + "&requester=" + owner);
                 break;
             default:
                 if (isFriendOverBlocked) {

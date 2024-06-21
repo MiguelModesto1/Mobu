@@ -14,6 +14,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller da API para o login
+/// </summary>
 [ApiController]
 public class LoginApiController : ControllerBase
 {
@@ -63,6 +66,18 @@ public class LoginApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Contrutor do controller da API para o login
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="signInManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
+    /// <param name="config"></param>
     public LoginApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -90,10 +105,10 @@ public class LoginApiController : ControllerBase
     /// Metodo da API para obter um novo cookie de sessao
     /// depois da meia-vida do atual
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="id">ID do utilizador</param>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/get-new-cookie")]
     public async Task<IActionResult> GetNewCookie([FromQuery(Name = "id")] int id)
     {
@@ -170,9 +185,9 @@ public class LoginApiController : ControllerBase
     //}
 
     /// <summary>
-    /// Metodo de login
+    /// Método de login do controller da API
     /// </summary>
-    /// <param name="loginDataJson"></param>
+    /// <param name="loginDataJson">Dados de login</param>
     /// <returns></returns>
     [HttpPost]
     [Route("api/login")]
@@ -252,12 +267,12 @@ public class LoginApiController : ControllerBase
     }
 
     /// <summary>
-    /// Metodo de logout
+    /// Método de logout
     /// </summary>
-    /// <param name="logoutDataJson"></param>
+    /// <param name="logoutDataJson">Dados para o logout</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/logout")]
     public async Task<IActionResult> Logout([FromBody] Logout logoutDataJson)
     {

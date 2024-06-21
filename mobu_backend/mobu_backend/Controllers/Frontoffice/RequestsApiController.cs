@@ -12,6 +12,9 @@ using NuGet.Protocol;
 
 namespace mobu.Controllers.Frontend;
 
+/// <summary>
+/// Controller API para os pedidos de amizade
+/// </summary>
 [ApiController]
 public class RequestsApiController : ControllerBase
 {
@@ -53,6 +56,16 @@ public class RequestsApiController : ControllerBase
     /// </summary>
     private readonly ILogger<LoginApiController> _logger;
 
+    /// <summary>
+    /// Construtor do controller API para os pedidos de amizade
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="webHostEnvironment"></param>
+    /// <param name="userManager"></param>
+    /// <param name="loggerEmail"></param>
+    /// <param name="http"></param>
+    /// <param name="optionsAccessor"></param>
+    /// <param name="logger"></param>
     public RequestsApiController(
         ApplicationDbContext context,
         IWebHostEnvironment webHostEnvironment,
@@ -72,8 +85,13 @@ public class RequestsApiController : ControllerBase
         _optionsAccessor = optionsAccessor;
     }
 
+    /// <summary>
+    /// Método para obter pedidos de amizade pendentes
+    /// </summary>
+    /// <param name="id">ID do utilizador</param>
+    /// <returns></returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = "Mobber")]
     [Route("api/pending-requests")]
     public async Task<IActionResult> GetPendingRequests([FromQuery(Name = "id")] int id)
     {
@@ -83,6 +101,7 @@ public class RequestsApiController : ControllerBase
         UtilizadorRegistado user = await _context.UtilizadorRegistado.FirstOrDefaultAsync(u => u.IDUtilizador == id);
         var identityUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.AuthenticationID);
 
+        // verificar se o utilizador associado ao ID existe
         if (user == null || identityUser == null)
         {
             return Unauthorized();
