@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Formulario de mudanca de password
  * @returns 
  */
 export default function PasswordResetForm() {
+
+    const navigate = useNavigate();
 
     const email = new URLSearchParams(window.location.search).get('email');
 
@@ -56,7 +59,7 @@ export default function PasswordResetForm() {
             await fetch(process.env.REACT_APP_API_URL + "/forgot-password/reset-password", options)
                 .then((response) => {
                     if (response.status === 200) {
-                        window.location.assign("/")
+                        navigate("/")
                     } else {
                         setWarningText("Tentativa de reiniciar password inválida");
                     }

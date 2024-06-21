@@ -120,7 +120,7 @@ namespace mobu_backend.Areas.Identity.Pages.Account
 			///     directly from your code. This API may change or be removed in future releases.
 			/// </summary>
 			[Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
-			[StringLength(100, ErrorMessage = "A {0} deve conter pelo menos {2} e no máximo {1} carateres.", MinimumLength = 6)]
+			[StringLength(100, ErrorMessage = "A {0} deve conter pelo menos {2} e no máximo {1} carateres. Deve também apresentar letras maiúsculas e minusculas, números e símbolos!", MinimumLength = 6)]
 			[DataType(DataType.Password)]
 			[Display(Name = "Palavra-passe")]
 			public string Password { get; set; }

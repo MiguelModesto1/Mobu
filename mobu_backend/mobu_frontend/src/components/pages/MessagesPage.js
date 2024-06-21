@@ -8,6 +8,7 @@ import MessagePanel from "../single_use/messagePanel/MessagePanel";
 import GroupContextMenu from "../optionMenus/GroupContextMenu";
 import FriendContextMenu from "../optionMenus/FriendContextMenu";
 import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
+import { useNavigate } from 'react-router-dom';
 
 
 /**
@@ -17,6 +18,8 @@ import OwnerOptionMenu from "../optionMenus/OwnerOptionMenu";
  * @returns 
  */
 export default function MessagesPage() {
+
+    const navigate = useNavigate();
 
     // Obtém o parâmetro 'id' da URL
     const queryParamId = new URLSearchParams(window.location.search).get('id');
@@ -451,13 +454,13 @@ export default function MessagesPage() {
             fetch(process.env.REACT_APP_API_URL + "/messages" + queryParams, options)
                 .then(response => {
                     if (response.status === 404) {
-                        window.location.assign(`/search?id=${queryParamId}`);
+                        navigate(`/search?id=${queryParamId}`);
                     }
                     else if (response.status === 500) {
-                        window.location.assign("/error-500");
+                        navigate("/error-500");
                     }
                     else if (response.status === 403) {
-                        window.location.assign("/error-403");
+                        navigate("/error-403");
                     }
                     else if (response.status === 401) {
                         window.history.back();
@@ -525,14 +528,14 @@ export default function MessagesPage() {
             var expiryIntervalInit = expiry.current - startDate.current;
 
             if (expiryIntervalInit !== 15 * 1000 * 60) {
-                window.location.assign("/");
+                navigate("/");
             }
 
             var expiryInterval = expiry.current - Date.now();
 
             timeout.current = setTimeout(() => {
                 logout();
-                window.location.assign("/");
+                navigate("/");
 
             }, expiryInterval);
         }
@@ -565,7 +568,7 @@ export default function MessagesPage() {
         }
 
         if (friendsData.length === 0 && groupsData.length === 0) {
-            window.location.assign(`/search?id=${queryParamId}`);
+            navigate(`/search?id=${queryParamId}`);
         }
     }, [friendsData.length, groupsData.length, queryParamId]);
 
@@ -590,7 +593,7 @@ export default function MessagesPage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -606,7 +609,7 @@ export default function MessagesPage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -651,10 +654,10 @@ export default function MessagesPage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));

@@ -41,6 +41,11 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
             }]
     }, [friendGroupData, isFriends, selectedFriendItem, selectedGroupItem]);
 
+    /**
+     * converte texto em JSX
+     * @param {any} value
+     * @returns
+     */
     const transformTextIntoJsx = (value) => {
         
         var jsxParagraphs = [];
@@ -69,6 +74,9 @@ export default function MessagePanel({ ownerId, friendGroupData, selectedFriendI
         });
     }
 
+    /**
+     * mapeia contentores de mensagem
+     */
     const containers =
         messages.current.map(
             message => {

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 /**
  * Formulario de login
  * @returns 
  */
 export default function LoginForm() {
+
+    const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -43,7 +46,7 @@ export default function LoginForm() {
     //            //return;
     //        })
     //        .then(data => {
-    //            window.location.assign("/messages?id=" + data.userId);
+    //            navigate("/messages?id=" + data.userId);
     //        })
     //        .then(data => console.log(data))
     //        .catch(err => { console.error("error", err) });
@@ -83,7 +86,7 @@ export default function LoginForm() {
             .then(data => {
                 sessionStorage.setItem("expiry", data.expiryDate);
                 sessionStorage.setItem("startDate", data.startDate);
-                window.location.assign("/messages?id=" + data.userId);
+                navigate("/messages?id=" + data.userId);
             })
             .then(data => console.log(data))
             .catch(err => { console.error("error", err) });
@@ -96,7 +99,7 @@ export default function LoginForm() {
                     <div
                         className="d-flex justify-content-center col-lg"
                         style={{ cursor: "pointer" }}
-                        onClick={() => window.location.assign("/authors")}
+                        onClick={() => navigate("/authors")}
                     >
                         <img className="rounded img-fluid" src="./assets/images/logo_min.png" alt="mobu logo" />
                     </div>

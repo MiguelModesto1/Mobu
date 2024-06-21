@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import ProfileProperty from "../modular/ProfileProperty";
 import Avatar from "../modular/Avatar";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -9,6 +10,8 @@ import Avatar from "../modular/Avatar";
  * @returns 
  */
 export default function PersonProfilePage() {
+
+    const navigate = useNavigate();
 
     const queryStrings = new URLSearchParams(window.location.search);
 
@@ -40,16 +43,16 @@ export default function PersonProfilePage() {
         fetch(process.env.REACT_APP_API_URL + "/profile/get-profile" + queryParams, options)
             .then((response) => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
                 return response.json();
             })
@@ -70,14 +73,14 @@ export default function PersonProfilePage() {
         var expiryIntervalInit = expiry.current - startDate.current;
 
         if (expiryIntervalInit !== 15 * 1000 * 60) {
-            window.location.assign("/");
+            navigate("/");
         }
 
         var expiryInterval = expiry.current - Date.now();
 
         timeout.current = setTimeout(() => {
             logout();
-            window.location.assign("/");
+            navigate("/");
 
         }, expiryInterval);
     }, []);
@@ -100,7 +103,7 @@ export default function PersonProfilePage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -116,7 +119,7 @@ export default function PersonProfilePage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -145,10 +148,10 @@ export default function PersonProfilePage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -198,7 +201,7 @@ export default function PersonProfilePage() {
                                     <button
                                         className="btn"
                                         style={{ backgroundColor: "#3b9ae1", color: "white" }}
-                                        onClick={() => window.location.assign(`/edit-person-profile?id=${id}`)}
+                                        onClick={() => navigate(`/edit-person-profile?id=${id}`)}
                                     >
                                         Editar perfil
                                     </button>
@@ -207,7 +210,7 @@ export default function PersonProfilePage() {
                                 <></>
                             }
                             <div className="my-2 d-flex justify-content-evenly">
-                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => navigate(`/messages?id=${requester}`)}>Voltar à lista de mensagens</button>
                             </div>
                         </div>
                     </div>

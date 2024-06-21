@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import ProfileProperty from "../modular/ProfileProperty";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Página de edição de um perfil pessoal
@@ -9,6 +10,8 @@ import ClickableIcon from "../modular/ClickableIcon";
  * @returns
  */
 export default function EditPersonProfilePage() {
+
+    const navigate = useNavigate();
 
     const queryStrings = new URLSearchParams(window.location.search);
     const id = queryStrings.get("id");
@@ -39,16 +42,20 @@ export default function EditPersonProfilePage() {
         fetch(process.env.REACT_APP_API_URL + "/profile/get-edit-person-profile" + queryParams, options)
             .then((response) => {
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    navigate("error-404");
                 }
-                else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                else if (response.status === 409) {
+                    setWarningText("Nome de utilzador escolhdo já existe!");
+                }
+                else if (response.status === 400) {
+                    setWarningText("Todos os campos são obrigatórios!");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    setWarningText("Introduza um e-mail válido!");
                 }
+
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
             })
             .then(data => {
@@ -64,14 +71,14 @@ export default function EditPersonProfilePage() {
         var expiryIntervalInit = expiry.current - startDate.current;
         
         if (expiryIntervalInit !== 15 * 1000 * 60) {
-            window.location.assign("/");
+            navigate("/");
         }
 
         var expiryInterval = expiry.current - Date.now();
 
         timeout.current = setTimeout(() => {
             logout();
-            window.location.assign("/");
+            navigate("/");
 
         }, expiryInterval);
     }, []);
@@ -137,21 +144,21 @@ export default function EditPersonProfilePage() {
             await fetch(process.env.REACT_APP_API_URL + "/profile/edit-person-profile", options)
                 .then((response) => {
                     if (response.status === 404) {
-                        window.location.assign("error-404");
+                        navigate("error-404");
                     }
                     else if (response.status === 500) {
-                        window.location.assign("/error-500");
+                        navigate("/error-500");
                     }
                     else if (response.status === 403) {
-                        window.location.assign("/error-403");
+                        navigate("/error-403");
                     }
                     else if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     else if (response.status === 400)
                         setWarningText("Tentativa de edição de perfil inválida");
                     else {
-                        window.history.back();
+                        navigate(-1);
                     }
                 })
                 .catch(err => { console.error("error: ", err) });
@@ -179,7 +186,7 @@ export default function EditPersonProfilePage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -195,7 +202,7 @@ export default function EditPersonProfilePage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -224,10 +231,10 @@ export default function EditPersonProfilePage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -369,7 +376,7 @@ export default function EditPersonProfilePage() {
                             </div>
 
                             <div className="my-2 d-flex justify-content-evenly">
-                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${id}`)}>Voltar à lista de mensagens</button>
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => navigate(`/messages?id=${id}`)}>Voltar à lista de mensagens</button>
                             </div>
                         </div>
                     </div>

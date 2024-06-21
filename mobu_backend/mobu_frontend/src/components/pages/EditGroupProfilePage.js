@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Avatar from "../modular/Avatar";
 import ProfileProperty from "../modular/ProfileProperty";
 import ClickableIcon from "../modular/ClickableIcon";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -10,6 +11,8 @@ import ClickableIcon from "../modular/ClickableIcon";
  * @returns
  */
 export default function EditGroupProfilePage() {
+
+    const navigate = useNavigate();
 
     const queryStrings = new URLSearchParams(window.location.search);
     const id = queryStrings.get("id");
@@ -36,16 +39,16 @@ export default function EditGroupProfilePage() {
         fetch(process.env.REACT_APP_API_URL + "/profile/get-edit-group-profile" + queryParams, options)
             .then((response) => {
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    navigate("error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
             })
             .then(data => {
@@ -61,14 +64,14 @@ export default function EditGroupProfilePage() {
         var expiryIntervalInit = expiry.current - startDate.current;
         
         if (expiryIntervalInit !== 15 * 1000 * 60) {
-            window.location.assign("/");
+            navigate("/");
         }
 
         var expiryInterval = expiry.current - Date.now();
 
         timeout.current = setTimeout(() => {
             logout();
-            window.location.assign("/");
+            navigate("/");
 
         }, expiryInterval);
     }, []);
@@ -91,7 +94,7 @@ export default function EditGroupProfilePage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -107,7 +110,7 @@ export default function EditGroupProfilePage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -136,21 +139,21 @@ export default function EditGroupProfilePage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("error-404");
+                    navigate("error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
                 else if (response.status === 400)
                     setWarningText("Tentativa de edição de perfil inválida");
                 else {
-                    window.history.back();
+                    navigate(-1);
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -213,7 +216,7 @@ export default function EditGroupProfilePage() {
         await fetch(process.env.REACT_APP_API_URL + "/profile/edit-group-profile", options)
             .then((response) => {
                 if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 setWarningText(response.status === 400 ? "Tentativa de edição de perfil inválida" : "");
             })
@@ -288,7 +291,7 @@ export default function EditGroupProfilePage() {
                             </div>
 
                             <div className="my-2 d-flex justify-content-evenly">
-                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => window.location.assign(`/messages?id=${admin}`)}>Voltar à lista de mensagens</button>
+                                <button className="btn btn-link" style={{ color: "#3b9ae1" }} onClick={() => navigate(`/messages?id=${admin}`)}>Voltar à lista de mensagens</button>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -18,13 +19,15 @@ import MenuItem from "../modular/MenuItem";
  */
 export default function FriendContextMenu({ itemId, isFriendOverBlocked, hasFriendOverBlockedMe, owner, onBlock, id, connection }) {
 
+    const navigate = useNavigate();
+    
     const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
     const handleClick = async (option) => {
         switch (option) {
             case "perfil":
                 await connection.stop();
-                window.location.assign("/person-profile?id=" + id + "&requester=" + owner);
+                navigate("/person-profile?id=" + id + "&requester=" + owner);
                 break;
             default:
                 if (isFriendOverBlocked) {

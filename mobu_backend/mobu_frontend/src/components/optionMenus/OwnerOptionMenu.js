@@ -1,5 +1,6 @@
 import React from "react";
 import MenuItem from "../modular/MenuItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -14,27 +15,29 @@ import MenuItem from "../modular/MenuItem";
  */
 export default function OwnerOptionMenu({owner, showMenu, connection, logoutCallback}){ 
 
+    const navigate = useNavigate();
+
     const handleClick = async (option) => {
         switch (option) {
             case "perfil":
                 await connection.stop();
-                window.location.assign("/person-profile?id=" + owner + "&requester=" + owner);
+                navigate("/person-profile?id=" + owner + "&requester=" + owner);
                 break;
             case "procurar":
                 await connection.stop();
-                window.location.assign("/search?id=" + owner);
+                navigate("/search?id=" + owner);
                 break;
             case "terminar":
                 logoutCallback();
-                window.location.assign("/");
+                navigate("/");
                 break;
             case "fundar":
                 await connection.stop();
-                window.location.assign("/group-foundation?id=" + owner);
+                navigate("/group-foundation?id=" + owner);
                 break;
             default:
                 await connection.stop();
-                window.location.assign("/pending-requests?id=" + owner);
+                navigate("/pending-requests?id=" + owner);
                 break;
         
         }

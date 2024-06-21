@@ -1,12 +1,15 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Avatar from "../modular/Avatar";
 import ClickableIcon from "../modular/ClickableIcon";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Formulario de registo
  * @returns 
  */
 export default function RegisterForm() {
+
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
@@ -140,8 +143,18 @@ export default function RegisterForm() {
             await fetch(process.env.REACT_APP_API_URL + "/register", options)
                 .then((response) => {
                     if (response.status === 200) {
-                        window.location.assign("./")
-                    } else {
+                        navigate("/")
+                    }
+                    else if (response.status === 409) {
+                        setWarningText("Nome de utilzador escolhdo já existe!");
+                    }
+                    else if (response.status === 400) {
+                        setWarningText("Todos os campos são obrigatórios!");
+                    }
+                    else if (response.status === 403) {
+                        setWarningText("Introduza um e-mail válido!");
+                    }
+                    else {
                         setWarningText("Tentativa de registo inválida!");
                     }
                 })

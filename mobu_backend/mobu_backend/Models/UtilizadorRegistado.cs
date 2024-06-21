@@ -85,7 +85,14 @@ namespace mobu_backend.Models
         [Display(Name = "Data da fotografia")]
         public DateTime DataFotografia { get; set; }
 
+        /// <summary>
+        /// Lista de Salas de chat 
+        /// </summary>
         public ICollection<RegistadosSalasChat> ListaSalasDeChat { get; set; }
+
+        /// <summary>
+        /// Lista de mensagens
+        /// </summary>
         public ICollection<Mensagem> ListaMensagens { get; set; }
 
         /// <summary>

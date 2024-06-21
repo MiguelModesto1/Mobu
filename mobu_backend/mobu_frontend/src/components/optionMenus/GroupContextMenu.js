@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import MenuItem from "../modular/MenuItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 
@@ -17,13 +18,15 @@ import MenuItem from "../modular/MenuItem";
  */
 export default function GroupContextMenu({ hasLeft, wasExpelled, owner, isOwnerAdmin, id, connection }) {
 
+    const navigate = useNavigate();
+
     const { xPos, yPos, showMenu, setShowMenu } = useContextMenu();
 
     const handleClick = async (option) => {
         switch (option) {
             case "perfil":
                 await connection.stop();
-                window.location.assign("/group-profile?id=" + id + "&requester=" + owner);
+                navigate("/group-profile?id=" + id + "&requester=" + owner);
                 break;
             default:
                 await connection.invoke("LeaveGroup", owner + "", id + "");

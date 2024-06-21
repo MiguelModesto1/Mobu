@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import PendingRequestItem from "../modular/PendingRequestItem";
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Pagina de pedidos pendentes
  * @returns
  */
 export default function PendingRequestsPage() {
+
+    const navigate = useNavigate();
 
     const queryParams = new URLSearchParams(window.location.search);
 
@@ -40,13 +43,13 @@ export default function PendingRequestsPage() {
                     setShow404Text(true);
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
                 else if (response.status === 403) {
-                    window.location.assign("/error-403");
+                    navigate("/error-403");
                 }
                 else if (response.status === 401) {
-                    window.history.back();
+                    navigate(-1);
                 }
                 return response.json();
             })
@@ -76,14 +79,14 @@ export default function PendingRequestsPage() {
         var expiryIntervalInit = expiry.current - startDate.current;
         
         if (expiryIntervalInit !== 15 * 1000 * 60) {
-            window.location.assign("/");
+            navigate("/");
         }
 
         var expiryInterval = expiry.current - Date.now();
 
         timeout.current = setTimeout(() => {
             logout();
-            window.location.assign("/");
+            navigate("/");
 
         }, expiryInterval);
     }, []);
@@ -106,7 +109,7 @@ export default function PendingRequestsPage() {
             await fetch(process.env.REACT_APP_API_URL + "/get-new-cookie" + queryParams, options)
                 .then(response => {
                     if (response.status === 401) {
-                        window.history.back();
+                        navigate(-1);
                     }
                     return response.json();
                 })
@@ -122,7 +125,7 @@ export default function PendingRequestsPage() {
                     timeout.current = setTimeout(
                         () => {
                             logout();
-                            window.location.assign("/");
+                            navigate("/");
 
                         }, expiryInterval);
                 })
@@ -153,10 +156,10 @@ export default function PendingRequestsPage() {
         await fetch(process.env.REACT_APP_API_URL + "/logout", options)
             .then(response => {
                 if (response.status === 404) {
-                    window.location.assign("/error-404");
+                    navigate("/error-404");
                 }
                 else if (response.status === 500) {
-                    window.location.assign("/error-500");
+                    navigate("/error-500");
                 }
             })
             .catch(err => console.error("error: ", err));
@@ -226,7 +229,7 @@ export default function PendingRequestsPage() {
                         <div className="my-2 d-flex justify-content-evenly">
                             <button className="btn rounded-4"
                                 style={{ backgroundColor: "#3b9ae1", color: "white" }}
-                                onClick={() => window.location.assign(`/messages?id=${owner.current}`)}
+                                onClick={() => navigate(`/messages?id=${owner.current}`)}
                             >
                                 Voltar à lista de mensagens
                             </button>
