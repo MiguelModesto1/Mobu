@@ -94,8 +94,10 @@ export default function GroupProfilePage() {
                 })
                 .catch((err) => { console.error("error: ", err) });
 
+            //conexão signalR
+            var query = `/client/?hub=RealTimeHub`
             connection.current =
-                new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL, {
+                new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL + query, {
                     skipNegotiation: true,
                     transport: HttpTransportType.WebSockets
                 })
