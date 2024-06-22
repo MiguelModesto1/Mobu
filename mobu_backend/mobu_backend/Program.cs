@@ -28,7 +28,9 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 // Adicionar SignalR
-builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true);
+var signalRConnectionString = builder.Configuration.GetConnectionString("AzureSignalR");
+builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true)
+    .AddAzureSignalR(signalRConnectionString);
 
 // Provedor de IDs para o SignalR
 //builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
@@ -100,6 +102,6 @@ app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");
 
-app.MapHub<RealTimeHub>("hub/RealTimeHub");
+app.MapHub<RealTimeHub>("/RealTimeHub");
 
 app.Run();

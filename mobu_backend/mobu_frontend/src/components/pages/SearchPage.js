@@ -66,7 +66,7 @@ export default function SearchPage() {
             .catch((err) => { console.error("error: ", err) });
 
         connection.current =
-            new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL + "/RealTimeHub", {
+            new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL, {
                 skipNegotiation: true,
                 transport: HttpTransportType.WebSockets
             })
