@@ -40,6 +40,11 @@ export default function SearchPage() {
     const [show400Text, setShow400Text] = useState(false);
 
     useEffect(() => {
+
+        const response = fetch('https://mobubackend.service.signalr.net/api/signalr/negotiate');
+        const data = response.json();
+        const { url, accessToken } = data;
+
         var options = {
             method: 'GET',
             redirect: 'follow',
@@ -68,8 +73,8 @@ export default function SearchPage() {
         //conexão signalR
         var query = `/client/?hub=RealTimeHub`
         connection.current =
-            new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL + query, {
-                skipNegotiation: true,
+            new HubConnectionBuilder().withUrl(url, {
+                accessTokenFactory: () => accessToken,
                 transport: HttpTransportType.WebSockets
             })
                 .configureLogging(LogLevel.Debug)
