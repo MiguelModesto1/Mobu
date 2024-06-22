@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 export default function SearchPage() {
 
     const navigate = useNavigate();
+    const url = useRef();
+    const accessToken = useRef();
 
     const queryParams = new URLSearchParams(window.location.search);
 
@@ -41,10 +43,14 @@ export default function SearchPage() {
 
     useEffect(() => {
 
-        const response = fetch(process.env.REACT_APP_API_URL + '/negotiate');
-        const data =  response.json();
-        const { url, accessToken } = data;
-        
+        const fetchToken = async () => {
+            const response = await fetch(process.env.REACT_APP_API_URL + '/negotiate');
+            const data = await response.json();
+            url.current = data.url;
+            accessToken.current = data.accessToken;
+        }
+
+        fetchToken();
 
         var options = {
             method: 'GET',
