@@ -39,18 +39,18 @@ namespace mobu_backend.Services
 		/// <exception cref="Exception">Lançada caso a chave do sendGrid seja nula</exception>
 		public async Task SendEmailAsync(string toEmail, string subject, string message)
 		{
-			var kvUri = "https://mobubackendvault.vault.azure.net/";
+			//var kvUri = "https://mobubackendvault.vault.azure.net/";
 
-			var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+			//var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
 
-			KeyVaultSecret sendGridKey = await client.GetSecretAsync("SendGridKey");
+			//KeyVaultSecret sendGridKey = await client.GetSecretAsync("SendGridKey");
 
-			//if (string.IsNullOrEmpty(Options.SendGridKey))
-			//{
-			//	throw new Exception("Null SendGridKey");
-			//}
+			if (string.IsNullOrEmpty(Options.SendGridKey))
+			{
+				throw new Exception("Null SendGridKey");
+			}
 
-			await Execute(sendGridKey.Value, subject, message, toEmail);
+			await Execute(Options.SendGridKey, subject, message, toEmail);
 		}
 
 		/// <summary>
