@@ -443,7 +443,7 @@ export default function MessagesPage() {
         }
         else {
 
-            const response = fetch(process.env.REACT_APP_API_URL + '/signalr/negotiate');
+            const response = fetch(process.env.REACT_APP_API_URL + '/negotiate');
             const data = response.json();
             const { url, accessToken } = data;
 
