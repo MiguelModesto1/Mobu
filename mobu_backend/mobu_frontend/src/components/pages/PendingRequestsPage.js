@@ -30,9 +30,19 @@ export default function PendingRequestsPage() {
 
     useEffect(() => {
 
-        const response = fetch('https://mobubackend.service.signalr.net/api/signalr/negotiate');
-        const data = response.json();
-        const { url, accessToken } = data;
+        var url;
+        var accessToken;
+
+            fetch('https://mobubackend.service.signalr.net/api/signalr/negotiate')
+                .then(
+                    (response) => {
+                        return response.json();
+                    }
+                )
+                .then(data => {
+                    url = data.url;
+                    accessToken = data.accessToken;
+                });
 
         var options = {
             method: 'GET',
