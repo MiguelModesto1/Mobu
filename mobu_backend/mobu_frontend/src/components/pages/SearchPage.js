@@ -12,8 +12,6 @@ import { useNavigate } from 'react-router-dom';
 export default function SearchPage() {
 
     const navigate = useNavigate();
-    const url = useRef();
-    const accessToken = useRef();
 
     const queryParams = new URLSearchParams(window.location.search);
 
@@ -43,15 +41,6 @@ export default function SearchPage() {
 
     useEffect(() => {
 
-        const fetchToken = async () => {
-            const response = await fetch(process.env.REACT_APP_API_URL + '/negotiate');
-            const data = await response.json();
-            url.current = data.url;
-            accessToken.current = data.accessToken;
-        }
-
-        fetchToken();
-
         var options = {
             method: 'GET',
             redirect: 'follow',
@@ -80,8 +69,8 @@ export default function SearchPage() {
         //conexão signalR
         var query = `/client/?hub=RealTimeHub`
         connection.current =
-            new HubConnectionBuilder().withUrl(url, {
-                accessTokenFactory: () => accessToken,
+            new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL, {
+                skipNegotiation: true,
                 transport: HttpTransportType.WebSockets
             })
                 .configureLogging(LogLevel.Debug)

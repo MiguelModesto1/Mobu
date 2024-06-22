@@ -20,8 +20,6 @@ import { useNavigate } from 'react-router-dom';
 export default function MessagesPage() {
 
     const navigate = useNavigate();
-    const url = useRef();
-    const accessToken = useRef();
 
     // Obtém o parâmetro 'id' da URL
     const queryParamId = new URLSearchParams(window.location.search).get('id');
@@ -445,15 +443,6 @@ export default function MessagesPage() {
         }
         else {
 
-            const fetchToken = async () => {
-                const response = await fetch(process.env.REACT_APP_API_URL + '/negotiate');
-                const data = await response.json();
-                url.current = data.url;
-                accessToken.current = data.accessToken;
-            }
-
-            fetchToken();
-
             var options = {
                 method: "GET",
                 redirect: "follow",
@@ -517,8 +506,8 @@ export default function MessagesPage() {
 
             var query = `/client/?hub=RealTimeHub`
             connection.current =
-                new HubConnectionBuilder().withUrl(url, {
-                    accessTokenFactory: () => accessToken,
+                new HubConnectionBuilder().withUrl(process.env.REACT_APP_HUB_URL, {
+                    skipNegotiation: true,
                     transport: HttpTransportType.WebSockets
                 })
                     .configureLogging(LogLevel.Debug)

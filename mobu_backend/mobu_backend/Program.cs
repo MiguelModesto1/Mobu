@@ -29,14 +29,13 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 // Adicionar SignalR
-var kvUri = "https://mobubackendvault.vault.azure.net/";
+//var kvUri = "https://mobubackendvault.vault.azure.net/";
 
-var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+//var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
 
-KeyVaultSecret signalRConnectionString = await client.GetSecretAsync("SignalRConnectionString");
+//KeyVaultSecret signalRConnectionString = await client.GetSecretAsync("SignalRConnectionString");
 
-builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true)
-	.AddAzureSignalR(signalRConnectionString.Value);
+builder.Services.AddSignalR(cfg => cfg.EnableDetailedErrors = true);
 
 // Provedor de IDs para o SignalR
 //builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
